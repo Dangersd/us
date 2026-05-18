@@ -1,0 +1,46 @@
+{
+    "commentTranslate.targetLanguage": "ru",
+    "css.validate": false,
+    // Курсор
+    // Иконки справа сверху
+    "workbench.layoutControl.enabled": false,
+    "editor.cursorBlinking": "expand",
+    "editor.cursorStyle": "line-thin",
+    "editor.glyphMargin": false,
+    "editor.minimap.enabled": false,
+    "editor.scrollbar.horizontal": "hidden",
+    "editor.scrollbar.vertical": "hidden",
+    "editor.cursorSmoothCaretAnimation": "explicit",
+    "window.commandCenter": false,
+    // шрифт
+    "editor.dragAndDrop": false,
+    "editor.fontSize": 14,
+    "editor.lineHeight": 18,
+    "editor.fontWeight": "400",
+    "editor.fontLigatures": true,
+    "editor.fontFamily": "Cascadia Code, Sarala, Fira Code, DejaVu Sans Mono, IBM Plex Mono, Maple mono, JetBrains Mono, Fira Code iScript, Ubuntu Mono, monospace",
+    //favorite
+    //Maple mono
+    //Cascadia Code
+    //Sarala
+    // SCSS
+    "scss.validate": false,
+    "less.validate": false,
+    "css.customData": [".vscode/css_custom_data.json"],
+    "tailwindCSS.experimental.classRegex": [
+        ["([\"'`][^\"'`]*.*?[\"'`])", "[\"'`]([^\"'`]*).*?[\"'`]"]
+    ],
+    // Explorer
+    "explorer.compactFolders": false,
+    "files.exclude": {
+        "**/.next": true
+    },
+    // prettier
+    "editor.formatOnSave": true,
+    // Кастомизация цветов интерфейса (работает с любой темой)
+    "workbench.colorCustomizations": {
+        "editor.selectionBackground": "#ffffff53",
+        "editor.selectionForeground": "#000000",
+        "editor.selectionHighlightBackground": "#ff89895d"
+    }
+}

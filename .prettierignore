@@ -1,0 +1,26 @@
+# Build outputs
+.next/
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Cache directories
+.cache/
+cache/
+
+# Generated files
+*.lock
+yarn.lock
+package-lock.json
+
+# IDE files
+.vscode/
+.idea/
+
+# Git files
+.git/
+
+# Docker files
+.docker/
