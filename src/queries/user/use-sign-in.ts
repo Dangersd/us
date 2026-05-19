@@ -45,7 +45,6 @@ export function useSignIn() {
         onSuccess: async () => {
             await qc.invalidateQueries({ queryKey: userKeys.all });
             router.replace(HOME_R());
-            router.refresh();
         },
     });
 }

@@ -12,7 +12,9 @@ interface CookieToSet {
 }
 
 function isPublicPath(pathname: string): boolean {
-    return AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(p));
+    return AUTH_PATHS.some(
+        (p) => pathname === p || pathname.startsWith(p + "/"),
+    );
 }
 
 function redirectWithCookies(url: URL, src: NextResponse): NextResponse {

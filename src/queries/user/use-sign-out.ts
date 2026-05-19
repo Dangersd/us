@@ -21,7 +21,6 @@ export function useSignOut() {
         onSuccess: async () => {
             await qc.invalidateQueries({ queryKey: userKeys.all });
             router.replace(LOGIN_R());
-            router.refresh();
         },
     });
 }

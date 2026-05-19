@@ -59,5 +59,9 @@ export function loginReducer(
                 };
             }
             return state;
+        default: {
+            const _exhaustive: never = action;
+            return _exhaustive;
+        }
     }
 }
