@@ -11,6 +11,7 @@
 //
 // Результат — строка вида "M x0 y0 C cx1 cy1, cx2 cy2, x1 y1, C ..., Z".
 // Идемпотентно для одного и того же набора параметров.
+// Caller must ensure points >= 3 (below that the math degenerates).
 
 export interface BlobPathOpts {
     cx: number; // центр X (px)
@@ -46,15 +47,17 @@ function computePoints(opts: BlobPathOpts): Point[] {
     return arr;
 }
 
+const fmt = (v: number) => v.toFixed(2);
+
 export function blobPath(opts: BlobPathOpts): string {
     const pts = computePoints(opts);
     const n = pts.length;
-    // Handle-длина: классическая аппроксимация окружности через cubic-Bezier.
-    // Для каждого сегмента берём среднее r между соседями (точки разной длины
-    // на отклонённом контуре — берём compromise, визуально достаточно).
+    // Handle-длина: классическая аппроксимация окружности через cubic-Bezier
+    // (kappa = (4/3) tan(π/(2N))). Каждый handle использует свой r (a.r и b.r) —
+    // для деформированного контура с переменным радиусом это даёт более точное
+    // соответствие, чем shared-average.
     const k = (4 / 3) * Math.tan(Math.PI / (2 * n));
 
-    const fmt = (v: number) => v.toFixed(2);
     const segments: string[] = [];
     segments.push(`M ${fmt(pts[0].x)} ${fmt(pts[0].y)}`);
     for (let i = 0; i < n; i++) {
