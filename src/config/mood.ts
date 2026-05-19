@@ -14,7 +14,9 @@ import type {
 
 export const EMOTIONS: readonly EmotionMeta[] = [
     { id: "warm", label: "тёплая", color: "#FFC9A8" },
-    { id: "calm", label: "спокойная", color: "#A8C9FF" },
+    // Лиловый per docs/03-rooms/mood.md ("спокойствие → лиловый") + ambient
+    // комнаты #E8B4FF. Софт-пастель того же семейства, что warm/tender.
+    { id: "calm", label: "спокойная", color: "#D8BAF0" },
     { id: "joyful", label: "радостная", color: "#FFD580" },
     { id: "tender", label: "нежная", color: "#F4A5B9" },
     { id: "tired", label: "уставшая", color: "#9B8FAF" },
