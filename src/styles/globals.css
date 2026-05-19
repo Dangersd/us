@@ -1,0 +1,97 @@
+@import "tailwindcss";
+@import "./utilities.css";
+
+@theme {
+    /* === Backgrounds === */
+    --color-bg-base: #0e0b14;
+    --color-bg-surface-1: #1a1620;
+    --color-bg-surface-2: #251f2e;
+    --color-bg-surface-3: #302637;
+
+    /* === Ink === */
+    --color-ink-primary: #f4ede4;
+    --color-ink-secondary: #bfb3a8;
+    --color-ink-muted: #6f6677;
+    --color-ink-disabled: #4a4351;
+
+    /* === Glow / accents === */
+    --color-glow-warm: #ffc9a8;
+    --color-glow-soft: #e8b4ff;
+    --color-glow-gold: #e8c77b;
+
+    /* === Status (тёплые, не iOS-красный) === */
+    --color-status-success: #a8c5a0;
+    --color-status-warn: #e8b47b;
+    --color-status-error: #d89b8a;
+
+    /* === Per-room ambient === */
+    --color-ambient-home: #ffc9a8;
+    --color-ambient-mood: #e8b4ff;
+    --color-ambient-calendar: #f4d08a;
+    --color-ambient-wishlist: #ffb4d1;
+    --color-ambient-profile: #a8c9ff;
+
+    /* === Personal hue === */
+    --color-hue-him: #e8a87c;
+    --color-hue-her: #f4a5b9;
+
+    /* === Borders === */
+    --color-border-warm: rgba(255, 201, 168, 0.08);
+    --color-border-subtle: rgba(244, 237, 228, 0.06);
+    --color-border-focus: rgba(232, 180, 255, 0.4);
+
+    /* === Radii === */
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+
+    /* === Shadows (тёплые, не чёрные) === */
+    --shadow-soft: 0 4px 24px rgba(255, 201, 168, 0.04);
+    --shadow-warm: 0 8px 32px rgba(255, 201, 168, 0.08);
+    --shadow-glow: 0 0 32px rgba(232, 180, 255, 0.12);
+
+    /* === Шрифты === */
+    /* Geist Sans экспортирует CSS-переменную как --font-geist-sans (см. fonts.ts) */
+    --font-display: var(--font-fraunces), Georgia, serif;
+    --font-sans: var(--font-geist-sans), var(--font-inter), system-ui, sans-serif;
+    --font-tabular: var(--font-inter), system-ui, sans-serif;
+
+    /* === Шкала текста (см. docs/design-tz/01-foundations.md) === */
+    --text-xs: 12px;
+    --text-xs--line-height: 16px;
+    --text-sm: 14px;
+    --text-sm--line-height: 20px;
+    --text-base: 16px;
+    --text-base--line-height: 24px;
+    --text-lg: 18px;
+    --text-lg--line-height: 28px;
+    --text-xl: 24px;
+    --text-xl--line-height: 32px;
+    --text-2xl: 32px;
+    --text-2xl--line-height: 40px;
+    --text-3xl: 48px;
+    --text-3xl--line-height: 56px;
+    --text-4xl: 72px;
+    --text-4xl--line-height: 80px;
+}
+
+/* === Base body === */
+:root {
+    color-scheme: dark;
+}
+
+html,
+body {
+    background: var(--color-bg-base);
+    color: var(--color-ink-primary);
+    font-family: var(--font-sans);
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+    background: var(--color-border-focus);
+    color: var(--color-ink-primary);
+}
