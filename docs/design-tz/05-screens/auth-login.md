@@ -60,7 +60,7 @@
 3. Появляется password input + button «Войти» (slide-down + fade-in 400ms)
 4. Background `personal hue` gradient появляется по краям (subtle vignette)
 5. Появляется текст-кнопка «← выбрать другого»
-6. Под капотом email-алиас (`he@us.local` / `she@us.local`) уже в state, hidden
+6. Под капотом email-алиас (`him@us.local` / `her@us.local`) уже в state, hidden
 
 Если она выбрала Я / Он выбрала Она — поправляется текстом-кнопкой выбрать другого.
 

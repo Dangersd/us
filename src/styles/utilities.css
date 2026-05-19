@@ -1,2 +1,44 @@
 /* Кастомные Tailwind-утилиты. Добавляются через @utility — см. .claude/rules/styles.md. */
 /* Phase 0.4: добавятся ambient-градиенты комнат (grid-cols-bar-* и т.п. по необходимости). */
+
+/* Login screen — фон-glow. */
+@utility bg-login-glow-base {
+    background:
+        radial-gradient(
+            circle at 50% 35%,
+            rgba(255, 201, 168, 0.06) 0%,
+            transparent 60%
+        ),
+        var(--color-bg-base);
+}
+
+/* Personal-hue vignette по краям после выбора аккаунта. */
+@utility bg-login-vignette-him {
+    background:
+        radial-gradient(
+            ellipse at 50% 50%,
+            transparent 40%,
+            rgba(232, 168, 124, 0.12) 100%
+        ),
+        radial-gradient(
+            circle at 50% 35%,
+            rgba(232, 168, 124, 0.08) 0%,
+            transparent 55%
+        ),
+        var(--color-bg-base);
+}
+
+@utility bg-login-vignette-her {
+    background:
+        radial-gradient(
+            ellipse at 50% 50%,
+            transparent 40%,
+            rgba(244, 165, 185, 0.12) 100%
+        ),
+        radial-gradient(
+            circle at 50% 35%,
+            rgba(244, 165, 185, 0.08) 0%,
+            transparent 55%
+        ),
+        var(--color-bg-base);
+}
