@@ -18,9 +18,8 @@ export const metadata: Metadata = {
     appleWebApp: {
         capable: true,
         title: "us",
-        // "default" в 0.2: непрозрачный bar, контент не уходит под notch без safe-area-top.
-        // Phase 0.4 переключит на "black-translucent" вместе с TopBar + env(safe-area-inset-top).
-        statusBarStyle: "default",
+        // TopBar держит env(safe-area-inset-top), статус-бар может уйти прозрачным.
+        statusBarStyle: "black-translucent",
     },
 };
 
