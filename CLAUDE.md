@@ -18,6 +18,7 @@ No test framework is configured.
 **us** — a private, two-person digital home. PWA-first web app for a single couple. Mobile-first with strong desktop. Cozy/atmospheric night-mode aesthetic. Russian-only UI.
 
 Stack:
+
 - **Frontend**: Next.js 16 (App Router), React 19, Tailwind CSS v4, Framer Motion
 - **Backend**: Supabase (Postgres + Auth + Storage), Row Level Security as the source of truth
 - **Data**: React Query wrapping Supabase calls (see `.claude/rules/data-layer.md`)
