@@ -25,7 +25,12 @@ export interface BatteryRingProps {
     onValueCommit?: (value: number) => void;
     /** Цвет filled-дотов. По умолчанию currentColor (наследуется через CSS). */
     color?: string;
-    /** Цвет светящегося orb в центре (R12). Default warm amber. */
+    /**
+     * Внутренний stop радиального gradient'а у orb в центре. Внешний stop
+     * всегда `currentColor`. Default `"currentColor"` тоже — orb становится
+     * сплошным circle цвета personal-hue. Передай яркую warm-точку
+     * (например `#FFD5A8`) если хочешь bright→hue glow эффект.
+     */
     centerColor?: string;
     /** Кол-во дотов (default 24). Минимум 1 — guard (R6). */
     segments?: number;
@@ -45,7 +50,7 @@ const BatteryRing = ({
     onChange,
     onValueCommit,
     color = "currentColor",
-    centerColor = "#FFD5A8",
+    centerColor = "currentColor",
     segments = 24,
     size = 128,
     showPercent = true,

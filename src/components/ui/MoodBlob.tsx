@@ -7,7 +7,10 @@ import { motion, useReducedMotion, useTime, useTransform } from "framer-motion";
 import { blobPath } from "~components/ui/blob-path";
 import { cn } from "~libs/utils";
 
-// Animated blob: SVG-path-морфинг с дыханием.
+// Animated mood-blob: SVG-path-морфинг с дыханием. ИСПОЛЬЗУЕТСЯ как живая
+// «клякса»-аватар партнёра в Mood-комнате и partner-glance виджете.
+// НЕ ПУТАТЬ с emotion-picker иконками в ~icons/emotions/ (BlobIcon + 8 *Blob)
+// — те статичные SVG-кружки для пикера эмоций.
 // Контракт: чистая презентация. Form layer в 0.5.4 подгоняет цвет/значения.
 //
 // Маппинг полей mood → визуальные параметры (см. docs/03-rooms/mood.md:50-57):
@@ -17,7 +20,7 @@ import { cn } from "~libs/utils";
 //   stress   → jitter (0 = круг, 1 = искривлённый)
 //   social   → scale (low = compact, high = "надутый")
 
-export interface BlobProps {
+export interface MoodBlobProps {
     /** Базовый hex color (без альфы). Применяется к fill блоба и aura. */
     color: string;
     /** 0..100, default 50. Управляет периодом дыхания и aspectY. */
@@ -40,7 +43,7 @@ const norm = (v: number) => {
     return Math.min(1, Math.max(0, v / 100));
 };
 
-const Blob = ({
+const MoodBlob = ({
     color,
     energy = 50,
     stress = 0,
@@ -49,7 +52,7 @@ const Blob = ({
     aura = true,
     className,
     "aria-label": ariaLabel,
-}: BlobProps) => {
+}: MoodBlobProps) => {
     const reduceMotion = useReducedMotion();
 
     const e = norm(energy);
@@ -80,10 +83,10 @@ const Blob = ({
 
     // useId — стабильный per-instance ID, безопасный в SVG url(#...) после
     // sanitize (React 19 useId возвращает с двоеточиями/брекетами). Раньше
-    // ID строился от `color`, что коллидило при двух Blob'ах одного цвета
-    // на одной странице (partner-glance в 0.5.5).
+    // ID строился от `color`, что коллидило при двух MoodBlob'ах одного
+    // цвета на одной странице (partner-glance в 0.5.5).
     const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
-    const gradId = `blob-grad-${uid}`;
+    const gradId = `mood-blob-grad-${uid}`;
     const auraId = `${gradId}-aura`;
 
     return (
@@ -116,4 +119,4 @@ const Blob = ({
     );
 };
 
-export default Blob;
+export default MoodBlob;
