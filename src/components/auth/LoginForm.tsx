@@ -86,7 +86,7 @@ const LoginForm = () => {
             <div className={cn("flex flex-row gap-4")}>
                 <AccountPickerButton
                     gender="male"
-                    label="Я"
+                    label="Он"
                     state={pickerStateFor("male")}
                     disabled={isSubmitting}
                     onClick={() => handlePick("male")}
