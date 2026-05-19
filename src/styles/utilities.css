@@ -1,5 +1,4 @@
 /* Кастомные Tailwind-утилиты. Добавляются через @utility — см. .claude/rules/styles.md. */
-/* Phase 0.4: добавятся ambient-градиенты комнат (grid-cols-bar-* и т.п. по необходимости). */
 
 /* Login screen — фон-glow. */
 @utility bg-login-glow-base {
@@ -59,4 +58,68 @@
 }
 @utility bg-slider-stress-v {
     background: linear-gradient(to top, #a8c5a0 0%, #e8b47b 100%);
+}
+
+/* === Per-room ambient — radial glow center-top поверх bg-base === */
+/* Используется RoomShell для атмосферы комнаты. Дыхание/анимация — в v0.5+. */
+
+@utility bg-ambient-home {
+    background:
+        radial-gradient(
+            ellipse 70% 60% at 50% 0%,
+            rgba(255, 201, 168, 0.15) 0%,
+            transparent 70%
+        ),
+        var(--color-bg-base);
+}
+
+@utility bg-ambient-mood {
+    background:
+        radial-gradient(
+            ellipse 70% 60% at 50% 0%,
+            rgba(232, 180, 255, 0.15) 0%,
+            transparent 70%
+        ),
+        var(--color-bg-base);
+}
+
+@utility bg-ambient-calendar {
+    background:
+        radial-gradient(
+            ellipse 70% 60% at 50% 0%,
+            rgba(244, 208, 138, 0.15) 0%,
+            transparent 70%
+        ),
+        var(--color-bg-base);
+}
+
+@utility bg-ambient-wishlist {
+    background:
+        radial-gradient(
+            ellipse 70% 60% at 50% 0%,
+            rgba(255, 180, 209, 0.15) 0%,
+            transparent 70%
+        ),
+        var(--color-bg-base);
+}
+
+@utility bg-ambient-profile {
+    background:
+        radial-gradient(
+            ellipse 70% 60% at 50% 0%,
+            rgba(168, 201, 255, 0.15) 0%,
+            transparent 70%
+        ),
+        var(--color-bg-base);
+}
+
+/* === Personal-hue градиенты для аватаров (TopBar + Sidebar profile-секция) === */
+/* Также пригодится в 0.5+ для mood-blob'ов. */
+
+@utility bg-personal-hue-him {
+    background: radial-gradient(circle at 30% 30%, #ffd5a8 0%, #e8a87c 100%);
+}
+
+@utility bg-personal-hue-her {
+    background: radial-gradient(circle at 30% 30%, #ffc4d2 0%, #f4a5b9 100%);
 }

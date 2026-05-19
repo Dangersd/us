@@ -1,9 +1,12 @@
+import type { ReactNode } from "react";
+
 import LoginShell from "~components/auth/LoginShell";
 import LogoutButton from "~components/auth/LogoutButton";
+import AppShell from "~components/shell/AppShell";
 import { cn } from "~libs/utils";
 import { fetchCurrentUserServer } from "~queries/user/fetch-current-user.server";
 
-const HomePage = async () => {
+const RoomsLayout = async ({ children }: { children: ReactNode }) => {
     const user = await fetchCurrentUserServer();
 
     // Orphan-state: auth.user есть, но row в public.users отсутствует.
@@ -32,25 +35,7 @@ const HomePage = async () => {
         );
     }
 
-    return (
-        <LoginShell hue={user.gender}>
-            <div className={cn("flex flex-col items-center gap-6 text-center")}>
-                <h1
-                    className={cn(
-                        "font-display text-ink-primary text-3xl font-medium",
-                        "tracking-[-0.01em]",
-                    )}
-                >
-                    Привет, {user.displayName}
-                </h1>
-                <p className={cn("text-ink-secondary text-base max-w-sm")}>
-                    Дом ещё пустой — комнаты появятся в Phase 0.4. Что дальше:
-                    смотри docs/06-roadmap.md.
-                </p>
-                <LogoutButton variant="soft" size="md" />
-            </div>
-        </LoginShell>
-    );
+    return <AppShell user={user}>{children}</AppShell>;
 };
 
-export default HomePage;
+export default RoomsLayout;
