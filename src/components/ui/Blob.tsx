@@ -1,5 +1,7 @@
 "use client";
 
+import { useId } from "react";
+
 import { motion, useReducedMotion, useTime, useTransform } from "framer-motion";
 
 import { blobPath } from "~components/ui/blob-path";
@@ -15,7 +17,7 @@ import { cn } from "~libs/utils";
 //   stress   → jitter (0 = круг, 1 = искривлённый)
 //   social   → scale (low = compact, high = "надутый")
 
-interface BlobProps {
+export interface BlobProps {
     /** Базовый hex color (без альфы). Применяется к fill блоба и aura. */
     color: string;
     /** 0..100, default 50. Управляет периодом дыхания и aspectY. */
@@ -76,7 +78,12 @@ const Blob = ({
         return blobPath({ cx, cy, radius, points: 8, jitter, aspectY, phase });
     });
 
-    const gradId = `blob-grad-${color.replace("#", "")}`;
+    // useId — стабильный per-instance ID, безопасный в SVG url(#...) после
+    // sanitize (React 19 useId возвращает с двоеточиями/брекетами). Раньше
+    // ID строился от `color`, что коллидило при двух Blob'ах одного цвета
+    // на одной странице (partner-glance в 0.5.5).
+    const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
+    const gradId = `blob-grad-${uid}`;
     const auraId = `${gradId}-aura`;
 
     return (

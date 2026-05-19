@@ -6,7 +6,7 @@ export {
     default as BatteryRing,
     type BatteryRingProps,
 } from "~components/ui/BatteryRing";
-export { default as Blob } from "~components/ui/Blob";
+export { default as Blob, type BlobProps } from "~components/ui/Blob";
 export { default as Button, type ButtonProps } from "~components/ui/Button";
 export { default as Card, type CardProps } from "~components/ui/Card";
 export { default as LogoUs } from "~components/ui/LogoUs";
