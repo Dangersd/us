@@ -2,30 +2,34 @@ import Link from "next/link";
 import { type VariantProps, tv } from "tailwind-variants";
 
 import type { RoomConfig } from "~config/rooms";
+import { cn } from "~libs/utils";
 
 // RSC — никаких хуков, active передаётся пропсом из BottomNav.
 
 const item = tv({
     slots: {
-        wrapper: [
+        wrapper: cn(
             "inline-flex h-12 w-14 items-center justify-center",
             "rounded-md transition-colors duration-300",
             "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus",
-        ].join(" "),
-        icon: [
+        ),
+        icon: cn(
             "h-6 w-6 transition-[color,transform,filter] duration-300",
             "ease-[cubic-bezier(0.22,1,0.36,1)]",
-        ].join(" "),
+        ),
     },
     variants: {
         active: {
             true: {
-                wrapper: "bg-border-warm",
-                icon: "text-ink-primary scale-110 drop-shadow-[0_0_10px_rgba(255,201,168,0.35)]",
+                wrapper: cn("bg-border-warm"),
+                icon: cn(
+                    "text-ink-primary scale-110",
+                    "drop-shadow-[0_0_10px_rgba(255,201,168,0.35)]",
+                ),
             },
             false: {
-                wrapper: "bg-transparent",
-                icon: "text-ink-secondary",
+                wrapper: cn("bg-transparent"),
+                icon: cn("text-ink-secondary"),
             },
         },
     },
