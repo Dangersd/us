@@ -191,7 +191,7 @@ cycle_settings (
 ## Auth
 
 - Supabase email + password (стандартный flow)
-- Регистрации нет — два аккаунта создаются вручную через Supabase admin (UI или CLI) с **email-алиасами** вида `he@us.local` / `she@us.local`
+- Регистрации нет — два аккаунта создаются вручную через Supabase admin (UI или CLI) с **email-алиасами** вида `him@us.local` / `her@us.local`
 - Login screen: две кнопки «Я» / «Она», каждая автозаполняет соответствующий email-алиас в скрытое поле; пользователю остаётся ввести только пароль
 - Email-алиас существует только под капотом (Supabase Auth требует email-поле). В UI Профиля и нигде ещё email не отображается
 - После login — redirect в Дом
