@@ -95,6 +95,12 @@ const BatteryRing = ({
         onChange?.(valueFromPointer(event.clientX, event.clientY));
     };
     const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
+        // /review: если disabled флипнулся mid-drag — не отправляем
+        // post-disable value через onValueCommit (контракт disabled).
+        if (disabled) {
+            setDragging(false);
+            return;
+        }
         if (!dragging) return;
         setDragging(false);
         const next = valueFromPointer(event.clientX, event.clientY);
@@ -106,10 +112,12 @@ const BatteryRing = ({
         if (disabled) return;
         const step = event.shiftKey ? 10 : 100 / safeSegments;
         let next: number | null = null;
+        // /review: Math.round чтобы aria-valuenow и %-label не показывали
+        // float'ы вроде "45.83333333" при default segments=24 (step≈4.166).
         if (event.key === "ArrowLeft" || event.key === "ArrowDown")
-            next = clampBatteryValue(safeValue - step);
+            next = clampBatteryValue(Math.round(safeValue - step));
         else if (event.key === "ArrowRight" || event.key === "ArrowUp")
-            next = clampBatteryValue(safeValue + step);
+            next = clampBatteryValue(Math.round(safeValue + step));
         else if (event.key === "Home") next = 0;
         else if (event.key === "End") next = 100;
         if (next === null) return;

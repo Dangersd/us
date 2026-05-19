@@ -85,6 +85,12 @@ const Slider = ({
         onChange?.(next);
     };
     const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
+        // /review: если disabled флипнулся mid-drag — не отправляем
+        // post-disable value через onValueCommit.
+        if (disabled) {
+            setDragging(false);
+            return;
+        }
         if (!dragging) return;
         setDragging(false);
         const next = valueFromPointer(event.clientX, event.clientY);

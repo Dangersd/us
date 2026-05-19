@@ -19,7 +19,9 @@ export const sliderStyles = tv({
         ),
         track: cn(
             "absolute rounded-full bg-bg-surface-2",
-            "transition-colors duration-200",
+            // /review: motion-safe чтобы prefers-reduced-motion гасил
+            // и CSS color-transition, не только framer-motion durations.
+            "motion-safe:transition-colors motion-safe:duration-200",
         ),
         fill: cn("absolute rounded-full"),
         handle: cn(

@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { motion } from "framer-motion";
 
 import { dotAngle } from "~components/ui/battery-ring-utils";
@@ -35,51 +37,81 @@ const BatteryRingVisual = ({
     orbId,
     centerColor,
     reduceMotion,
-}: BatteryRingVisualProps) => (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden>
-        <defs>
-            <radialGradient id={haloId} cx="50%" cy="50%" r="55%">
-                <stop offset="0%" stopColor="currentColor" stopOpacity="0.35" />
-                <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-            </radialGradient>
-            <radialGradient id={orbId} cx="40%" cy="40%" r="60%">
-                <stop offset="0%" stopColor={centerColor} />
-                <stop offset="100%" stopColor="currentColor" />
-            </radialGradient>
-        </defs>
-        <circle cx={cx} cy={cy} r={size / 2} fill={`url(#${haloId})`} />
-        {Array.from({ length: segments }).map((_, i) => {
-            const a = dotAngle(i, segments);
-            const dx = cx + Math.cos(a) * ringR;
-            const dy = cy + Math.sin(a) * ringR;
-            const isFilled = i < filled;
-            return (
-                <circle
-                    key={i}
-                    cx={dx}
-                    cy={dy}
-                    r={dotSize / 2}
-                    // R9: fallback цвет если Tailwind v4 var не подмонтирован.
-                    fill={
-                        isFilled
-                            ? "currentColor"
-                            : "var(--color-bg-surface-3, #302637)"
-                    }
-                    opacity={isFilled ? 1 : 0.7}
-                />
-            );
-        })}
-        <motion.circle
-            cx={cx}
-            cy={cy}
-            r={size * 0.22}
-            fill={`url(#${orbId})`}
-            opacity={0.85}
-            animate={reduceMotion ? undefined : { scale: [1, 1.04, 1] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            style={{ transformOrigin: `${cx}px ${cy}px` }}
-        />
-    </svg>
-);
+}: BatteryRingVisualProps) => {
+    // /review: dot-позиции зависят только от geometry-props (segments/cx/cy/ringR).
+    // Без useMemo каждый pointermove (60-120 hz) перестраивает 24 объекта.
+    const dotPositions = useMemo(
+        () =>
+            Array.from({ length: segments }, (_, i) => {
+                const a = dotAngle(i, segments);
+                return {
+                    dx: cx + Math.cos(a) * ringR,
+                    dy: cy + Math.sin(a) * ringR,
+                };
+            }),
+        [segments, cx, cy, ringR],
+    );
+
+    return (
+        <svg
+            width={size}
+            height={size}
+            viewBox={`0 0 ${size} ${size}`}
+            aria-hidden
+        >
+            <defs>
+                <radialGradient id={haloId} cx="50%" cy="50%" r="55%">
+                    <stop
+                        offset="0%"
+                        stopColor="currentColor"
+                        stopOpacity="0.35"
+                    />
+                    <stop
+                        offset="100%"
+                        stopColor="currentColor"
+                        stopOpacity="0"
+                    />
+                </radialGradient>
+                <radialGradient id={orbId} cx="40%" cy="40%" r="60%">
+                    <stop offset="0%" stopColor={centerColor} />
+                    <stop offset="100%" stopColor="currentColor" />
+                </radialGradient>
+            </defs>
+            <circle cx={cx} cy={cy} r={size / 2} fill={`url(#${haloId})`} />
+            {dotPositions.map((pos, i) => {
+                const isFilled = i < filled;
+                return (
+                    <circle
+                        key={i}
+                        cx={pos.dx}
+                        cy={pos.dy}
+                        r={dotSize / 2}
+                        // R9: fallback цвет если Tailwind v4 var не подмонтирован.
+                        fill={
+                            isFilled
+                                ? "currentColor"
+                                : "var(--color-bg-surface-3, #302637)"
+                        }
+                        opacity={isFilled ? 1 : 0.7}
+                    />
+                );
+            })}
+            <motion.circle
+                cx={cx}
+                cy={cy}
+                r={size * 0.22}
+                fill={`url(#${orbId})`}
+                opacity={0.85}
+                animate={reduceMotion ? undefined : { scale: [1, 1.04, 1] }}
+                transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                }}
+                style={{ transformOrigin: `${cx}px ${cy}px` }}
+            />
+        </svg>
+    );
+};
 
 export default BatteryRingVisual;
