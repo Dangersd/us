@@ -99,17 +99,9 @@
 /* Также пригодится в 0.5+ для mood-blob'ов. */
 
 @utility bg-personal-hue-him {
-    background: radial-gradient(
-        circle at 30% 30%,
-        #ffd5a8 0%,
-        #e8a87c 100%
-    );
+    background: radial-gradient(circle at 30% 30%, #ffd5a8 0%, #e8a87c 100%);
 }
 
 @utility bg-personal-hue-her {
-    background: radial-gradient(
-        circle at 30% 30%,
-        #ffc4d2 0%,
-        #f4a5b9 100%
-    );
+    background: radial-gradient(circle at 30% 30%, #ffc4d2 0%, #f4a5b9 100%);
 }
