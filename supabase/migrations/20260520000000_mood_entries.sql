@@ -92,10 +92,26 @@ returns trigger
 language plpgsql security definer set search_path = public
 as $$
 begin
-    -- couple_id is derived from the user, not user-supplied.
-    new.couple_id := (select couple_id from users where id = new.user_id);
-    if new.couple_id is null then
-        raise exception 'user % has no couple_id', new.user_id;
+    if tg_op = 'INSERT' then
+        -- couple_id derived from user on INSERT only.
+        -- On UPDATE we keep the original couple_id — if a user is later
+        -- reassigned to a different couple, historical rows must NOT be
+        -- silently re-attributed to the new couple (trust-boundary leak
+        -- via get_partner_mood_range() in Phase 0.5.5).
+        new.couple_id := (select couple_id from users where id = new.user_id);
+        if new.couple_id is null then
+            raise exception 'user % has no couple_id', new.user_id;
+        end if;
+    elsif tg_op = 'UPDATE' then
+        -- Identity fields are immutable. Re-keying a row (changing user_id
+        -- or date) bypasses the per-user-per-day upsert model and would
+        -- let a client move historical rows around.
+        if new.user_id <> old.user_id then
+            raise exception 'mood_entries.user_id is immutable';
+        end if;
+        if new.date <> old.date then
+            raise exception 'mood_entries.date is immutable';
+        end if;
     end if;
 
     new.updated_at := now();
