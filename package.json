@@ -7,7 +7,7 @@
         "build": "yarn prettier && next build",
         "start": "next start",
         "lint": "eslint . && tsc --noEmit --skipLibCheck",
-        "prettier": "npx prettier --write 'src/**/*.{ts,tsx,js,jsx,json,md,html,css,scss,yaml,yml}' 'types/**/*.{ts,tsx,js,jsx,json,md}' '*.{ts,tsx,js,jsx,json,md,html,css,scss,yaml,yml,mjs}'"
+        "prettier": "npx prettier --write --no-error-on-unmatched-pattern 'src/**/*.{ts,tsx,js,jsx,json,md,html,css,scss,yaml,yml}' 'types/**/*.{ts,tsx,js,jsx,json,md}' '*.{ts,tsx,js,jsx,json,md,html,css,scss,yaml,yml,mjs}'"
     },
     "dependencies": {
         "@hookform/resolvers": "^4.1.3",

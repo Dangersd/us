@@ -1,0 +1,26 @@
+{
+    "name": "us",
+    "short_name": "us",
+    "description": "Цифровой дом для двоих",
+    "lang": "ru",
+    "dir": "ltr",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#0E0B14",
+    "theme_color": "#0E0B14",
+    "icons": [
+        {
+            "src": "/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        }
+    ]
+}

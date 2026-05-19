@@ -54,7 +54,8 @@
     /* === Шрифты === */
     /* Geist Sans экспортирует CSS-переменную как --font-geist-sans (см. fonts.ts) */
     --font-display: var(--font-fraunces), Georgia, serif;
-    --font-sans: var(--font-geist-sans), var(--font-inter), system-ui, sans-serif;
+    --font-sans:
+        var(--font-geist-sans), var(--font-inter), system-ui, sans-serif;
     --font-tabular: var(--font-inter), system-ui, sans-serif;
 
     /* === Шкала текста (см. docs/design-tz/01-foundations.md) === */

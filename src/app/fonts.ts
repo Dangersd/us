@@ -1,9 +1,11 @@
-import { Fraunces, Inter } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
+import { Fraunces, Inter } from "next/font/google";
 
-// Variable, weights 400/500. Кириллица в поставке.
+// Variable, weights 400/500. Fraunces в Google Fonts CDN не отдаёт кириллицу —
+// для RU-заголовков сработает fallback (Georgia / system serif). v0.2 cycle
+// рассмотрит self-host vendored TTF с кириллическими глифами.
 export const fraunces = Fraunces({
-    subsets: ["latin", "cyrillic"],
+    subsets: ["latin", "latin-ext"],
     weight: ["400", "500"],
     variable: "--font-fraunces",
     display: "swap",
