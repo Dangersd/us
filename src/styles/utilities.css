@@ -42,3 +42,21 @@
         ),
         var(--color-bg-base);
 }
+
+/* Slider tone gradients. Используются <Slider /> для fill-полосы.
+ * Цвета — из untitled.pen frame Jtmiv → check-in card (r4vKK, Qwef1).
+ * Энергия: тусклый синий → тёплый янтарь.
+ * Стресс:  спокойный шалфей → насыщенный янтарь. */
+
+@utility bg-slider-energy-h {
+    background: linear-gradient(to right, #3a4866 0%, #ffc9a8 100%);
+}
+@utility bg-slider-energy-v {
+    background: linear-gradient(to top, #3a4866 0%, #ffc9a8 100%);
+}
+@utility bg-slider-stress-h {
+    background: linear-gradient(to right, #a8c5a0 0%, #e8b47b 100%);
+}
+@utility bg-slider-stress-v {
+    background: linear-gradient(to top, #a8c5a0 0%, #e8b47b 100%);
+}
