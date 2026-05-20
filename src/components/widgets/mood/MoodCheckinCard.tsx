@@ -70,7 +70,7 @@ const MoodCheckinCard = ({
     return (
         <Card
             className={cn(
-                "flex flex-col gap-6 p-6 rounded-lg max-w-sm mx-auto w-full text-left",
+                "flex flex-col gap-6 p-6 rounded-lg mx-auto w-full text-left",
                 className,
             )}
         >

@@ -70,35 +70,37 @@ const MoodPairGlance = ({
         <div className={cn("flex flex-col items-stretch gap-3 mb-6")}>
             <div
                 className={cn(
-                    "relative overflow-hidden isolate",
+                    "relative overflow-hidden",
                     "rounded-[32px] p-6",
                     "bg-bg-surface-1/85 backdrop-blur-xl",
                     "border border-border-warm",
                     "text-glow-soft",
                 )}
             >
-                {/* mesh-lilac (ITyMn) — слева-сверху ambient свет */}
+                {/* mesh-lilac (ITyMn) — слева-сверху ambient свет.
+                    blur-3xl делает мягкую glowing-сферу вместо жёсткого диска.
+                    Opacity 70 + blur = тёплый vibe позади контента (z-0). */}
                 <div
                     aria-hidden
                     className={cn(
-                        "pointer-events-none absolute -left-3 top-2 -z-10",
+                        "pointer-events-none absolute -left-8 top-0 z-0",
                         "h-57.5 w-57.5 rounded-full",
-                        "bg-mesh-lilac opacity-55",
+                        "bg-mesh-lilac opacity-70 blur-3xl",
                     )}
                 />
                 {/* mesh-rose (L3qDg) — справа-снизу */}
                 <div
                     aria-hidden
                     className={cn(
-                        "pointer-events-none absolute right-0 top-20 -z-10",
+                        "pointer-events-none absolute right-0 top-20 z-0",
                         "h-60 w-60 rounded-full",
-                        "bg-mesh-rose opacity-50",
+                        "bg-mesh-rose opacity-60 blur-3xl",
                     )}
                 />
 
                 <div
                     className={cn(
-                        "relative z-0 flex items-start justify-center gap-4 md:gap-8",
+                        "relative z-10 flex items-start justify-center gap-4 md:gap-8",
                     )}
                 >
                     <PairColumn
