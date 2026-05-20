@@ -9,9 +9,10 @@ import MoodBlob from "~components/ui/MoodBlob";
 import MoodThread from "~components/widgets/pair-glance/MoodThread";
 import PartnerMoodReadout from "~components/widgets/pair-glance/PartnerMoodReadout";
 import PrivacyPill from "~components/widgets/pair-glance/PrivacyPill";
-import { EMOTION_BY_ID } from "~config/mood";
+import { EMOTION_BY_ID, emotionLabel } from "~config/mood";
 import { useTodayDate } from "~hooks/use-today-date";
 import type { MoodEntry } from "~interfaces/mood";
+import type { Gender } from "~interfaces/user";
 import { cn } from "~libs/utils";
 import { usePartnerTodayMood } from "~queries/mood/use-partner-today-mood";
 import { useTodayMood } from "~queries/mood/use-today-mood";
@@ -105,6 +106,7 @@ const MoodPairGlance = ({
                 >
                     <PairColumn
                         name={myName}
+                        gender={currentUser.data?.gender ?? null}
                         entry={me.data ?? null}
                         fallbackColor={userFallbackColor}
                         missingLabel="ещё не отметился(ась)"
@@ -120,6 +122,7 @@ const MoodPairGlance = ({
 
                     <PairColumn
                         name={partnerName}
+                        gender={partnerProfile.data?.gender ?? null}
                         entry={partner.data ?? null}
                         fallbackColor={partnerFallbackColor}
                         placeholderColor={PLACEHOLDER_COLOR}
@@ -148,6 +151,7 @@ const MoodPairGlance = ({
                         <PartnerMoodReadout
                             entry={partner.data}
                             partnerName={partnerName}
+                            partnerGender={partnerProfile.data?.gender ?? null}
                         />
                     </motion.div>
                 ) : null}
@@ -160,6 +164,8 @@ const MoodPairGlance = ({
 
 interface PairColumnProps {
     name: string;
+    /** Гендер владельца entry — для склонения эмоции. */
+    gender: Gender | null;
     entry: MoodEntry | null;
     fallbackColor: string;
     placeholderColor?: string;
@@ -171,6 +177,7 @@ interface PairColumnProps {
 
 const PairColumn = ({
     name,
+    gender,
     entry,
     fallbackColor,
     placeholderColor,
@@ -186,8 +193,8 @@ const PairColumn = ({
             : fallbackColor
         : (placeholderColor ?? fallbackColor);
 
-    const emotionLabel =
-        hasEntry && entry.emotion ? EMOTION_BY_ID[entry.emotion].label : null;
+    const emotionText =
+        hasEntry && entry.emotion ? emotionLabel(entry.emotion, gender) : null;
 
     const content = (
         <>
@@ -220,7 +227,7 @@ const PairColumn = ({
                         "text-ink-secondary text-[13px]",
                     )}
                 >
-                    {emotionLabel ?? "без эмоции"}
+                    {emotionText ?? "без эмоции"}
                 </p>
             ) : (
                 <p className={cn("font-sans text-ink-muted text-[13px]")}>

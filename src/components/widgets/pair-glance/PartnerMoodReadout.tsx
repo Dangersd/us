@@ -4,21 +4,24 @@ import { tv } from "tailwind-variants";
 
 import { renderMoodField } from "~components/widgets/pair-glance/render-mood-field";
 import {
-    EMOTION_BY_ID,
     ENERGY_LABELS,
     SOCIAL_BATTERY_LABELS,
     STRESS_LABELS,
+    emotionLabel,
     energyBucket,
     socialBatteryBucket,
     stressBucket,
 } from "~config/mood";
 import type { MoodEntry } from "~interfaces/mood";
+import type { Gender } from "~interfaces/user";
 import { cn } from "~libs/utils";
 
 interface PartnerMoodReadoutProps {
     entry: MoodEntry;
     /** Имя партнёра для aria-label (Design polish #6). */
     partnerName: string;
+    /** Гендер партнёра — для склонения эмоции. */
+    partnerGender: Gender | null;
     className?: string;
 }
 
@@ -43,6 +46,7 @@ const HIDDEN_DASH = "—";
 const PartnerMoodReadout = ({
     entry,
     partnerName,
+    partnerGender,
     className,
 }: PartnerMoodReadoutProps) => {
     const { row, label, value, hidden, root, empty } = styles();
@@ -50,7 +54,9 @@ const PartnerMoodReadout = ({
     // emotion privacy в эффекте бинарна: full = показываем эмоцию, иначе
     // прячем (vibe не имеет смысла — эмоция уже бакет-лейбл, не число).
     const emotionShown = entry.visibility.emotion === "full" && entry.emotion;
-    const emotionMeta = emotionShown ? EMOTION_BY_ID[entry.emotion!] : null;
+    const emotionText = emotionShown
+        ? emotionLabel(entry.emotion!, partnerGender)
+        : null;
 
     const energyB = energyBucket(entry.energy);
     const stressB = stressBucket(entry.stress);
@@ -116,8 +122,8 @@ const PartnerMoodReadout = ({
         >
             <div className={row()}>
                 <span className={label()}>эмоция</span>
-                {emotionMeta ? (
-                    <span className={value()}>{emotionMeta.label}</span>
+                {emotionText ? (
+                    <span className={value()}>{emotionText}</span>
                 ) : (
                     <span className={hidden()}>{HIDDEN_DASH}</span>
                 )}

@@ -84,6 +84,7 @@ const MoodPage = async () => {
                     <MoodCheckinCard
                         userFallbackColor={userFallbackColor}
                         userBrightColor={userBrightColor}
+                        userGender={user?.gender ?? null}
                     />
                 </BreathProvider>
             </RoomShell>

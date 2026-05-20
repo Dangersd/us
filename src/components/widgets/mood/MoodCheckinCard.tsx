@@ -11,6 +11,7 @@ import MoodCardHeader from "~components/widgets/mood/MoodCardHeader";
 import MoodCardSection from "~components/widgets/mood/MoodCardSection";
 import MoodErrorPill from "~components/widgets/mood/MoodErrorPill";
 import { useTodayDate } from "~hooks/use-today-date";
+import type { Gender } from "~interfaces/user";
 import { cn } from "~libs/utils";
 import { useMoodDraft } from "~queries/mood/use-mood-draft";
 
@@ -21,6 +22,8 @@ interface MoodCheckinCardProps {
     userFallbackColor: string;
     /** Светлый stop для orb BatteryRing (per design — gradient bright→base). */
     userBrightColor: string;
+    /** Гендер юзера — для склонения emotion-label'ов в EmotionPicker. */
+    userGender: Gender | null;
     className?: string;
 }
 
@@ -31,6 +34,7 @@ const MoodCheckinCard = ({
     date: dateProp,
     userFallbackColor,
     userBrightColor,
+    userGender,
     className,
 }: MoodCheckinCardProps) => {
     const todayDate = useTodayDate();
@@ -94,6 +98,7 @@ const MoodCheckinCard = ({
                 <EmotionPicker
                     value={draft.emotion}
                     onChange={(e) => draft.commitEmotion(e)}
+                    gender={userGender}
                     disabled={emotionHidden}
                 />
             </MoodCardSection>

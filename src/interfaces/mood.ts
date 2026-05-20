@@ -1,5 +1,6 @@
 // Domain-types для Mood-домена.
 // DB-shape (snake_case rows) живёт в ~queries/mood/map-mood-row.ts (Phase 0.5.2).
+import type { Gender } from "~interfaces/user";
 
 export type EmotionId =
     | "warm"
@@ -40,9 +41,12 @@ export type EnergyBucket = "drained" | "calm" | "energetic" | "fire";
 export type StressBucket = "relaxed" | "neutral" | "tense" | "burning";
 export type SocialBatteryBucket = "empty" | "low" | "open" | "full";
 
-// UI-meta для каждой эмоции (RU-label + цвет для blob fill / glow).
+// UI-meta для каждой эмоции (RU-label с гендерными формами + цвет для
+// blob fill / glow). Лейбл — Record<Gender, string>, потому что RU-прилагательные
+// склоняются («спокойная» / «спокойный»). Резолвить через emotionLabel() из
+// ~config/mood, который умеет fallback при отсутствии gender.
 export interface EmotionMeta {
     id: EmotionId;
-    label: string;
+    labels: Record<Gender, string>;
     color: string; // hex
 }
