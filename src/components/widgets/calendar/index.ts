@@ -15,3 +15,8 @@ export {
     type CalendarEventModalProps,
     useOpenEventModal,
 } from "~components/widgets/calendar/event-modal";
+export {
+    CalendarIdeaModal,
+    type CalendarIdeaModalProps,
+    useOpenIdeaModal,
+} from "~components/widgets/calendar/idea-modal";
