@@ -3,7 +3,6 @@ import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import RoomShell from "~components/shell/RoomShell";
 import {
     CalendarAgendaView,
-    CalendarEventDrawer,
     CalendarHeader,
     CalendarMonthGrid,
 } from "~components/widgets/calendar";
@@ -35,12 +34,13 @@ import { fetchCurrentUserServer } from "~queries/user/fetch-current-user.server"
 import { userKeys } from "~queries/user/keys";
 
 interface CalendarPageProps {
+    // event/idea ушли из URL — модалки управляются ModalProvider (см.
+    // .claude/rules/modals.md). В URL остаются только navigation-state:
+    // view (agenda/month), m (месяц), d (выбранный день в month grid).
     searchParams: Promise<{
         view?: string;
         m?: string;
-        event?: string;
         d?: string;
-        idea?: string;
     }>;
 }
 
@@ -139,7 +139,6 @@ const CalendarPage = async ({ searchParams }: CalendarPageProps) => {
                         partnerGender={partner?.gender ?? null}
                     />
                 )}
-                <CalendarEventDrawer />
             </RoomShell>
         </HydrationBoundary>
     );

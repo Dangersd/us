@@ -66,7 +66,7 @@ const CalendarAgendaView = ({
             />
             <CalendarIdeasDivider />
             <CalendarIdeasList ideas={ideas} />
-            <CalendarFab />
+            <CalendarFab defaultDate={today} />
         </div>
     );
 };

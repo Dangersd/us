@@ -1,11 +1,24 @@
 "use client";
 
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode, useCallback } from "react";
 
 import { AnimatePresence, motion } from "framer-motion";
 import { tv } from "tailwind-variants";
 
 import { cn } from "~libs/utils";
+
+// Bottom-sheet вариант модалки. Slide-up из низа, swipe-handle сверху,
+// backdrop click и handle-tap закрывают. Используется для form-flow на
+// мобилах (calendar event editor, future wishlist edit). Desktop тоже
+// рендерит снизу — единый pattern.
+
+interface BottomSheetModalProps {
+    open: boolean;
+    onClose: () => void;
+    children: ReactNode;
+    ariaLabel?: string;
+    isDismissable?: boolean;
+}
 
 const styles = tv({
     slots: {
@@ -24,30 +37,18 @@ const styles = tv({
     },
 });
 
-interface SheetProps {
-    open: boolean;
-    onClose: () => void;
-    children: ReactNode;
-    ariaLabel?: string;
-}
-
-const Sheet = ({ open, onClose, children, ariaLabel }: SheetProps) => {
+const BottomSheetModal = ({
+    open,
+    onClose,
+    children,
+    ariaLabel,
+    isDismissable = true,
+}: BottomSheetModalProps) => {
     const { backdrop, sheet, handle, body } = styles();
 
-    // Escape для close + блок скрола body когда открыто.
-    useEffect(() => {
-        if (!open) return;
-        const onKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose();
-        };
-        document.addEventListener("keydown", onKey);
-        const prev = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.removeEventListener("keydown", onKey);
-            document.body.style.overflow = prev;
-        };
-    }, [open, onClose]);
+    const handleBackdrop = useCallback(() => {
+        if (isDismissable) onClose();
+    }, [isDismissable, onClose]);
 
     return (
         <AnimatePresence>
@@ -60,7 +61,7 @@ const Sheet = ({ open, onClose, children, ariaLabel }: SheetProps) => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        onClick={onClose}
+                        onClick={handleBackdrop}
                         aria-hidden
                     />
                     <motion.div
@@ -78,7 +79,12 @@ const Sheet = ({ open, onClose, children, ariaLabel }: SheetProps) => {
                             stiffness: 320,
                         }}
                     >
-                        <div className={handle()} aria-hidden />
+                        <button
+                            type="button"
+                            className={cn(handle(), "cursor-pointer")}
+                            onClick={isDismissable ? onClose : undefined}
+                            aria-label="закрыть"
+                        />
                         <div className={body()}>{children}</div>
                     </motion.div>
                 </>
@@ -87,4 +93,4 @@ const Sheet = ({ open, onClose, children, ariaLabel }: SheetProps) => {
     );
 };
 
-export default Sheet;
+export default BottomSheetModal;

@@ -19,7 +19,9 @@ const REMINDER_IDS = AVAILABLE_REMINDER_OFFSETS.map(
     (r) => r.id,
 ) as ReminderOffset[];
 
-const DATE_RE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+// Form stores дату как ДД-ММ-ГГГГ (display). ISO YYYY-MM-DD получаем
+// конвертацией в EventForm.handleSubmit перед мутацией.
+const DATE_RE = /^(0[1-9]|[12]\d|3[01])-(0[1-9]|1[0-2])-\d{4}$/;
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 export interface EventFormValues {
@@ -48,7 +50,7 @@ export const eventFormSchema: yup.ObjectSchema<EventFormValues> = yup
         date: yup
             .string()
             .required("дата обязательна")
-            .matches(DATE_RE, "формат YYYY-MM-DD"),
+            .matches(DATE_RE, "формат ДД-ММ-ГГГГ"),
         time: yup
             .string()
             .test("time-format", "формат HH:MM", (v) =>

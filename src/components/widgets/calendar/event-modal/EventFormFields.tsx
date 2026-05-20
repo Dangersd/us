@@ -6,14 +6,15 @@ import { tv } from "tailwind-variants";
 
 import Input from "~components/form/fields/Input";
 import Textarea from "~components/ui/Textarea";
-import ChipGroup from "~components/widgets/calendar/event-drawer/ChipGroup";
-import type { EventFormValues } from "~components/widgets/calendar/event-drawer/event-form-schema";
+import ChipGroup from "~components/widgets/calendar/event-modal/ChipGroup";
+import type { EventFormValues } from "~components/widgets/calendar/event-modal/event-form-schema";
 import { AVAILABLE_REMINDER_OFFSETS, EVENT_CATEGORIES } from "~config/calendar";
 import type {
     EventCategory,
     RecurrenceRule,
     ReminderOffset,
 } from "~interfaces/calendar";
+import { maskDate, maskTime } from "~libs/form/masks";
 import { cn } from "~libs/utils";
 
 const styles = tv({
@@ -73,12 +74,24 @@ const EventFormFields = ({
                     <label className={label()} htmlFor="ev-date">
                         дата
                     </label>
-                    <Input
-                        id="ev-date"
-                        placeholder="YYYY-MM-DD"
-                        inputMode="numeric"
-                        disabled={isEditingRecurring}
-                        {...register("date")}
+                    <Controller
+                        control={control}
+                        name="date"
+                        render={({ field }) => (
+                            <Input
+                                id="ev-date"
+                                placeholder="ДД-ММ-ГГГГ"
+                                inputMode="numeric"
+                                autoComplete="off"
+                                maxLength={10}
+                                disabled={isEditingRecurring}
+                                value={field.value ?? ""}
+                                onBlur={field.onBlur}
+                                onChange={(e) =>
+                                    field.onChange(maskDate(e.target.value))
+                                }
+                            />
+                        )}
                     />
                     {isEditingRecurring && (
                         <span className={hint()}>
@@ -93,11 +106,23 @@ const EventFormFields = ({
                     <label className={label()} htmlFor="ev-time">
                         время
                     </label>
-                    <Input
-                        id="ev-time"
-                        placeholder="HH:MM"
-                        inputMode="numeric"
-                        {...register("time")}
+                    <Controller
+                        control={control}
+                        name="time"
+                        render={({ field }) => (
+                            <Input
+                                id="ev-time"
+                                placeholder="ЧЧ:ММ"
+                                inputMode="numeric"
+                                autoComplete="off"
+                                maxLength={5}
+                                value={field.value ?? ""}
+                                onBlur={field.onBlur}
+                                onChange={(e) =>
+                                    field.onChange(maskTime(e.target.value))
+                                }
+                            />
+                        )}
                     />
                     {errors.time && (
                         <span className={err()}>{errors.time.message}</span>

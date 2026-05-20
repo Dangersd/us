@@ -10,4 +10,8 @@ export { default as CalendarMonthDayCell } from "~components/widgets/calendar/Ca
 export { default as CalendarMonthGrid } from "~components/widgets/calendar/CalendarMonthGrid";
 export { default as CalendarTodayCard } from "~components/widgets/calendar/CalendarTodayCard";
 export { default as CalendarUpcomingList } from "~components/widgets/calendar/CalendarUpcomingList";
-export { CalendarEventDrawer } from "~components/widgets/calendar/event-drawer";
+export {
+    CalendarEventModal,
+    type CalendarEventModalProps,
+    useOpenEventModal,
+} from "~components/widgets/calendar/event-modal";

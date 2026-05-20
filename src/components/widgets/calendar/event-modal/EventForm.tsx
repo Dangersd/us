@@ -8,17 +8,18 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { tv } from "tailwind-variants";
 
 import Button from "~components/ui/Button";
-import EventFormFields from "~components/widgets/calendar/event-drawer/EventFormFields";
+import EventFormFields from "~components/widgets/calendar/event-modal/EventFormFields";
 import {
     type EventFormValues,
     eventFormSchema,
-} from "~components/widgets/calendar/event-drawer/event-form-schema";
+} from "~components/widgets/calendar/event-modal/event-form-schema";
 import { DEFAULT_REMINDER_OFFSETS } from "~config/calendar";
 import type {
     CalendarEvent,
     RecurrenceRule,
     ReminderOffset,
 } from "~interfaces/calendar";
+import { displayDateToIso, isoToDisplayDate } from "~libs/form/masks";
 import { cn } from "~libs/utils";
 
 const styles = tv({
@@ -58,6 +59,8 @@ interface EventFormProps {
     onCancelEvent?: () => void;
     onDeleteEvent?: () => void;
     submitting?: boolean;
+    /** Notify parent о form-dirty для DiscardDialog gating. */
+    onDirtyChange?: (dirty: boolean) => void;
 }
 
 const toEmptyOrTime = (t: string | null) => (t ? t.slice(0, 5) : "");
@@ -72,12 +75,16 @@ const EventForm = ({
     onCancelEvent,
     onDeleteEvent,
     submitting,
+    onDirtyChange,
 }: EventFormProps) => {
     const { root, footer, actionLeft } = styles();
 
+    // Form хранит дату как display ДД-ММ-ГГГГ; existing.date / initialDate
+    // приходят в ISO YYYY-MM-DD из БД и URL — конвертируем.
+    const rawIsoDate = existing?.date ?? initialDate ?? "";
     const defaultValues: EventFormValues = {
         title: existing?.title ?? initialTitle ?? "",
-        date: existing?.date ?? initialDate ?? "",
+        date: rawIsoDate ? isoToDisplayDate(rawIsoDate) : "",
         time: existing?.time ? toEmptyOrTime(existing.time) : "",
         durationMinutes: existing?.durationMinutes ?? null,
         location: existing?.location ?? "",
@@ -103,10 +110,20 @@ const EventForm = ({
         if (existing) form.reset(defaultValues);
     }, [existingId, existing, form, defaultValues]);
 
+    // Notify parent (CalendarEventModal) о dirty state — Outer показывает
+    // DiscardDialog при попытке закрыть с unsaved changes.
+    const isDirty = form.formState.isDirty;
+    useEffect(() => {
+        onDirtyChange?.(isDirty);
+    }, [isDirty, onDirtyChange]);
+
     const handleSubmit = form.handleSubmit(async (values) => {
+        // Конвертация display ДД-ММ-ГГГГ → ISO YYYY-MM-DD перед мутацией.
+        // Yup уже валидировал паттерн; displayDateToIso безопасен.
+        const isoDate = displayDateToIso(values.date);
         const payload: EventFormSubmitPayload = {
             title: values.title.trim(),
-            date: values.date,
+            date: isoDate,
             time: values.time ? `${values.time}:00` : null,
             durationMinutes: values.durationMinutes,
             location: values.location.trim() || null,
@@ -115,8 +132,7 @@ const EventForm = ({
             isRecurring: values.recurrenceRule !== "",
             recurrenceRule:
                 values.recurrenceRule === "" ? null : values.recurrenceRule,
-            recurrenceAnchorDate:
-                values.recurrenceRule === "" ? null : values.date,
+            recurrenceAnchorDate: values.recurrenceRule === "" ? null : isoDate,
             reminderOffsets: values.reminderOffsets,
         };
         await onSubmit(payload);

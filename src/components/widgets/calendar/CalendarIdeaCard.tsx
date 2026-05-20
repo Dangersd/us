@@ -1,11 +1,8 @@
 "use client";
 
-import { useCallback } from "react";
-
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { tv } from "tailwind-variants";
 
-import { CALENDAR_EVENT_PARAM, CALENDAR_IDEA_PARAM } from "~config/routes";
+import { useOpenEventModal } from "~components/widgets/calendar/event-modal";
 import CalendarPlusIcon from "~icons/calendar/CalendarPlusIcon";
 import type { EventIdea } from "~interfaces/calendar";
 import { cn } from "~libs/utils";
@@ -33,16 +30,13 @@ const styles = tv({
 
 const CalendarIdeaCard = ({ idea }: CalendarIdeaCardProps) => {
     const { root, text, title, note, icon } = styles();
-    const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
+    const openEventModal = useOpenEventModal();
 
-    const handleAssign = useCallback(() => {
-        const sp = new URLSearchParams(searchParams.toString());
-        sp.set(CALENDAR_EVENT_PARAM, "new");
-        sp.set(CALENDAR_IDEA_PARAM, idea.id);
-        router.replace(`${pathname}?${sp.toString()}`, { scroll: false });
-    }, [idea.id, pathname, router, searchParams]);
+    const handleAssign = () =>
+        openEventModal({
+            mode: "promote",
+            promotion: { ideaId: idea.id, ideaTitle: idea.title },
+        });
 
     return (
         <button type="button" onClick={handleAssign} className={root()}>

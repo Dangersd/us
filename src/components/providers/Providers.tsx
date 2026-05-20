@@ -10,6 +10,7 @@ import {
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ReactQueryStreamedHydration } from "@tanstack/react-query-next-experimental";
 
+import { ModalProvider } from "~components/modal";
 import { makeQueryClient } from "~libs/react-query/query-client";
 
 let browserClient: QueryClient | undefined;
@@ -25,7 +26,7 @@ const Providers = ({ children }: { children: ReactNode }) => {
     return (
         <QueryClientProvider client={client}>
             <ReactQueryStreamedHydration>
-                {children}
+                <ModalProvider>{children}</ModalProvider>
             </ReactQueryStreamedHydration>
             {process.env.NODE_ENV === "development" && (
                 <ReactQueryDevtools initialIsOpen={false} />

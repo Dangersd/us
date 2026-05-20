@@ -22,8 +22,10 @@ interface AppShellProps {
 const AppShell = ({ user, children }: AppShellProps) => {
     const activeId = useActiveRoom();
 
+    // global_content — обязательный wrapper для modal scroll-lock (golden
+    // rule #9). См. .claude/rules/modals.md → Layout invariant.
     return (
-        <div className={cn("flex min-h-dvh w-full")}>
+        <div id="global_content" className={cn("flex min-h-dvh w-full")}>
             <Sidebar user={user} activeId={activeId} />
 
             <div className={cn("flex min-w-0 flex-1 flex-col")}>

@@ -1,12 +1,9 @@
 "use client";
 
-import { useCallback } from "react";
-
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { tv } from "tailwind-variants";
 
+import { useOpenEventModal } from "~components/widgets/calendar/event-modal";
 import { categoryColor, categoryLabel } from "~config/calendar";
-import { CALENDAR_EVENT_PARAM } from "~config/routes";
 import MapPinIcon from "~icons/calendar/MapPinIcon";
 import type { CalendarEventOccurrence } from "~interfaces/calendar";
 import type { Gender } from "~interfaces/user";
@@ -88,15 +85,14 @@ const CalendarEventCard = ({
         pastDim,
         cancelled,
     } = styles();
-    const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
+    const openEventModal = useOpenEventModal();
 
-    const handleClick = useCallback(() => {
-        const sp = new URLSearchParams(searchParams.toString());
-        sp.set(CALENDAR_EVENT_PARAM, occurrence.occurrenceId);
-        router.replace(`${pathname}?${sp.toString()}`, { scroll: false });
-    }, [occurrence.occurrenceId, pathname, router, searchParams]);
+    const handleClick = () =>
+        openEventModal({
+            mode: "edit",
+            eventId: occurrence.id,
+            occurrenceDate: occurrence.occurrenceDate,
+        });
 
     const isCancelled = occurrence.state === "cancelled";
     const attribution_ = attributionLabel(

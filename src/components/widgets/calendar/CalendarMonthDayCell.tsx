@@ -1,12 +1,9 @@
 "use client";
 
-import { useCallback } from "react";
-
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { tv } from "tailwind-variants";
 
+import { useOpenEventModal } from "~components/widgets/calendar/event-modal";
 import { categoryColor } from "~config/calendar";
-import { CALENDAR_DATE_PARAM, CALENDAR_EVENT_PARAM } from "~config/routes";
 import type { CalendarEventOccurrence } from "~interfaces/calendar";
 import type { CyclePhaseToken } from "~interfaces/cycle";
 import { cn } from "~libs/utils";
@@ -69,25 +66,25 @@ const CalendarMonthDayCell = ({
         dot,
         more,
     } = styles();
-    const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
+    const openEventModal = useOpenEventModal();
 
     const inMonth = date.slice(0, 7) === ym;
     const dayNum = Number(date.slice(8, 10));
     const isToday = date === today;
     const isSelected = date === selectedDay;
 
-    const handleClick = useCallback(() => {
-        const sp = new URLSearchParams(searchParams.toString());
+    const handleClick = () => {
         if (occurrences.length > 0) {
-            sp.set(CALENDAR_EVENT_PARAM, occurrences[0].occurrenceId);
+            const first = occurrences[0];
+            openEventModal({
+                mode: "edit",
+                eventId: first.id,
+                occurrenceDate: first.occurrenceDate,
+            });
         } else {
-            sp.set(CALENDAR_EVENT_PARAM, "new");
-            sp.set(CALENDAR_DATE_PARAM, date);
+            openEventModal({ mode: "new", initialDate: date });
         }
-        router.replace(`${pathname}?${sp.toString()}`, { scroll: false });
-    }, [date, occurrences, pathname, router, searchParams]);
+    };
 
     if (!inMonth) {
         return (

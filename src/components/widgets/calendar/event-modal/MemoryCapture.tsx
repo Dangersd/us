@@ -6,8 +6,8 @@ import { tv } from "tailwind-variants";
 
 import Button from "~components/ui/Button";
 import Textarea from "~components/ui/Textarea";
-import ChipGroup from "~components/widgets/calendar/event-drawer/ChipGroup";
-import PhotoThumb from "~components/widgets/calendar/event-drawer/PhotoThumb";
+import ChipGroup from "~components/widgets/calendar/event-modal/ChipGroup";
+import PhotoThumb from "~components/widgets/calendar/event-modal/PhotoThumb";
 import {
     MAX_MEMORY_NOTE_LENGTH,
     MAX_PHOTOS_PER_EVENT,

@@ -96,3 +96,14 @@ body {
     background: var(--color-border-focus);
     color: var(--color-ink-primary);
 }
+
+/* === Modal scroll-lock (golden rule: layout must contain #global_content) ===
+ *
+ * ModalProvider добавляет .open_modal на <body> когда стек модалок не пуст
+ * (см. src/components/modal/modalUtils.ts). Фиксируем wrapper контента,
+ * сохраняя scrollY через inline top — после закрытия скролл восстанавливается.
+ */
+.open_modal #global_content {
+    position: fixed !important;
+    width: 100%;
+}

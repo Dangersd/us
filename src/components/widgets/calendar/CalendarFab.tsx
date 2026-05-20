@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback } from "react";
-
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { tv } from "tailwind-variants";
 
-import { CALENDAR_EVENT_PARAM } from "~config/routes";
+import { useOpenEventModal } from "~components/widgets/calendar/event-modal";
 import PlusIcon from "~icons/calendar/PlusIcon";
 import { cn } from "~libs/utils";
+
+interface CalendarFabProps {
+    /** Pre-fill date в новом событии (today обычно). */
+    defaultDate?: string;
+}
 
 const styles = tv({
     slots: {
@@ -27,23 +29,17 @@ const styles = tv({
     },
 });
 
-const CalendarFab = () => {
+const CalendarFab = ({ defaultDate }: CalendarFabProps) => {
     const { wrap, btn } = styles();
-    const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
-
-    const handleClick = useCallback(() => {
-        const sp = new URLSearchParams(searchParams.toString());
-        sp.set(CALENDAR_EVENT_PARAM, "new");
-        router.replace(`${pathname}?${sp.toString()}`, { scroll: false });
-    }, [pathname, router, searchParams]);
+    const openEventModal = useOpenEventModal();
 
     return (
         <div className={wrap()} aria-hidden={false}>
             <button
                 type="button"
-                onClick={handleClick}
+                onClick={() =>
+                    openEventModal({ mode: "new", initialDate: defaultDate })
+                }
                 className={btn()}
                 aria-label="добавить событие"
             >

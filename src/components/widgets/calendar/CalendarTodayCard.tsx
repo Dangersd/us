@@ -1,11 +1,8 @@
 "use client";
 
-import { useCallback } from "react";
-
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { tv } from "tailwind-variants";
 
-import { CALENDAR_DATE_PARAM, CALENDAR_EVENT_PARAM } from "~config/routes";
+import { useOpenEventModal } from "~components/widgets/calendar/event-modal";
 import PlusCircleIcon from "~icons/calendar/PlusCircleIcon";
 import type { CalendarEventOccurrence } from "~interfaces/calendar";
 import { cn } from "~libs/utils";
@@ -36,16 +33,9 @@ const styles = tv({
 
 const CalendarTodayCard = ({ today, todayEvents }: CalendarTodayCardProps) => {
     const { root, title, subtitle, cta } = styles();
-    const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
+    const openEventModal = useOpenEventModal();
 
-    const handleAdd = useCallback(() => {
-        const sp = new URLSearchParams(searchParams.toString());
-        sp.set(CALENDAR_EVENT_PARAM, "new");
-        sp.set(CALENDAR_DATE_PARAM, today);
-        router.replace(`${pathname}?${sp.toString()}`, { scroll: false });
-    }, [pathname, router, searchParams, today]);
+    const handleAdd = () => openEventModal({ mode: "new", initialDate: today });
 
     const isEmpty = todayEvents.length === 0;
     const firstEvent = todayEvents[0];
