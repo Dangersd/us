@@ -8,10 +8,20 @@ This file provides guidance to Claude Code when working with code in this reposi
 yarn dev              # Dev server with Turbopack
 yarn build            # Prettier + Next.js production build
 yarn lint             # ESLint + TypeScript strict check (tsc --noEmit --skipLibCheck)
+yarn test             # Vitest one-shot run
+yarn test:watch       # Vitest watch mode
 yarn prettier         # Format all source files
 ```
 
-No test framework is configured.
+## Testing
+
+Vitest (introduced Phase 0.6.1). **Scope intentionally narrow**: pure-utility
+functions and query expansion logic only — `expand-recurring`, `map-*-row`,
+date helpers in `src/libs/date.ts`. Component testing (React Testing Library)
+is **out of scope** until a separate decision is made.
+
+Test files live next to the code: `expand-recurring.ts` + `expand-recurring.test.ts`.
+Both `yarn lint` and `yarn test` are gates before merge.
 
 ## Project Overview
 
