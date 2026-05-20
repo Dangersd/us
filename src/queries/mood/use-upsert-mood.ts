@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import type { EmotionId, MoodEntry, Visibility } from "~interfaces/mood";
+import type { AppUser } from "~interfaces/user";
 import { getBrowserSupabase } from "~libs/supabase/client";
 import { moodKeys } from "~queries/mood/keys";
 import {
@@ -10,6 +11,7 @@ import {
     type MoodEntryRow,
     mapMoodRow,
 } from "~queries/mood/map-mood-row";
+import { userKeys } from "~queries/user/keys";
 
 // Контракт: caller (form layer в 0.5.4) ВСЕГДА шлёт полный текущий visibility.
 // Без default'а на mutation-стороне — иначе partial update формы, не
@@ -63,10 +65,22 @@ export function useUpsertMood() {
             await qc.cancelQueries({ queryKey: key });
             const prev = qc.getQueryData<MoodEntry | null>(key);
 
+            const cachedUser = qc.getQueryData<AppUser | null>(
+                userKeys.current(),
+            );
+            const seedUserId = prev?.userId ?? cachedUser?.id;
+            const seedCoupleId = prev?.coupleId ?? cachedUser?.coupleId;
+
+            // Без identity в кэше — пропускаем optimistic snapshot. onSuccess
+            // подложит каноническую строку из upsert-результата. Page-level
+            // prefetch userKeys.current() гарантирует, что мы сюда не попадём
+            // на свежем дне (см. mood/page.tsx).
+            if (!seedUserId || !seedCoupleId) return { prev };
+
             const now = new Date().toISOString();
             const optimistic: MoodEntry = {
-                userId: prev?.userId ?? "",
-                coupleId: prev?.coupleId ?? "",
+                userId: seedUserId,
+                coupleId: seedCoupleId,
                 date: input.date,
                 energy: input.energy,
                 stress: input.stress,
@@ -86,8 +100,26 @@ export function useUpsertMood() {
             }
         },
 
-        onSettled: (_data, _err, input) => {
-            qc.invalidateQueries({ queryKey: moodKeys.byDate(input.date) });
+        // setQueryData с каноническим row для текущего byDate(date) —
+        // оптимистичная запись становится канонической без лишнего рефетча.
+        // Дополнительно (Phase 0.5.6 C2): invalidate range-keys + partner-today,
+        // чтобы WeekPattern / месячный grid / partner-glance подхватили
+        // изменение в том же табе без ожидания focus-refetch. Predicate
+        // исключает только-что-set byDate(input.date), иначе рефетч сразу
+        // после setQueryData затрёт оптимистичное значение и даст flicker.
+        onSuccess: (data, input) => {
+            qc.setQueryData(moodKeys.byDate(input.date), data);
+            qc.invalidateQueries({
+                queryKey: moodKeys.all,
+                predicate: (q) => {
+                    const kind = q.queryKey[1] as string | undefined;
+                    return (
+                        kind === "own-range" ||
+                        kind === "partner-range" ||
+                        kind === "partner"
+                    );
+                },
+            });
         },
     });
 }

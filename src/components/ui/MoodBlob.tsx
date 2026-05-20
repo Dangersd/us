@@ -2,16 +2,21 @@
 
 import { useId } from "react";
 
-import { motion, useReducedMotion, useTime, useTransform } from "framer-motion";
+import { motion, useTransform } from "framer-motion";
 
 import { blobPath } from "~components/ui/blob-path";
+import { useBreathTime } from "~components/ui/breath-context";
 import { cn } from "~libs/utils";
 
 // Animated mood-blob: SVG-path-морфинг с дыханием. ИСПОЛЬЗУЕТСЯ как живая
-// «клякса»-аватар партнёра в Mood-комнате и partner-glance виджете.
+// «клякса»-аватар в Mood-комнате (карточка + pair-glance).
 // НЕ ПУТАТЬ с emotion-picker иконками в ~icons/emotions/ (BlobIcon + 8 *Blob)
 // — те статичные SVG-кружки для пикера эмоций.
-// Контракт: чистая презентация. Form layer в 0.5.4 подгоняет цвет/значения.
+// Контракт: чистая презентация. Form layer подгоняет цвет/значения.
+//
+// RAF-таймер берётся из <BreathProvider> через useBreathTime — один useTime()
+// драйвит все блобы на странице. Без провайдера или при reduce-motion блоб
+// рендерится со статичной формой (phase = 0).
 //
 // Маппинг полей mood → визуальные параметры (см. docs/03-rooms/mood.md:50-57):
 //   energy   → breathPeriod (низкая = медленно, высокая = живее, в диапазоне
@@ -53,8 +58,6 @@ const MoodBlob = ({
     className,
     "aria-label": ariaLabel,
 }: MoodBlobProps) => {
-    const reduceMotion = useReducedMotion();
-
     const e = norm(energy);
     const s = norm(stress);
     const sb = norm(socialBattery);
@@ -62,8 +65,9 @@ const MoodBlob = ({
     // Период дыхания: 20s при e=0, 12s при e=1. Линейная интерполяция.
     // Atmospheric loop band per docs/02-design-system.md (20-40s).
     const breathMs = 20000 - 8000 * e;
-    // Аспект: 0.78 при e=0, 1.0 при e=1.
-    const aspectY = 0.78 + 0.22 * e;
+    // Аспект: 0.92 при e=0, 1.0 при e=1. Узкий диапазон, чтобы блоб не
+    // выглядел овальным — морфинг даёт лёгкий «опавший» намёк, не сплющивает.
+    const aspectY = 0.92 + 0.08 * e;
     // Jitter: 0 при s=0, 0.18 при s=1.
     const jitter = 0.18 * s;
     // Scale: компенсируем размер в зависимости от socialBattery (0.85..1.0).
@@ -74,10 +78,11 @@ const MoodBlob = ({
     // Радиус с учётом aura — оставляем поля ~30% от размера для свечения.
     const radius = (size / 2) * 0.7 * scale;
 
-    const time = useTime();
+    const time = useBreathTime();
     const d = useTransform(time, (t) => {
-        // reducedMotion → фиксированный phase = 0 (статичная форма).
-        const phase = reduceMotion ? 0 : (t / breathMs) * Math.PI * 2;
+        // t === 0 (frozen MotionValue без провайдера или с reduce-motion) →
+        // phase = 0, статичная форма.
+        const phase = (t / breathMs) * Math.PI * 2;
         return blobPath({ cx, cy, radius, points: 8, jitter, aspectY, phase });
     });
 

@@ -6,21 +6,18 @@ import type { MoodEntry } from "~interfaces/mood";
 import { getServerSupabase } from "~libs/supabase/server";
 import { type MoodEntryRow, mapMoodRow } from "~queries/mood/map-mood-row";
 
-// Server-side версия: см. fetch-partner-today-mood.ts — оба ходят через
-// get_partner_mood_range() SECURITY DEFINER, иначе RLS отрезает partner-row.
-export const fetchPartnerTodayMoodServer = cache(
-    async (date: string): Promise<MoodEntry | null> => {
+export const fetchPartnerMoodRangeServer = cache(
+    async (start: string, end: string): Promise<MoodEntry[]> => {
         const supabase = await getServerSupabase();
         const { data: auth } = await supabase.auth.getUser();
-        if (!auth?.user) return null;
+        if (!auth?.user) return [];
 
         const { data, error } = await supabase.rpc("get_partner_mood_range", {
-            p_start: date,
-            p_end: date,
+            p_start: start,
+            p_end: end,
         });
         if (error) throw error;
         const rows = (data ?? []) as MoodEntryRow[];
-        const row = rows[0];
-        return row ? mapMoodRow(row) : null;
+        return rows.map(mapMoodRow);
     },
 );

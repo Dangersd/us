@@ -13,21 +13,63 @@ import type {
 // =========================================================
 
 export const EMOTIONS: readonly EmotionMeta[] = [
-    { id: "warm", label: "тёплая", color: "#FFC9A8" },
+    {
+        id: "warm",
+        labels: { male: "тёплый", female: "тёплая" },
+        color: "#FFC9A8",
+    },
     // Лиловый per docs/03-rooms/mood.md ("спокойствие → лиловый") + ambient
     // комнаты #E8B4FF. Софт-пастель того же семейства, что warm/tender.
-    { id: "calm", label: "спокойная", color: "#D8BAF0" },
-    { id: "joyful", label: "радостная", color: "#FFD580" },
-    { id: "tender", label: "нежная", color: "#F4A5B9" },
-    { id: "tired", label: "уставшая", color: "#9B8FAF" },
-    { id: "sad", label: "грустная", color: "#7E8DB5" },
-    { id: "anxious", label: "тревожная", color: "#C4856A" },
-    { id: "empty", label: "опустошённая", color: "#6F6677" },
+    {
+        id: "calm",
+        labels: { male: "спокойный", female: "спокойная" },
+        color: "#D8BAF0",
+    },
+    {
+        id: "joyful",
+        labels: { male: "радостный", female: "радостная" },
+        color: "#FFD580",
+    },
+    {
+        id: "tender",
+        labels: { male: "нежный", female: "нежная" },
+        color: "#F4A5B9",
+    },
+    {
+        id: "tired",
+        labels: { male: "уставший", female: "уставшая" },
+        color: "#9B8FAF",
+    },
+    {
+        id: "sad",
+        labels: { male: "грустный", female: "грустная" },
+        color: "#7E8DB5",
+    },
+    {
+        id: "anxious",
+        labels: { male: "тревожный", female: "тревожная" },
+        color: "#C4856A",
+    },
+    {
+        id: "empty",
+        labels: { male: "опустошённый", female: "опустошённая" },
+        color: "#6F6677",
+    },
 ] as const;
 
 export const EMOTION_BY_ID: Record<EmotionId, EmotionMeta> = Object.fromEntries(
     EMOTIONS.map((e) => [e.id, e]),
 ) as Record<EmotionId, EmotionMeta>;
+
+// Резолвит лейбл с учётом гендера. Если gender не задан (или null) — берём
+// male (page.tsx-fallback тоже считает unknown → him, см. mood/page.tsx).
+export const emotionLabel = (
+    id: EmotionId,
+    gender: import("~interfaces/user").Gender | null | undefined,
+): string => {
+    const meta = EMOTION_BY_ID[id];
+    return meta.labels[gender ?? "male"];
+};
 
 // =========================================================
 // Privacy defaults — пока константа. Переедут в

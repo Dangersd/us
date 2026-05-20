@@ -10,15 +10,20 @@ import GhostControl from "~components/widgets/mood/GhostControl";
 import MoodCardHeader from "~components/widgets/mood/MoodCardHeader";
 import MoodCardSection from "~components/widgets/mood/MoodCardSection";
 import MoodErrorPill from "~components/widgets/mood/MoodErrorPill";
-import { todayDateString } from "~libs/date";
+import { useTodayDate } from "~hooks/use-today-date";
+import type { Gender } from "~interfaces/user";
 import { cn } from "~libs/utils";
 import { useMoodDraft } from "~queries/mood/use-mood-draft";
 
 interface MoodCheckinCardProps {
-    /** Default = todayDateString(). Готовит ground для edit-yesterday в 0.5.6. */
+    /** Override даты — для тестов / edit-yesterday (0.5.6). По умолчанию — useTodayDate(). */
     date?: string;
     /** Personal-hue заглушка для MoodBlob (когда emotion не выбран). */
     userFallbackColor: string;
+    /** Светлый stop для orb BatteryRing (per design — gradient bright→base). */
+    userBrightColor: string;
+    /** Гендер юзера — для склонения emotion-label'ов в EmotionPicker. */
+    userGender: Gender | null;
     className?: string;
 }
 
@@ -26,10 +31,14 @@ const DEFAULT_SLIDER_VALUE = 50;
 const DEFAULT_BATTERY_VALUE = 50;
 
 const MoodCheckinCard = ({
-    date = todayDateString(),
+    date: dateProp,
     userFallbackColor,
+    userBrightColor,
+    userGender,
     className,
 }: MoodCheckinCardProps) => {
+    const todayDate = useTodayDate();
+    const date = dateProp ?? todayDate;
     const draft = useMoodDraft(date);
 
     // pulseKey бампается при каждом успешном commit'е — триггерит aura-pulse
@@ -65,7 +74,7 @@ const MoodCheckinCard = ({
     return (
         <Card
             className={cn(
-                "flex flex-col gap-6 p-6 rounded-lg max-w-sm mx-auto w-full text-left",
+                "flex flex-col gap-6 p-6 rounded-lg mx-auto w-full text-left",
                 className,
             )}
         >
@@ -89,6 +98,7 @@ const MoodCheckinCard = ({
                 <EmotionPicker
                     value={draft.emotion}
                     onChange={(e) => draft.commitEmotion(e)}
+                    gender={userGender}
                     disabled={emotionHidden}
                 />
             </MoodCardSection>
@@ -123,6 +133,8 @@ const MoodCheckinCard = ({
                         onValueCommit={(v) => draft.commitSocialBattery(v)}
                         disabled={batteryHidden}
                         size={128}
+                        color={userFallbackColor}
+                        centerColor={userBrightColor}
                         aria-label="Заряд социальной батареи 0–100"
                     />
                 </div>

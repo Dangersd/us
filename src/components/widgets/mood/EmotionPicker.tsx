@@ -3,14 +3,17 @@
 import { tv } from "tailwind-variants";
 
 import Button from "~components/ui/Button";
-import { EMOTIONS } from "~config/mood";
+import { EMOTIONS, emotionLabel } from "~config/mood";
 import { EMOTION_ICONS } from "~icons/emotions";
 import type { EmotionId } from "~interfaces/mood";
+import type { Gender } from "~interfaces/user";
 import { cn } from "~libs/utils";
 
 interface EmotionPickerProps {
     value: EmotionId | null;
     onChange: (next: EmotionId) => void;
+    /** Гендер юзера — для склонения label'а в RU. */
+    gender: Gender | null;
     disabled?: boolean;
     className?: string;
 }
@@ -46,6 +49,7 @@ const styles = tv({
 const EmotionPicker = ({
     value,
     onChange,
+    gender,
     disabled,
     className,
 }: EmotionPickerProps) => {
@@ -59,24 +63,25 @@ const EmotionPicker = ({
             {EMOTIONS.map((meta) => {
                 const Icon = EMOTION_ICONS[meta.id];
                 const isSelected = value === meta.id;
+                const label = emotionLabel(meta.id, gender);
                 return (
                     <Button
                         key={meta.id}
                         variant="ghost"
                         size="sm"
                         aria-pressed={isSelected}
-                        aria-label={meta.label}
+                        aria-label={label}
                         disabled={disabled}
                         onClick={() => onChange(meta.id)}
                         className={cn(cell({ selected: isSelected }))}
                     >
-                        <Icon width={28} height={28} />
+                        <Icon width={48} height={48} />
                         <span
                             className={cn(
                                 "font-display italic text-[13px] leading-none",
                             )}
                         >
-                            {meta.label}
+                            {label}
                         </span>
                     </Button>
                 );

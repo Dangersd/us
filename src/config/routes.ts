@@ -1,6 +1,7 @@
 // Все маршруты приложения. Никаких хардкодов в компонентах.
 export const HOME_R = () => "/";
 export const MOOD_R = () => "/mood";
+export const MOOD_HISTORY_R = () => "/mood/history";
 export const CALENDAR_R = () => "/calendar";
 export const WISHLIST_R = () => "/wishlist";
 export const PROFILE_R = () => "/profile";

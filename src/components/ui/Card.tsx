@@ -6,7 +6,7 @@ import { cn } from "~libs/utils";
 
 const card = tv({
     base: cn(
-        "relative bg-bg-surface-1/85",
+        "relative w-full bg-bg-surface-1/85",
         "border border-border-warm",
         "backdrop-blur-[24px]",
         "shadow-soft",

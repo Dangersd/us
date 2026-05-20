@@ -4,7 +4,8 @@ import { ROOMS, type RoomId } from "~config/rooms";
 import { cn } from "~libs/utils";
 
 // Wrapper каждой комнаты. Ambient glow + content area + placeholder hero.
-// section получает aria-labelledby от h2, чтобы screen reader не дублировал заголовок.
+// Заголовок комнаты НЕ рендерится здесь — каждая комната ставит свой header
+// (или не ставит). Если children пуст, показываем нейтральный stub.
 
 interface RoomShellProps {
     roomId: RoomId;
@@ -13,11 +14,10 @@ interface RoomShellProps {
 
 const RoomShell = ({ roomId, children }: RoomShellProps) => {
     const room = ROOMS[roomId];
-    const titleId = `room-${roomId}-title`;
     const hasChildren = Boolean(children);
     return (
         <section
-            aria-labelledby={titleId}
+            aria-label={room.title}
             className={cn(
                 "relative flex-1",
                 room.hueClass,
@@ -27,28 +27,18 @@ const RoomShell = ({ roomId, children }: RoomShellProps) => {
         >
             <div
                 className={cn(
-                    "mx-auto flex w-full max-w-3xl flex-col items-center",
+                    "mx-auto flex w-full max-w-3xl flex-col items-stretch",
                     {
                         // Шиппнутые комнаты — компактный layout без dead-space.
-                        "py-6 md:py-8": hasChildren,
-                        // Стаб-комнаты (calendar/wishlist/profile/home) пока висят
+                        "py-2 md:py-4": hasChildren,
+                        // Stub-комнаты (calendar/wishlist/profile/home) пока висят
                         // в центре с placeholder-копией.
-                        "py-16 md:py-24 text-center": !hasChildren,
+                        "items-center py-16 md:py-24 text-center": !hasChildren,
                     },
                 )}
             >
-                <h2
-                    id={titleId}
-                    className={cn(
-                        "font-display text-ink-primary text-center",
-                        "text-3xl md:text-4xl font-medium tracking-[-0.02em]",
-                        "mb-4",
-                    )}
-                >
-                    {room.title}
-                </h2>
                 {hasChildren ? (
-                    <div className={cn("mt-2 w-full")}>{children}</div>
+                    children
                 ) : (
                     <p
                         className={cn(
