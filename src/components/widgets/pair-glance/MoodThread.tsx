@@ -1,4 +1,4 @@
-import type { SVGProps } from "react";
+import { type SVGProps, useId } from "react";
 
 import { cn } from "~libs/utils";
 
@@ -27,11 +27,15 @@ const MoodThread = ({
     className,
     ...rest
 }: MoodThreadProps) => {
+    const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
     if (!visible) return null;
     const cx = width / 2;
     const cy = height / 2;
     const d = `M 0 ${cy} Q ${cx} ${cy + 4} ${width} ${cy}`;
-    const gradId = "mood-thread-gradient";
+    // useId — per-instance gradient id (same pattern as MoodBlob:88).
+    // Без него два MoodThread'а на странице делят один <linearGradient>;
+    // Safari исторически рендерит для всех url(#…) последний defined.
+    const gradId = `mood-thread-grad-${uid}`;
     return (
         <svg
             width={width}

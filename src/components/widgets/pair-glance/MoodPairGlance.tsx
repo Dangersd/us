@@ -106,7 +106,9 @@ const MoodPairGlance = ({
                         onClick={toggleReadout}
                         disabled={!partnerHasEntry}
                         aria-expanded={open}
-                        aria-controls="partner-mood-readout"
+                        aria-controls={
+                            open ? "partner-mood-readout" : undefined
+                        }
                         aria-label={
                             partnerHasEntry
                                 ? `Открыть настроение: ${partnerName || "партнёр"}`

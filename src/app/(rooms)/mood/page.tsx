@@ -4,7 +4,7 @@ import RoomShell from "~components/shell/RoomShell";
 import { BreathProvider } from "~components/ui/breath-context";
 import { MoodCheckinCard } from "~components/widgets/mood";
 import { MoodPairGlance } from "~components/widgets/pair-glance";
-import { todayDateString } from "~libs/date";
+import { COUPLE_TZ, todayDateString } from "~libs/date";
 import { makeQueryClient } from "~libs/react-query/query-client";
 import { fetchPartnerTodayMoodServer } from "~queries/mood/fetch-partner-today-mood.server";
 import { fetchTodayMoodServer } from "~queries/mood/fetch-today-mood.server";
@@ -20,7 +20,10 @@ const HUE_HER = "#F4A5B9";
 
 const MoodPage = async () => {
     const user = await fetchCurrentUserServer();
-    const date = todayDateString();
+    // Сервер в UTC; для SSR-prefetch'а нужна дата пары (Бишкек, UTC+6),
+    // иначе в окно 00:00–06:00 local prefetch попадает в ключ вчерашнего дня
+    // и клиент гарантированно перезапрашивает «сегодня».
+    const date = todayDateString(COUPLE_TZ);
 
     // Page-level prefetch: userKeys.current() обязателен — useUpsertMood
     // читает его из QueryClient для optimistic seed (см. use-upsert-mood.ts).
