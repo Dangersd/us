@@ -6,5 +6,8 @@ export { default as CalendarIdeaCard } from "~components/widgets/calendar/Calend
 export { default as CalendarIdeasDivider } from "~components/widgets/calendar/CalendarIdeasDivider";
 export { default as CalendarIdeasList } from "~components/widgets/calendar/CalendarIdeasList";
 export { default as CalendarMiniWeekStrip } from "~components/widgets/calendar/CalendarMiniWeekStrip";
+export { default as CalendarMonthDayCell } from "~components/widgets/calendar/CalendarMonthDayCell";
+export { default as CalendarMonthGrid } from "~components/widgets/calendar/CalendarMonthGrid";
 export { default as CalendarTodayCard } from "~components/widgets/calendar/CalendarTodayCard";
 export { default as CalendarUpcomingList } from "~components/widgets/calendar/CalendarUpcomingList";
+export { CalendarEventDrawer } from "~components/widgets/calendar/event-drawer";
