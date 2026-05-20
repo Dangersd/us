@@ -2,11 +2,17 @@ import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 
 import RoomShell from "~components/shell/RoomShell";
 import { BreathProvider } from "~components/ui/breath-context";
-import { MoodCheckinCard } from "~components/widgets/mood";
+import {
+    MoodCheckinCard,
+    MoodHistoryCTA,
+    WeekPattern,
+} from "~components/widgets/mood";
 import MoodHeader from "~components/widgets/mood/MoodHeader";
 import { MoodPairGlance } from "~components/widgets/pair-glance";
-import { COUPLE_TZ, todayDateString } from "~libs/date";
+import { COUPLE_TZ, getWeekRange, todayDateString } from "~libs/date";
 import { makeQueryClient } from "~libs/react-query/query-client";
+import { fetchOwnMoodRangeServer } from "~queries/mood/fetch-own-mood-range.server";
+import { fetchPartnerMoodRangeServer } from "~queries/mood/fetch-partner-mood-range.server";
 import { fetchPartnerTodayMoodServer } from "~queries/mood/fetch-partner-today-mood.server";
 import { fetchTodayMoodServer } from "~queries/mood/fetch-today-mood.server";
 import { moodKeys } from "~queries/mood/keys";
@@ -34,6 +40,7 @@ const MoodPage = async () => {
     // .catch на каждый prefetch — единичный Supabase-blip не должен крашить
     // всю /mood-страницу; React Query сам перезапросит на клиенте.
     const queryClient = makeQueryClient();
+    const { start: weekStart, end: weekEnd } = getWeekRange(date);
     await Promise.all([
         queryClient
             .prefetchQuery({
@@ -45,6 +52,18 @@ const MoodPage = async () => {
             .prefetchQuery({
                 queryKey: moodKeys.partnerByDate(date),
                 queryFn: () => fetchPartnerTodayMoodServer(date),
+            })
+            .catch(() => undefined),
+        queryClient
+            .prefetchQuery({
+                queryKey: moodKeys.ownRange(weekStart, weekEnd),
+                queryFn: () => fetchOwnMoodRangeServer(weekStart, weekEnd),
+            })
+            .catch(() => undefined),
+        queryClient
+            .prefetchQuery({
+                queryKey: moodKeys.partnerRange(weekStart, weekEnd),
+                queryFn: () => fetchPartnerMoodRangeServer(weekStart, weekEnd),
             })
             .catch(() => undefined),
         queryClient
@@ -86,6 +105,11 @@ const MoodPage = async () => {
                         userBrightColor={userBrightColor}
                         userGender={user?.gender ?? null}
                     />
+                    <WeekPattern
+                        userFallbackColor={userFallbackColor}
+                        partnerFallbackColor={partnerFallbackColor}
+                    />
+                    <MoodHistoryCTA />
                 </BreathProvider>
             </RoomShell>
         </HydrationBoundary>

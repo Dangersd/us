@@ -100,10 +100,26 @@ export function useUpsertMood() {
             }
         },
 
-        // setQueryData с каноническим row из upsert вместо invalidateQueries —
-        // после Task 9 (staleTime: 0) invalidate триггерил бы лишний рефетч.
+        // setQueryData с каноническим row для текущего byDate(date) —
+        // оптимистичная запись становится канонической без лишнего рефетча.
+        // Дополнительно (Phase 0.5.6 C2): invalidate range-keys + partner-today,
+        // чтобы WeekPattern / месячный grid / partner-glance подхватили
+        // изменение в том же табе без ожидания focus-refetch. Predicate
+        // исключает только-что-set byDate(input.date), иначе рефетч сразу
+        // после setQueryData затрёт оптимистичное значение и даст flicker.
         onSuccess: (data, input) => {
             qc.setQueryData(moodKeys.byDate(input.date), data);
+            qc.invalidateQueries({
+                queryKey: moodKeys.all,
+                predicate: (q) => {
+                    const kind = q.queryKey[1] as string | undefined;
+                    return (
+                        kind === "own-range" ||
+                        kind === "partner-range" ||
+                        kind === "partner"
+                    );
+                },
+            });
         },
     });
 }
