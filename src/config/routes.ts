@@ -16,3 +16,6 @@ export const AUTH_PATHS: readonly string[] = [LOGIN_R()];
 export const CALENDAR_VIEW_PARAM = "view";
 export const CALENDAR_MONTH_PARAM = "m";
 export const CALENDAR_DATE_PARAM = "d";
+
+// Wishlist searchparam: ?tab=<WishlistTabId>. См. ~config/wishlist.WISHLIST_TABS.
+export const WISHLIST_TAB_PARAM = "tab";
