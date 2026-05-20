@@ -117,10 +117,14 @@ const Slider = ({
     };
 
     const pct = clamp(value);
+    // ВАЖНО: НЕ задавать height (horizontal) / width (vertical) — иначе
+    // motion.div'у даём 100% размер, и он покрывает всю 44px hit-zone'у
+    // вместо того чтобы остаться 8px-полосой из `h-2`-класса.
+    // Tailwind-классы из sliderStyles().fill() уже задают track-thickness.
     const fillAnim =
         orientation === "horizontal"
-            ? { width: `${pct}%`, height: "100%" }
-            : { height: `${pct}%`, width: "100%" };
+            ? { width: `${pct}%` }
+            : { height: `${pct}%` };
     const handlePos =
         orientation === "horizontal"
             ? { left: `${pct}%` }

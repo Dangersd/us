@@ -70,10 +70,10 @@ const MoodPairGlance = ({
         <div className={cn("flex flex-col items-stretch gap-3 mb-6")}>
             <div
                 className={cn(
-                    "relative overflow-hidden",
+                    "relative overflow-hidden isolate",
                     "rounded-[32px] p-6",
-                    "bg-bg-surface-1/93 backdrop-blur-xl",
-                    "border border-glow-warm/20",
+                    "bg-bg-surface-1/85 backdrop-blur-xl",
+                    "border border-border-warm",
                     "text-glow-soft",
                 )}
             >
@@ -81,7 +81,7 @@ const MoodPairGlance = ({
                 <div
                     aria-hidden
                     className={cn(
-                        "pointer-events-none absolute -left-3 top-2",
+                        "pointer-events-none absolute -left-3 top-2 -z-10",
                         "h-57.5 w-57.5 rounded-full",
                         "bg-mesh-lilac opacity-55",
                     )}
@@ -90,7 +90,7 @@ const MoodPairGlance = ({
                 <div
                     aria-hidden
                     className={cn(
-                        "pointer-events-none absolute right-0 top-20",
+                        "pointer-events-none absolute right-0 top-20 -z-10",
                         "h-60 w-60 rounded-full",
                         "bg-mesh-rose opacity-50",
                     )}
@@ -98,7 +98,7 @@ const MoodPairGlance = ({
 
                 <div
                     className={cn(
-                        "relative flex items-start justify-center gap-4 md:gap-8",
+                        "relative z-0 flex items-start justify-center gap-4 md:gap-8",
                     )}
                 >
                     <PairColumn

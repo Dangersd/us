@@ -26,8 +26,8 @@ const styles = tv({
     slots: {
         root: cn(
             "flex flex-col gap-2",
-            "rounded-md bg-bg-surface-1/60 backdrop-blur-xl",
-            "border border-border-warm/40 px-4 py-3",
+            "rounded-md bg-bg-surface-1/85 backdrop-blur-xl",
+            "border border-border-warm px-4 py-3",
             "text-sm text-ink-secondary",
         ),
         row: cn("flex items-center justify-between gap-4"),
