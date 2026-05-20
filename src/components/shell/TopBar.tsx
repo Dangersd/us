@@ -25,7 +25,6 @@ const TopBar = ({ user }: TopBarProps) => {
             className={cn(
                 "sticky top-0 z-30 w-full",
                 "bg-bg-base/60 backdrop-blur-2xl",
-                "border-b border-border-subtle",
                 "pt-[env(safe-area-inset-top)]",
             )}
         >

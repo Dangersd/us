@@ -11,64 +11,43 @@ interface MoodThreadProps extends Omit<SVGProps<SVGSVGElement>, "ref"> {
     height?: number;
 }
 
-// «Нить света» между двумя mood-блобами — статичная SVG-кривая.
-// Per docs/03-rooms/mood.md:59 — «лёгкая нить света (очень тонкая, тёплая)».
-// Наличие нити = оба отметились сегодня; никакого distance/closeness mapping
-// (см. mood.md:94-95 — сравнение с партнёром запрещено).
-//
-// Цвет берётся из `currentColor` родителя — родитель в MoodPairGlance ставит
-// класс text-glow-soft (#E8B4FF lilac, см. src/styles/globals.css:19),
-// поэтому нить буквально «тёплая лилово-лунная». Градиент терминируется в
-// opacity 0 на обоих концах — нить будто выходит из каждого блоба.
+// «Нить света» между двумя mood-блобами — статичная прямая линия с линейным
+// градиентом (#FFC9A8 центр → 0 на концах). Per design untitled.pen → AKmkK
+// («thread» rectangle 138×1, fill linear-gradient warm, opacity 0.8).
+// Никакого distance/closeness mapping (mood.md:94-95 — сравнение запрещено).
 const MoodThread = ({
     visible,
     width = 96,
-    height = 24,
+    height = 1,
     className,
     ...rest
 }: MoodThreadProps) => {
     const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
     if (!visible) return null;
-    const cx = width / 2;
-    const cy = height / 2;
-    const d = `M 0 ${cy} Q ${cx} ${cy + 4} ${width} ${cy}`;
-    // useId — per-instance gradient id (same pattern as MoodBlob:88).
-    // Без него два MoodThread'а на странице делят один <linearGradient>;
-    // Safari исторически рендерит для всех url(#…) последний defined.
     const gradId = `mood-thread-grad-${uid}`;
     return (
         <svg
             width={width}
-            height={height}
-            viewBox={`0 0 ${width} ${height}`}
+            height={Math.max(height, 1)}
+            viewBox={`0 0 ${width} ${Math.max(height, 1)}`}
             className={cn("pointer-events-none", className)}
             aria-hidden="true"
             {...rest}
         >
             <defs>
                 <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="0">
-                    <stop
-                        offset="0%"
-                        stopColor="currentColor"
-                        stopOpacity="0"
-                    />
-                    <stop
-                        offset="50%"
-                        stopColor="currentColor"
-                        stopOpacity="0.55"
-                    />
-                    <stop
-                        offset="100%"
-                        stopColor="currentColor"
-                        stopOpacity="0"
-                    />
+                    <stop offset="0%" stopColor="#FFC9A8" stopOpacity="0" />
+                    <stop offset="50%" stopColor="#FFC9A8" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#FFC9A8" stopOpacity="0" />
                 </linearGradient>
             </defs>
-            <path
-                d={d}
+            <line
+                x1="0"
+                y1={Math.max(height, 1) / 2}
+                x2={width}
+                y2={Math.max(height, 1) / 2}
                 stroke={`url(#${gradId})`}
                 strokeWidth="1"
-                fill="none"
                 strokeLinecap="round"
             />
         </svg>

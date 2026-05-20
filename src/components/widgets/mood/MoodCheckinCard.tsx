@@ -19,6 +19,8 @@ interface MoodCheckinCardProps {
     date?: string;
     /** Personal-hue заглушка для MoodBlob (когда emotion не выбран). */
     userFallbackColor: string;
+    /** Светлый stop для orb BatteryRing (per design — gradient bright→base). */
+    userBrightColor: string;
     className?: string;
 }
 
@@ -28,6 +30,7 @@ const DEFAULT_BATTERY_VALUE = 50;
 const MoodCheckinCard = ({
     date: dateProp,
     userFallbackColor,
+    userBrightColor,
     className,
 }: MoodCheckinCardProps) => {
     const todayDate = useTodayDate();
@@ -125,6 +128,8 @@ const MoodCheckinCard = ({
                         onValueCommit={(v) => draft.commitSocialBattery(v)}
                         disabled={batteryHidden}
                         size={128}
+                        color={userFallbackColor}
+                        centerColor={userBrightColor}
                         aria-label="Заряд социальной батареи 0–100"
                     />
                 </div>

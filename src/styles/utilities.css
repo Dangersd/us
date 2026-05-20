@@ -135,3 +135,22 @@
 @utility bg-personal-hue-her {
     background: radial-gradient(circle at 30% 30%, #ffc4d2 0%, #f4a5b9 100%);
 }
+
+/* === Mood pair-glance ambient mesh === */
+/* Цвета из untitled.pen → jMTNN (Pair Room): mesh-lilac + mesh-rose. */
+
+@utility bg-mesh-lilac {
+    background: radial-gradient(
+        circle,
+        rgba(232, 180, 255, 0.4) 0%,
+        rgba(232, 180, 255, 0) 100%
+    );
+}
+
+@utility bg-mesh-rose {
+    background: radial-gradient(
+        circle,
+        rgba(255, 180, 209, 0.4) 0%,
+        rgba(255, 180, 209, 0) 100%
+    );
+}
