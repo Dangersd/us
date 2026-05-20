@@ -78,7 +78,7 @@ const EmotionPicker = ({
                         <Icon width={48} height={48} />
                         <span
                             className={cn(
-                                "font-display italic text-[13px] leading-none",
+                                "font-display italic text-[10px] leading-none",
                             )}
                         >
                             {label}

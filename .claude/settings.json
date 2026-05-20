@@ -1,5 +1,11 @@
 {
-    "permissions": {
-        "allow": ["Bash(yarn build:*)", "Bash(yarn lint:*)", "Bash(yarn prettier:*)"]
-    }
+  "permissions": {
+    "allow": [
+      "Bash(yarn build:*)",
+      "Bash(yarn lint:*)",
+      "Bash(yarn prettier:*)",
+      "Bash(grep -n \"^## \" /Users/founded/.claude/plans/0-5-5-polished-graceful-mist.md | head -30)",
+      "Read(//Users/founded/.claude/plans/**)"
+    ]
+  }
 }
