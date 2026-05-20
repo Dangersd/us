@@ -17,6 +17,7 @@ export interface CalendarEventRow {
     duration_minutes: number | null;
     location: string | null;
     category: EventCategory;
+    custom_category_label: string | null;
     note: string | null;
     state: EventState;
     source: EventSource;
@@ -29,7 +30,7 @@ export interface CalendarEventRow {
 }
 
 export const CALENDAR_EVENT_COLUMNS =
-    'id, couple_id, created_by, title, date, "time", duration_minutes, location, category, note, state, source, is_recurring, recurrence_rule, recurrence_anchor_date, reminder_offsets, created_at, updated_at';
+    'id, couple_id, created_by, title, date, "time", duration_minutes, location, category, custom_category_label, note, state, source, is_recurring, recurrence_rule, recurrence_anchor_date, reminder_offsets, created_at, updated_at';
 
 export function mapCalendarEventRow(row: CalendarEventRow): CalendarEvent {
     return {
@@ -42,6 +43,7 @@ export function mapCalendarEventRow(row: CalendarEventRow): CalendarEvent {
         durationMinutes: row.duration_minutes,
         location: row.location,
         category: row.category,
+        customCategoryLabel: row.custom_category_label,
         note: row.note,
         state: row.state,
         source: row.source,

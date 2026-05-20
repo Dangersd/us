@@ -29,6 +29,7 @@ export interface PromoteIdeaInput {
         durationMinutes: number | null;
         location: string | null;
         category: EventCategory;
+        customCategoryLabel: string | null;
         note: string | null;
         isRecurring: boolean;
         recurrenceRule: RecurrenceRule | null;
@@ -54,6 +55,7 @@ export function usePromoteIdea() {
                         duration_minutes: payload.durationMinutes,
                         location: payload.location,
                         category: payload.category,
+                        custom_category_label: payload.customCategoryLabel,
                         note: payload.note,
                         is_recurring: payload.isRecurring,
                         recurrence_rule: payload.recurrenceRule,

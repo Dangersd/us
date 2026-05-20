@@ -14,6 +14,7 @@ function baseEvent(overrides: Partial<CalendarEvent>): CalendarEvent {
         durationMinutes: null,
         location: null,
         category: "generic",
+        customCategoryLabel: null,
         note: null,
         state: "planned",
         source: "manual",

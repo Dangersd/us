@@ -3,7 +3,7 @@
 import { tv } from "tailwind-variants";
 
 import { useOpenEventModal } from "~components/widgets/calendar/event-modal";
-import { categoryColor } from "~config/calendar";
+import { displayCategoryColor } from "~config/calendar";
 import type { CalendarEventOccurrence } from "~interfaces/calendar";
 import type { CyclePhaseToken } from "~interfaces/cycle";
 import { cn } from "~libs/utils";
@@ -98,7 +98,7 @@ const CalendarMonthDayCell = ({
     const seen = new Set<string>();
     const dots: string[] = [];
     for (const o of occurrences) {
-        const c = categoryColor(o.category);
+        const c = displayCategoryColor(o.category, o.customCategoryLabel);
         if (dots.length < 3 && !seen.has(c)) {
             seen.add(c);
             dots.push(c);

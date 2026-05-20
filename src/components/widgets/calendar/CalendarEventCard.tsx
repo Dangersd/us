@@ -3,7 +3,7 @@
 import { tv } from "tailwind-variants";
 
 import { useOpenEventModal } from "~components/widgets/calendar/event-modal";
-import { categoryColor, categoryLabel } from "~config/calendar";
+import { displayCategoryColor, displayCategoryLabel } from "~config/calendar";
 import MapPinIcon from "~icons/calendar/MapPinIcon";
 import type { CalendarEventOccurrence } from "~interfaces/calendar";
 import type { Gender } from "~interfaces/user";
@@ -132,7 +132,10 @@ const CalendarEventCard = ({
                     <span
                         className={dot()}
                         style={{
-                            backgroundColor: categoryColor(occurrence.category),
+                            backgroundColor: displayCategoryColor(
+                                occurrence.category,
+                                occurrence.customCategoryLabel,
+                            ),
                         }}
                         aria-hidden
                     />
@@ -148,7 +151,12 @@ const CalendarEventCard = ({
                 <div className="min-w-0">
                     <div className={title()}>{occurrence.title}</div>
                     <div className={meta()}>
-                        <span>{categoryLabel(occurrence.category)}</span>
+                        <span>
+                            {displayCategoryLabel(
+                                occurrence.category,
+                                occurrence.customCategoryLabel,
+                            )}
+                        </span>
                         {occurrence.location && (
                             <span className={location()}>
                                 <MapPinIcon className="text-ink-muted" />

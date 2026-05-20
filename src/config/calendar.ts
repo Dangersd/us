@@ -37,6 +37,21 @@ export const categoryLabel = (id: EventCategory): string =>
 export const categoryColor = (id: EventCategory): string =>
     EVENT_CATEGORY_BY_ID[id].color;
 
+// Кастомная категория: label свободного текста + nullable colour fallback.
+// Когда customLabel != null — он перебивает встроенный id/label/color.
+export const CUSTOM_CATEGORY_FALLBACK_COLOR = "#BFB3A8";
+
+export const displayCategoryLabel = (
+    category: EventCategory,
+    customLabel: string | null,
+): string => customLabel ?? categoryLabel(category);
+
+export const displayCategoryColor = (
+    category: EventCategory,
+    customLabel: string | null,
+): string =>
+    customLabel ? CUSTOM_CATEGORY_FALLBACK_COLOR : categoryColor(category);
+
 // =========================================================
 // Memory mood-tags — для past→Memory capture (Phase 0.6.5).
 // =========================================================

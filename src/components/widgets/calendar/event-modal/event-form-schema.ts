@@ -14,6 +14,8 @@ import type {
 } from "~interfaces/calendar";
 
 const CATEGORY_IDS = EVENT_CATEGORIES.map((c) => c.id) as EventCategory[];
+const CATEGORY_FORM_IDS = [...CATEGORY_IDS, "custom"] as const;
+export type CategoryFormValue = EventCategory | "custom";
 const RECURRENCE_RULES: RecurrenceRule[] = ["YEARLY", "MONTHLY"];
 const REMINDER_IDS = AVAILABLE_REMINDER_OFFSETS.map(
     (r) => r.id,
@@ -30,7 +32,8 @@ export interface EventFormValues {
     time: string; // "" or HH:MM
     durationMinutes: number | null;
     location: string;
-    category: EventCategory;
+    category: CategoryFormValue;
+    customCategoryLabel: string;
     note: string;
     isRecurring: boolean;
     recurrenceRule: RecurrenceRule | "";
@@ -67,7 +70,23 @@ export const eventFormSchema: yup.ObjectSchema<EventFormValues> = yup
             .string()
             .max(MAX_LOCATION_LENGTH, `до ${MAX_LOCATION_LENGTH} символов`)
             .defined(),
-        category: yup.mixed<EventCategory>().oneOf(CATEGORY_IDS).required(),
+        category: yup
+            .mixed<CategoryFormValue>()
+            .oneOf([...CATEGORY_FORM_IDS])
+            .required(),
+        customCategoryLabel: yup
+            .string()
+            .transform((v) => (typeof v === "string" ? v.trim() : v))
+            .defined()
+            .max(50, "до 50 символов")
+            .test(
+                "required-when-custom",
+                "название категории обязательно",
+                function (value) {
+                    if (this.parent.category !== "custom") return true;
+                    return typeof value === "string" && value.length > 0;
+                },
+            ),
         note: yup
             .string()
             .max(MAX_EVENT_NOTE_LENGTH, `до ${MAX_EVENT_NOTE_LENGTH} символов`)

@@ -7,13 +7,16 @@ import { tv } from "tailwind-variants";
 import Input from "~components/form/fields/Input";
 import Textarea from "~components/ui/Textarea";
 import ChipGroup from "~components/widgets/calendar/event-modal/ChipGroup";
-import type { EventFormValues } from "~components/widgets/calendar/event-modal/event-form-schema";
-import { AVAILABLE_REMINDER_OFFSETS, EVENT_CATEGORIES } from "~config/calendar";
 import type {
-    EventCategory,
-    RecurrenceRule,
-    ReminderOffset,
-} from "~interfaces/calendar";
+    CategoryFormValue,
+    EventFormValues,
+} from "~components/widgets/calendar/event-modal/event-form-schema";
+import {
+    AVAILABLE_REMINDER_OFFSETS,
+    CUSTOM_CATEGORY_FALLBACK_COLOR,
+    EVENT_CATEGORIES,
+} from "~config/calendar";
+import type { RecurrenceRule, ReminderOffset } from "~interfaces/calendar";
 import { maskDate, maskTime } from "~libs/form/masks";
 import { cn } from "~libs/utils";
 
@@ -52,6 +55,7 @@ const EventFormFields = ({
     } = form;
 
     const recurrenceRule = watch("recurrenceRule");
+    const category = watch("category");
 
     return (
         <div className={root()}>
@@ -168,18 +172,40 @@ const EventFormFields = ({
                     control={control}
                     name="category"
                     render={({ field }) => (
-                        <ChipGroup<EventCategory>
-                            options={EVENT_CATEGORIES.map((c) => ({
-                                id: c.id,
-                                label: c.label,
-                                color: c.color,
-                            }))}
+                        <ChipGroup<CategoryFormValue>
+                            options={[
+                                ...EVENT_CATEGORIES.map((c) => ({
+                                    id: c.id as CategoryFormValue,
+                                    label: c.label,
+                                    color: c.color,
+                                })),
+                                {
+                                    id: "custom" as CategoryFormValue,
+                                    label: "+ своё",
+                                    color: CUSTOM_CATEGORY_FALLBACK_COLOR,
+                                },
+                            ]}
                             selected={field.value}
                             onChange={(id) => field.onChange(id)}
                             ariaLabel="категория события"
                         />
                     )}
                 />
+                {category === "custom" && (
+                    <>
+                        <Input
+                            id="ev-custom-category"
+                            placeholder="название категории"
+                            maxLength={50}
+                            {...register("customCategoryLabel")}
+                        />
+                        {errors.customCategoryLabel && (
+                            <span className={err()}>
+                                {errors.customCategoryLabel.message}
+                            </span>
+                        )}
+                    </>
+                )}
             </div>
 
             <div className={row()}>
