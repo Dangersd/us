@@ -14,6 +14,7 @@ interface RoomShellProps {
 const RoomShell = ({ roomId, children }: RoomShellProps) => {
     const room = ROOMS[roomId];
     const titleId = `room-${roomId}-title`;
+    const hasChildren = Boolean(children);
     return (
         <section
             aria-labelledby={titleId}
@@ -27,26 +28,36 @@ const RoomShell = ({ roomId, children }: RoomShellProps) => {
             <div
                 className={cn(
                     "mx-auto flex w-full max-w-3xl flex-col items-center",
-                    "py-16 md:py-24",
-                    "text-center",
+                    {
+                        // Шиппнутые комнаты — компактный layout без dead-space.
+                        "py-6 md:py-8": hasChildren,
+                        // Стаб-комнаты (calendar/wishlist/profile/home) пока висят
+                        // в центре с placeholder-копией.
+                        "py-16 md:py-24 text-center": !hasChildren,
+                    },
                 )}
             >
                 <h2
                     id={titleId}
                     className={cn(
-                        "font-display text-ink-primary",
+                        "font-display text-ink-primary text-center",
                         "text-3xl md:text-4xl font-medium tracking-[-0.02em]",
                         "mb-4",
                     )}
                 >
                     {room.title}
                 </h2>
-                <p className={cn("text-ink-secondary text-base max-w-md")}>
-                    Комната скоро откроется.
-                </p>
-                {children ? (
-                    <div className={cn("mt-10 w-full")}>{children}</div>
-                ) : null}
+                {hasChildren ? (
+                    <div className={cn("mt-2 w-full")}>{children}</div>
+                ) : (
+                    <p
+                        className={cn(
+                            "text-ink-secondary text-base max-w-md text-center",
+                        )}
+                    >
+                        Комната скоро откроется.
+                    </p>
+                )}
             </div>
         </section>
     );
