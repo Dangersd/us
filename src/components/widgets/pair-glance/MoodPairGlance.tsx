@@ -117,6 +117,7 @@ const MoodPairGlance = ({
                             visible={threadVisible}
                             width={64}
                             height={1}
+                            className={cn("w-8 md:w-16")}
                         />
                     </div>
 
