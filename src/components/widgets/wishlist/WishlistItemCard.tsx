@@ -5,6 +5,7 @@ import { useCallback } from "react";
 import { tv } from "tailwind-variants";
 
 import WishlistImagePreview from "~components/widgets/wishlist/WishlistImagePreview";
+import { useOpenWishlistItemModal } from "~components/widgets/wishlist/item-modal";
 import {
     WISHLIST_CATEGORY_BY_ID,
     WISHLIST_PRIORITY_PIPS,
@@ -21,7 +22,7 @@ export interface WishlistItemCardProps {
 const card = tv({
     base: cn(
         "group relative block w-full text-left",
-        "rounded-2xl bg-bg-surface-1 border border-white/[0.04] overflow-hidden",
+        "rounded-2xl bg-bg-surface-1 border border-white/4 overflow-hidden",
         "transition-[transform,box-shadow] duration-300",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-glow-soft",
     ),
@@ -39,7 +40,7 @@ const card = tv({
 
 const priorityChip = tv({
     base: cn(
-        "absolute top-2 right-2 z-10 flex flex-col items-center gap-[3px]",
+        "absolute top-2 right-2 z-10 flex flex-col items-center gap-0.75",
         "rounded-full bg-bg-base/60 backdrop-blur-sm px-1.5 py-1.5",
     ),
 });
@@ -70,13 +71,16 @@ const WishlistItemCard = ({
     const cat = WISHLIST_CATEGORY_BY_ID[item.category];
     const filledPips = WISHLIST_PRIORITY_PIPS[item.priority];
     const isMine = currentUserId !== null && item.ownerId === currentUserId;
-    // Tap behavior wired в Commit C через useOpenWishlistItemModal. Сейчас
-    // — placeholder, чтобы не блокировать UI render.
-    const handleTap = useCallback(() => {
-        // intentionally empty; Commit C wires open-modal.
-    }, []);
+    // Тап на own-item открывает edit-modal. Shared items редактируют оба
+    // (item.ownerId === null), partner-items — read-only (interactive=false).
+    const isShared = item.ownerId === null;
+    const interactive = !readOnly && (isMine || isShared);
 
-    const interactive = !readOnly && isMine;
+    const openModal = useOpenWishlistItemModal();
+    const handleTap = useCallback(() => {
+        if (!interactive) return;
+        openModal({ mode: "edit", itemId: item.id });
+    }, [interactive, item.id, openModal]);
 
     return (
         <button

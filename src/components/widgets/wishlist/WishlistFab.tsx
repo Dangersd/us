@@ -2,14 +2,11 @@
 
 import { tv } from "tailwind-variants";
 
-import type { WishlistTabId } from "~config/wishlist";
+import { useOpenWishlistItemModal } from "~components/widgets/wishlist/item-modal";
 import type { WishlistList } from "~interfaces/wishlist";
 import { cn } from "~libs/utils";
 
 export interface WishlistFabProps {
-    tabId: WishlistTabId;
-    // owner_id для нового item'а (null для shared, иначе uuid me).
-    ownerId: string | null;
     list: WishlistList;
 }
 
@@ -30,13 +27,17 @@ const styles = tv({
     },
 });
 
-// Commit C подключит open-modal через useOpenWishlistItemModal. Сейчас FAB
-// — placeholder (disabled). Видимость управляется родителем (tab.readOnly).
-const WishlistFab = (_props: WishlistFabProps) => {
+const WishlistFab = ({ list }: WishlistFabProps) => {
     const { wrap, btn } = styles();
+    const openModal = useOpenWishlistItemModal();
+
     return (
         <div className={wrap()}>
-            <button type="button" className={cn(btn(), "opacity-60")} disabled>
+            <button
+                type="button"
+                className={btn()}
+                onClick={() => openModal({ mode: "new", initialList: list })}
+            >
                 <span aria-hidden>＋</span>
                 Добавить
             </button>

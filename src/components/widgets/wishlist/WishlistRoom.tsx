@@ -90,9 +90,7 @@ const WishlistRoom = ({
                     readOnly={tab.readOnly}
                 />
             )}
-            {!tab.readOnly && (
-                <WishlistFab tabId={tabId} ownerId={ownerId} list={tab.list} />
-            )}
+            {!tab.readOnly && <WishlistFab list={tab.list} />}
         </div>
     );
 };

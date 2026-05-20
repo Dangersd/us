@@ -7,3 +7,8 @@ export { default as WishlistItemCard } from "~components/widgets/wishlist/Wishli
 export { default as WishlistImagePreview } from "~components/widgets/wishlist/WishlistImagePreview";
 export { default as WishlistEmptyState } from "~components/widgets/wishlist/WishlistEmptyState";
 export { default as WishlistFab } from "~components/widgets/wishlist/WishlistFab";
+export {
+    WishlistItemModal,
+    type WishlistItemModalProps,
+    useOpenWishlistItemModal,
+} from "~components/widgets/wishlist/item-modal";
