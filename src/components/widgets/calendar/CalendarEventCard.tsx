@@ -7,6 +7,7 @@ import { categoryColor, categoryLabel } from "~config/calendar";
 import MapPinIcon from "~icons/calendar/MapPinIcon";
 import type { CalendarEventOccurrence } from "~interfaces/calendar";
 import type { Gender } from "~interfaces/user";
+import { RU_MONTHS_NOM, RU_WEEKDAY_SHORT } from "~libs/date";
 import { cn } from "~libs/utils";
 
 interface CalendarEventCardProps {
@@ -19,17 +20,19 @@ interface CalendarEventCardProps {
 const styles = tv({
     slots: {
         root: cn(
-            "relative block w-full text-left",
+            "block w-full text-left",
             "rounded-3xl border border-border-warm",
             "bg-bg-surface-1/85 backdrop-blur-2xl",
             "p-4",
             "transition-opacity duration-300",
         ),
-        topRow: cn("flex items-start justify-between gap-3"),
-        dot: cn(
-            "absolute left-2 top-1/2 -translate-y-1/2",
-            "h-2 w-2 rounded-full",
+        header: cn(
+            "flex items-center justify-between gap-3",
+            "text-[11px] uppercase tracking-wide text-ink-muted",
         ),
+        dateRow: cn("inline-flex items-center gap-2 min-w-0"),
+        dot: cn("h-2 w-2 shrink-0 rounded-full"),
+        topRow: cn("mt-2 flex items-start justify-between gap-3"),
         title: cn(
             "font-serif text-[22px] leading-tight font-medium",
             "text-ink-primary",
@@ -54,6 +57,16 @@ function formatTime(time: string | null, allDayFallback: string): string {
     return time.slice(0, 5);
 }
 
+// "2026-05-23" → "сб · 23 мая"
+function formatCardDate(date: string): string {
+    const y = parseInt(date.slice(0, 4), 10);
+    const m = parseInt(date.slice(5, 7), 10);
+    const d = parseInt(date.slice(8, 10), 10);
+    const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+    const isoIdx = dow === 0 ? 6 : dow - 1;
+    return `${RU_WEEKDAY_SHORT[isoIdx]} · ${d} ${RU_MONTHS_NOM[m - 1]}`;
+}
+
 function attributionLabel(
     occurrence: CalendarEventOccurrence,
     currentUserId: string | null,
@@ -75,8 +88,10 @@ const CalendarEventCard = ({
 }: CalendarEventCardProps) => {
     const {
         root,
-        topRow,
+        header,
+        dateRow,
         dot,
+        topRow,
         title,
         time,
         meta,
@@ -112,11 +127,23 @@ const CalendarEventCard = ({
             )}
             aria-label={occurrence.title}
         >
-            <span
-                className={dot()}
-                style={{ backgroundColor: categoryColor(occurrence.category) }}
-                aria-hidden
-            />
+            <div className={header()}>
+                <span className={dateRow()}>
+                    <span
+                        className={dot()}
+                        style={{
+                            backgroundColor: categoryColor(occurrence.category),
+                        }}
+                        aria-hidden
+                    />
+                    <span className="truncate">
+                        {formatCardDate(occurrence.occurrenceDate)}
+                    </span>
+                </span>
+                <span className={time()}>
+                    {formatTime(occurrence.time, "весь день")}
+                </span>
+            </div>
             <div className={topRow()}>
                 <div className="min-w-0">
                     <div className={title()}>{occurrence.title}</div>
@@ -135,9 +162,6 @@ const CalendarEventCard = ({
                         )}
                     </div>
                 </div>
-                <span className={time()}>
-                    {formatTime(occurrence.time, "весь день")}
-                </span>
             </div>
         </button>
     );
