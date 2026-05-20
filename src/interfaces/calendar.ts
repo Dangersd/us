@@ -30,6 +30,7 @@ export interface CalendarEvent {
     durationMinutes: number | null;
     location: string | null;
     category: EventCategory;
+    customCategoryLabel: string | null;
     note: string | null;
     state: EventState;
     source: EventSource;

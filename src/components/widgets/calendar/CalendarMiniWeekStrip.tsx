@@ -5,7 +5,7 @@ import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { tv } from "tailwind-variants";
 
-import { categoryColor } from "~config/calendar";
+import { displayCategoryColor } from "~config/calendar";
 import { CALENDAR_DATE_PARAM } from "~config/routes";
 import { useTodayDate } from "~hooks/use-today-date";
 import { RU_WEEKDAY_SHORT, addDays, getWeekRange } from "~libs/date";
@@ -51,7 +51,10 @@ const CalendarMiniWeekStrip = ({ weekStart }: CalendarMiniWeekStripProps) => {
         const map = new Map<string, string[]>();
         for (const o of occurrences ?? []) {
             const arr = map.get(o.occurrenceDate) ?? [];
-            const color = categoryColor(o.category);
+            const color = displayCategoryColor(
+                o.category,
+                o.customCategoryLabel,
+            );
             if (arr.length < 3 && !arr.includes(color)) arr.push(color);
             map.set(o.occurrenceDate, arr);
         }

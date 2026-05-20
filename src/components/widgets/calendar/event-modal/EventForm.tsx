@@ -16,6 +16,7 @@ import {
 import { DEFAULT_REMINDER_OFFSETS } from "~config/calendar";
 import type {
     CalendarEvent,
+    EventCategory,
     RecurrenceRule,
     ReminderOffset,
 } from "~interfaces/calendar";
@@ -42,7 +43,8 @@ export interface EventFormSubmitPayload {
     time: string | null;
     durationMinutes: number | null;
     location: string | null;
-    category: EventFormValues["category"];
+    category: EventCategory;
+    customCategoryLabel: string | null;
     note: string | null;
     isRecurring: boolean;
     recurrenceRule: RecurrenceRule | null;
@@ -83,13 +85,15 @@ const EventForm = ({
     // Form хранит дату как display ДД-ММ-ГГГГ; existing.date / initialDate
     // приходят в ISO YYYY-MM-DD из БД и URL — конвертируем.
     const rawIsoDate = existing?.date ?? initialDate ?? "";
+    const hasCustomLabel = Boolean(existing?.customCategoryLabel);
     const defaultValues: EventFormValues = {
         title: existing?.title ?? initialTitle ?? "",
         date: rawIsoDate ? isoToDisplayDate(rawIsoDate) : "",
         time: existing?.time ? toEmptyOrTime(existing.time) : "",
         durationMinutes: existing?.durationMinutes ?? null,
         location: existing?.location ?? "",
-        category: existing?.category ?? "generic",
+        category: hasCustomLabel ? "custom" : (existing?.category ?? "generic"),
+        customCategoryLabel: existing?.customCategoryLabel ?? "",
         note: existing?.note ?? "",
         isRecurring: existing?.isRecurring ?? false,
         recurrenceRule: existing?.recurrenceRule ?? "",
@@ -139,13 +143,18 @@ const EventForm = ({
             }
         }
 
+        const customLabel = values.customCategoryLabel.trim();
+        const dbCategory: EventCategory =
+            values.category === "custom" ? "generic" : values.category;
         const payload: EventFormSubmitPayload = {
             title: values.title.trim(),
             date: isoDate,
             time: values.time ? `${values.time}:00` : null,
             durationMinutes: values.durationMinutes,
             location: values.location.trim() || null,
-            category: values.category,
+            category: dbCategory,
+            customCategoryLabel:
+                values.category === "custom" ? customLabel || null : null,
             note: values.note.trim() || null,
             isRecurring: values.recurrenceRule !== "",
             recurrenceRule:

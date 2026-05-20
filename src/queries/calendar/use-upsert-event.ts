@@ -29,6 +29,7 @@ export interface UpsertEventInput {
     durationMinutes: number | null;
     location: string | null;
     category: EventCategory;
+    customCategoryLabel: string | null;
     note: string | null;
     isRecurring: boolean;
     recurrenceRule: RecurrenceRule | null;
@@ -55,6 +56,7 @@ export function useUpsertEvent() {
                 duration_minutes: input.durationMinutes,
                 location: input.location,
                 category: input.category,
+                custom_category_label: input.customCategoryLabel,
                 note: input.note,
                 is_recurring: input.isRecurring,
                 recurrence_rule: input.recurrenceRule,
