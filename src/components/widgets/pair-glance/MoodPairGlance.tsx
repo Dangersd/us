@@ -72,7 +72,7 @@ const MoodPairGlance = ({
             <div
                 className={cn(
                     "relative overflow-hidden",
-                    "rounded-[32px] p-6",
+                    "rounded-[32px] p-4 md:p-6",
                     "bg-bg-surface-1/85 backdrop-blur-xl",
                     "border border-border-warm",
                     "text-glow-soft",
@@ -112,7 +112,11 @@ const MoodPairGlance = ({
                         missingLabel="ещё не отметился(ась)"
                     />
 
-                    <div className={cn("flex h-40 flex-col justify-center")}>
+                    <div
+                        className={cn(
+                            "flex h-30 flex-col justify-center md:h-40",
+                        )}
+                    >
                         <MoodThread
                             visible={threadVisible}
                             width={64}
@@ -206,7 +210,9 @@ const PairColumn = ({
                 socialBattery={entry?.socialBattery ?? 50}
                 size={BLOB_SIZE}
                 aura={hasEntry}
-                className={cn({ "opacity-50": !hasEntry })}
+                className={cn("size-30 md:size-40", {
+                    "opacity-50": !hasEntry,
+                })}
                 aria-label={
                     hasEntry
                         ? `Блоб настроения: ${name}`
