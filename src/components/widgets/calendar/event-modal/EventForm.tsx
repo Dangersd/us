@@ -19,6 +19,7 @@ import type {
     RecurrenceRule,
     ReminderOffset,
 } from "~interfaces/calendar";
+import { COUPLE_TZ, todayDateString } from "~libs/date";
 import { displayDateToIso, isoToDisplayDate } from "~libs/form/masks";
 import { cn } from "~libs/utils";
 
@@ -121,6 +122,23 @@ const EventForm = ({
         // Конвертация display ДД-ММ-ГГГГ → ISO YYYY-MM-DD перед мутацией.
         // Yup уже валидировал паттерн; displayDateToIso безопасен.
         const isoDate = displayDateToIso(values.date);
+
+        // Past-date guard: запрещаем создавать новые non-recurring события
+        // в прошлом. Для existing разрешаем (можно править прошедшее).
+        // Для recurring anchor в прошлом легитимен (годовщина из 2020).
+        const isNew = !existing;
+        const isRecurring = values.recurrenceRule !== "";
+        if (isNew && !isRecurring) {
+            const today = todayDateString(COUPLE_TZ);
+            if (isoDate < today) {
+                form.setError("date", {
+                    type: "manual",
+                    message: "дата уже прошла",
+                });
+                return;
+            }
+        }
+
         const payload: EventFormSubmitPayload = {
             title: values.title.trim(),
             date: isoDate,
