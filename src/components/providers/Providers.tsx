@@ -3,24 +3,14 @@
 import { type ReactNode, useState } from "react";
 
 import {
-    QueryClient,
+    type QueryClient,
     QueryClientProvider,
     isServer,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ReactQueryStreamedHydration } from "@tanstack/react-query-next-experimental";
 
-function makeQueryClient() {
-    return new QueryClient({
-        defaultOptions: {
-            queries: {
-                staleTime: 60_000,
-                retry: 1,
-                refetchOnWindowFocus: false,
-            },
-        },
-    });
-}
+import { makeQueryClient } from "~libs/react-query/query-client";
 
 let browserClient: QueryClient | undefined;
 function getQueryClient() {
