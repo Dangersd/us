@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { tv } from "tailwind-variants";
 
 import Button from "~components/ui/Button";
+import RepairEmptyInvite from "~components/widgets/repair/RepairEmptyInvite";
 import RepairPartnerCard from "~components/widgets/repair/RepairPartnerCard";
 import { useOpenRepairModal } from "~components/widgets/repair/useOpenRepairModal";
 import { formatRelativeTime } from "~components/widgets/repair/utils/format-relative-time";
@@ -19,15 +20,6 @@ import { useCurrentUser } from "~queries/user";
 
 const styles = tv({
     slots: {
-        emptyRoot: cn(
-            "relative block overflow-hidden",
-            "rounded-3xl p-5",
-            "bg-bg-surface-1/85 backdrop-blur-xl",
-            "border border-border-warm",
-            "flex flex-col gap-2",
-        ),
-        emptyHead: cn("text-xs text-ink-muted uppercase tracking-wide"),
-        emptyCta: cn("self-start"),
         openRoot: cn(
             "relative block overflow-hidden",
             "rounded-3xl p-5",
@@ -70,7 +62,21 @@ function useDocTitleBadge(show: boolean) {
     }, [show]);
 }
 
-const RepairWidget = () => {
+export type RepairWidgetSlot = "active" | "empty";
+
+export interface RepairWidgetProps {
+    /**
+     * Контролирует, какие состояния рендерятся:
+     * - `"active"` — рендерится только при открытом эпизоде (наверху Home).
+     * - `"empty"` — рендерится только когда эпизода нет (внизу Home).
+     *
+     * React Query дедуплицирует параллельные `useActiveEpisode` вызовы —
+     * двойной рендер виджета с разными slot'ами делает один сетевой запрос.
+     */
+    slot: RepairWidgetSlot;
+}
+
+const RepairWidget = ({ slot }: RepairWidgetProps) => {
     const s = styles();
 
     const { data: currentUser } = useCurrentUser();
@@ -85,30 +91,22 @@ const RepairWidget = () => {
         episode && currentUser ? episode.initiatorId === currentUser.id : false;
     const isPartnerSide = Boolean(episode && currentUser) && !isInitiator;
 
-    useDocTitleBadge(isPartnerSide);
+    // Badge ставится только для slot="active" чтобы не дублировался когда
+    // оба slot'а смонтированы (defensive — кодовая база сейчас рендерит
+    // ровно по одному slot'у в Home).
+    useDocTitleBadge(slot === "active" && isPartnerSide);
 
-    // Single-user guard: без партнёра кнопка не имеет смысла.
     if (!partner) return null;
 
-    // Empty state: нет активного эпизода.
-    if (!episode) {
-        return (
-            <div className={s.emptyRoot()}>
-                <span className={s.emptyHead()}>После разговора</span>
-                <Button
-                    type="button"
-                    variant="soft"
-                    size="md"
-                    onClick={openModal}
-                    className={s.emptyCta()}
-                >
-                    Мне не ок после разговора
-                </Button>
-            </div>
-        );
+    // Empty slot: только приглашение, и только когда нет активного эпизода.
+    if (slot === "empty") {
+        if (episode) return null;
+        return <RepairEmptyInvite onClick={openModal} />;
     }
 
-    // Open-partner: current user — получатель чужого сигнала.
+    // Active slot ниже — рендерит карточку только при активном эпизоде.
+    if (!episode) return null;
+
     if (isPartnerSide) {
         return (
             <RepairPartnerCard
@@ -127,7 +125,7 @@ const RepairWidget = () => {
         );
     }
 
-    // Open-initiator: current user отправил сигнал, ждёт партнёра.
+    // Open-initiator state.
     const ackedAt = episode.acknowledgedAt;
     const ackLabel = ackedAt
         ? `${partner.displayName} подтвердил(а): ${formatTime(ackedAt)}`

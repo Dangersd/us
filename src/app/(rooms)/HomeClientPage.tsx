@@ -15,10 +15,10 @@ import { RepairWidget } from "~components/widgets/repair";
 import { cn } from "~libs/utils";
 
 // Mobile = вертикальный стек. Desktop md+ = 2-колоночный grid (Mood 480px /
-// NextPlan fill). RepairWidget идёт под greeting full-width — когда активный
-// эпизод есть, важно видеть его сразу; когда нет — кнопка-приглашение спокойно
-// сидит над основной сеткой. Memory of the Day и WishlistPeek — full-width
-// ниже NextPlan.
+// NextPlan fill). RepairWidget рендерится в двух slot'ах: active — full-width
+// под greeting (видим сразу при открытом эпизоде), empty — full-width в самом
+// низу страницы (низкопрофильное приглашение, фича не для каждого дня). Оба
+// slot'а зовут один и тот же query — React Query дедуплицирует.
 const layout = tv({
     slots: {
         root: cn(
@@ -26,11 +26,12 @@ const layout = tv({
             "md:grid md:grid-cols-[480px_1fr] md:gap-6",
         ),
         greetingSlot: cn("md:col-span-2"),
-        repairSlot: cn("md:col-span-2"),
+        repairActiveSlot: cn("md:col-span-2"),
         moodSlot: cn("md:col-span-1"),
         nextPlanSlot: cn("md:col-span-1"),
         memorySlot: cn("md:col-span-2"),
         wishlistSlot: cn("md:col-span-2"),
+        repairEmptySlot: cn("md:col-span-2"),
     },
 });
 
@@ -43,8 +44,8 @@ const HomeClientPage = () => {
                 <div className={s.greetingSlot()}>
                     <HomeGreeting />
                 </div>
-                <div className={s.repairSlot()}>
-                    <RepairWidget />
+                <div className={s.repairActiveSlot()}>
+                    <RepairWidget slot="active" />
                 </div>
                 <div className={s.moodSlot()}>
                     <MoodPairGlance
@@ -61,6 +62,9 @@ const HomeClientPage = () => {
                 </div>
                 <div className={s.wishlistSlot()}>
                     <HomeWishlistPeek />
+                </div>
+                <div className={s.repairEmptySlot()}>
+                    <RepairWidget slot="empty" />
                 </div>
             </div>
         </RoomShell>
