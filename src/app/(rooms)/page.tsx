@@ -13,6 +13,7 @@ import {
     createFetchPartnerProfileServerQuery,
     fetchPartnerProfileServer,
 } from "~queries/profile/fetch-partner-profile.server";
+import { createFetchActiveEpisodeServerQuery } from "~queries/repair/fetch-active-episode.server";
 import { createFetchCurrentUserServerQuery } from "~queries/user/fetch-current-user.server";
 import { createFetchWishlistPeekServerQuery } from "~queries/wishlist/fetch-wishlist-peek.server";
 
@@ -55,6 +56,9 @@ const HomePage = async () => {
             .prefetchQuery(
                 createFetchWishlistPeekServerQuery(partner?.id ?? null),
             )
+            .catch(() => undefined),
+        queryClient
+            .prefetchQuery(createFetchActiveEpisodeServerQuery())
             .catch(() => undefined),
     ]);
 

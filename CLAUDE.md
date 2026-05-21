@@ -111,6 +111,7 @@ When the user's request matches an available skill, invoke it via the Skill tool
 The skill has multi-step workflows and quality gates that beat ad-hoc answers.
 
 Key routing rules:
+
 - Product ideas, brainstorming, "is this worth building" → /office-hours
 - Strategy, scope, "think bigger" → /plan-ceo-review
 - Architecture review of a plan → /plan-eng-review
