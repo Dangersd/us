@@ -21,9 +21,16 @@ export interface ProfileBlobPairProps {
     className?: string;
 }
 
+// size prop задаёт viewBox-координаты SVG; визуальный размер контролируется
+// CSS через className, чтобы SVG масштабировался responsive (w-32 mobile →
+// w-40 md+). Без CSS-override блобы 160×160 пушат страницу за viewport на
+// узких экранах (sum 160+80+160 = 400px > mobile ~343px usable).
 const BLOB_SIZE = 160;
 const THREAD_WIDTH = 80;
 const THREAD_HEIGHT = 28;
+
+const BLOB_CLASS = "w-32 h-32 md:w-40 md:h-40 shrink-0";
+const THREAD_CLASS = "w-12 md:w-20 h-auto -mx-3 md:-mx-6 shrink-0";
 
 const ProfileBlobPair = ({ me, partner, className }: ProfileBlobPairProps) => {
     // Определяем left = him, right = her — независимо от того, кто залогинен.
@@ -51,13 +58,14 @@ const ProfileBlobPair = ({ me, partner, className }: ProfileBlobPairProps) => {
                 socialBattery={50}
                 aura
                 aria-label={left.displayName}
+                className={BLOB_CLASS}
             />
             <LightThread
                 hueLeft={hueLeft}
                 hueRight={hueRight}
                 width={THREAD_WIDTH}
                 height={THREAD_HEIGHT}
-                className="-mx-6"
+                className={THREAD_CLASS}
             />
             {partner ? (
                 <MoodBlob
@@ -68,6 +76,7 @@ const ProfileBlobPair = ({ me, partner, className }: ProfileBlobPairProps) => {
                     socialBattery={50}
                     aura
                     aria-label={right.displayName}
+                    className={BLOB_CLASS}
                 />
             ) : (
                 // Партнёр ещё не подгружен — рендерим muted-placeholder blob
@@ -80,7 +89,7 @@ const ProfileBlobPair = ({ me, partner, className }: ProfileBlobPairProps) => {
                     socialBattery={40}
                     aura={false}
                     aria-label="партнёр"
-                    className="opacity-40"
+                    className={cn(BLOB_CLASS, "opacity-40")}
                 />
             )}
         </div>
