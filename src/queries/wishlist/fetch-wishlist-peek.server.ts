@@ -4,6 +4,7 @@ import "server-only";
 
 import type { WishlistItem } from "~interfaces/wishlist";
 import { getServerSupabase } from "~libs/supabase/server";
+import { wishlistKeys } from "~queries/wishlist/keys";
 import {
     WISHLIST_ITEM_COLUMNS,
     type WishlistItemRow,
@@ -22,6 +23,19 @@ export interface WishlistPeek {
     partnerWants: WishlistItem[];
     shared: WishlistItem[];
 }
+
+// React Query factory: используется page-prefetch'ом и client-hook'ом.
+// partnerId служит scoping-ключом (cache hit для одной пары стабилен).
+// partnerId=null → пустой peek без round-trip (login mid-onboarding).
+export const createFetchWishlistPeekServerQuery = (
+    partnerId: string | null,
+) => ({
+    queryKey: wishlistKeys.peek(partnerId ?? "none"),
+    queryFn: () =>
+        partnerId
+            ? fetchWishlistPeekServer(partnerId)
+            : Promise.resolve<WishlistPeek>({ partnerWants: [], shared: [] }),
+});
 
 export const fetchWishlistPeekServer = cache(
     async (partnerId: string): Promise<WishlistPeek> => {

@@ -1,2 +1,4 @@
 export { default as HomeAmbient } from "~components/widgets/home/HomeAmbient";
 export { default as HomeGreeting } from "~components/widgets/home/HomeGreeting";
+export { default as HomeNextPlan } from "~components/widgets/home/HomeNextPlan";
+export { default as HomeWishlistPeek } from "~components/widgets/home/HomeWishlistPeek";
