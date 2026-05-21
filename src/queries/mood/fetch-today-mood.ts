@@ -1,10 +1,18 @@
 import type { MoodEntry } from "~interfaces/mood";
 import { getBrowserSupabase } from "~libs/supabase/client";
+import { moodKeys } from "~queries/mood/keys";
 import {
     MOOD_COLUMNS,
     type MoodEntryRow,
     mapMoodRow,
 } from "~queries/mood/map-mood-row";
+
+export const createFetchTodayMoodQuery = (date: string) => ({
+    queryKey: moodKeys.byDate(date),
+    queryFn: () => fetchTodayMood(date),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+});
 
 export async function fetchTodayMood(date: string): Promise<MoodEntry | null> {
     const supabase = getBrowserSupabase();

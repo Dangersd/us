@@ -4,11 +4,17 @@ import "server-only";
 
 import type { AppUser } from "~interfaces/user";
 import { getServerSupabase } from "~libs/supabase/server";
+import { profileKeys } from "~queries/profile/keys";
 import {
     USER_COLUMNS,
     type UserRow,
     mapUserRow,
 } from "~queries/user/map-user-row";
+
+export const createFetchPartnerProfileServerQuery = () => ({
+    queryKey: profileKeys.partner(),
+    queryFn: fetchPartnerProfileServer,
+});
 
 // См. комментарий про RLS-инвариант в ~queries/profile/fetch-partner-profile.
 export const fetchPartnerProfileServer = cache(

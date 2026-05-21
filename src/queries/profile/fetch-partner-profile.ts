@@ -1,10 +1,17 @@
 import type { AppUser } from "~interfaces/user";
 import { getBrowserSupabase } from "~libs/supabase/client";
+import { profileKeys } from "~queries/profile/keys";
 import {
     USER_COLUMNS,
     type UserRow,
     mapUserRow,
 } from "~queries/user/map-user-row";
+
+export const createFetchPartnerProfileQuery = () => ({
+    queryKey: profileKeys.partner(),
+    queryFn: fetchPartnerProfile,
+    staleTime: 5 * 60_000,
+});
 
 // RLS-инвариант: policy users_select_couple
 // (supabase/migrations/20260519000000_init_couple_users.sql:48) ограничивает

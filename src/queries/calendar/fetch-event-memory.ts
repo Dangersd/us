@@ -1,10 +1,21 @@
 import type { EventMemory } from "~interfaces/calendar";
 import { getBrowserSupabase } from "~libs/supabase/client";
+import { calendarKeys } from "~queries/calendar/keys";
 import {
     EVENT_MEMORY_COLUMNS,
     type EventMemoryRow,
     mapEventMemoryRow,
 } from "~queries/calendar/map-event-memory-row";
+
+export const createFetchEventMemoryQuery = (
+    eventId: string,
+    occurrenceDate: string,
+) => ({
+    queryKey: calendarKeys.eventMemory(eventId, occurrenceDate),
+    queryFn: () => fetchEventMemory(eventId, occurrenceDate),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+});
 
 export async function fetchEventMemory(
     eventId: string,

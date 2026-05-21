@@ -4,11 +4,17 @@ import "server-only";
 
 import type { CalendarEvent } from "~interfaces/calendar";
 import { getServerSupabase } from "~libs/supabase/server";
+import { calendarKeys } from "~queries/calendar/keys";
 import {
     CALENDAR_EVENT_COLUMNS,
     type CalendarEventRow,
     mapCalendarEventRow,
 } from "~queries/calendar/map-event-row";
+
+export const createFetchEventServerQuery = (id: string) => ({
+    queryKey: calendarKeys.eventById(id),
+    queryFn: () => fetchEventServer(id),
+});
 
 export const fetchEventServer = cache(
     async (id: string): Promise<CalendarEvent | null> => {

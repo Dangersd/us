@@ -5,11 +5,17 @@ import "server-only";
 import type { WishlistItem } from "~interfaces/wishlist";
 import { getServerSupabase } from "~libs/supabase/server";
 import type { FetchItemsArgs } from "~queries/wishlist/fetch-items";
+import { wishlistKeys } from "~queries/wishlist/keys";
 import {
     WISHLIST_ITEM_COLUMNS,
     type WishlistItemRow,
     mapWishlistItemRow,
 } from "~queries/wishlist/map-item-row";
+
+export const createFetchItemsServerQuery = (args: FetchItemsArgs) => ({
+    queryKey: wishlistKeys.itemsList(args.list, args.ownerId),
+    queryFn: () => fetchItemsServer(args),
+});
 
 export const fetchItemsServer = cache(
     async ({ list, ownerId }: FetchItemsArgs): Promise<WishlistItem[]> => {

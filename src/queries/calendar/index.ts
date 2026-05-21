@@ -1,15 +1,30 @@
 // Browser-safe экспорты query-слоя calendar.
-// fetch*Server явно импортируются из *.server.ts чтобы случайно не утащить
-// next/headers / server-only в client bundle.
+// fetch*Server и create*ServerQuery явно импортируются из *.server.ts чтобы
+// случайно не утащить next/headers / server-only в client bundle.
 export {
     expandEventsInRange,
     type DateRange,
 } from "~queries/calendar/expand-recurring";
-export { fetchEvent } from "~queries/calendar/fetch-event";
-export { fetchEventMemory } from "~queries/calendar/fetch-event-memory";
-export { fetchEventPhotos } from "~queries/calendar/fetch-event-photos";
-export { fetchEventsRange } from "~queries/calendar/fetch-events-range";
-export { fetchIdeas } from "~queries/calendar/fetch-ideas";
+export {
+    createFetchEventQuery,
+    fetchEvent,
+} from "~queries/calendar/fetch-event";
+export {
+    createFetchEventMemoryQuery,
+    fetchEventMemory,
+} from "~queries/calendar/fetch-event-memory";
+export {
+    createFetchEventPhotosQuery,
+    fetchEventPhotos,
+} from "~queries/calendar/fetch-event-photos";
+export {
+    createFetchEventsRangeQuery,
+    fetchEventsRange,
+} from "~queries/calendar/fetch-events-range";
+export {
+    createFetchIdeasQuery,
+    fetchIdeas,
+} from "~queries/calendar/fetch-ideas";
 export { calendarKeys } from "~queries/calendar/keys";
 export {
     CALENDAR_EVENT_COLUMNS,

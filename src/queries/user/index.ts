@@ -1,8 +1,12 @@
 // Browser-safe экспорты query-слоя user.
-// fetchCurrentUserServer импортируется явно из ~queries/user/fetch-current-user.server
-// чтобы случайно не утащить next/headers в client bundle.
+// fetchCurrentUserServer и createFetchCurrentUserServerQuery импортируются
+// явно из ~queries/user/fetch-current-user.server чтобы случайно не утащить
+// next/headers в client bundle.
 export { ACCOUNT_EMAILS } from "~queries/user/account-emails";
-export { fetchCurrentUser } from "~queries/user/fetch-current-user";
+export {
+    createFetchCurrentUserQuery,
+    fetchCurrentUser,
+} from "~queries/user/fetch-current-user";
 export { userKeys } from "~queries/user/keys";
 export {
     USER_COLUMNS,

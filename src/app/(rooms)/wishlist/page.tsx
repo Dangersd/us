@@ -1,16 +1,18 @@
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 
-import RoomShell from "~components/shell/RoomShell";
-import { WishlistRoom } from "~components/widgets/wishlist";
+import WishlistClientPage from "~app/(rooms)/wishlist/WishlistClientPage";
 import { WISHLIST_TAB_PARAM } from "~config/routes";
 import { WISHLIST_TAB_BY_ID, type WishlistTabId } from "~config/wishlist";
 import { makeQueryClient } from "~libs/react-query/query-client";
-import { fetchPartnerProfileServer } from "~queries/profile/fetch-partner-profile.server";
-import { profileKeys } from "~queries/profile/keys";
-import { fetchCurrentUserServer } from "~queries/user/fetch-current-user.server";
-import { userKeys } from "~queries/user/keys";
-import { fetchItemsServer } from "~queries/wishlist/fetch-items.server";
-import { wishlistKeys } from "~queries/wishlist/keys";
+import {
+    createFetchPartnerProfileServerQuery,
+    fetchPartnerProfileServer,
+} from "~queries/profile/fetch-partner-profile.server";
+import {
+    createFetchCurrentUserServerQuery,
+    fetchCurrentUserServer,
+} from "~queries/user/fetch-current-user.server";
+import { createFetchItemsServerQuery } from "~queries/wishlist/fetch-items.server";
 
 interface WishlistPageProps {
     searchParams: Promise<{ tab?: string }>;
@@ -25,6 +27,10 @@ const WishlistPage = async ({ searchParams }: WishlistPageProps) => {
     const params = await searchParams;
     const initialTab = parseTab(params[WISHLIST_TAB_PARAM]);
 
+    // Нужно знать ownerId под initial tab чтобы prefetch'нуть правильный
+    // список. user/partner readers идут через react.cache — дубль с
+    // prefetchQuery(createFetchCurrentUserServerQuery) внутри Promise.all
+    // дедуплицируется.
     const [user, partner] = await Promise.all([
         fetchCurrentUserServer(),
         fetchPartnerProfileServer(),
@@ -39,37 +45,23 @@ const WishlistPage = async ({ searchParams }: WishlistPageProps) => {
               : (partner?.id ?? null);
 
     const queryClient = makeQueryClient();
-    const prefetches = [
+    await Promise.all([
         queryClient
-            .prefetchQuery({
-                queryKey: userKeys.current(),
-                queryFn: fetchCurrentUserServer,
-            })
+            .prefetchQuery(createFetchCurrentUserServerQuery())
             .catch(() => undefined),
         queryClient
-            .prefetchQuery({
-                queryKey: profileKeys.partner(),
-                queryFn: fetchPartnerProfileServer,
-            })
+            .prefetchQuery(createFetchPartnerProfileServerQuery())
             .catch(() => undefined),
         queryClient
-            .prefetchQuery({
-                queryKey: wishlistKeys.itemsList(tab.list, ownerId),
-                queryFn: () => fetchItemsServer({ list: tab.list, ownerId }),
-            })
+            .prefetchQuery(
+                createFetchItemsServerQuery({ list: tab.list, ownerId }),
+            )
             .catch(() => undefined),
-    ];
-    await Promise.all(prefetches);
+    ]);
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
-            <RoomShell roomId="wishlist">
-                <WishlistRoom
-                    initialTab={initialTab}
-                    currentUserId={user?.id ?? null}
-                    partnerUserId={partner?.id ?? null}
-                />
-            </RoomShell>
+            <WishlistClientPage initialTab={initialTab} />
         </HydrationBoundary>
     );
 };

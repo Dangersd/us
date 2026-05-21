@@ -1,11 +1,18 @@
+// fetchItemsServer / createFetchItemsServerQuery / fetchWishlistPeekServer
+// импортируются явно из *.server.ts чтобы случайно не утащить server-only в
+// client bundle.
 export { wishlistKeys } from "~queries/wishlist/keys";
 export {
     WISHLIST_ITEM_COLUMNS,
     mapWishlistItemRow,
     type WishlistItemRow,
 } from "~queries/wishlist/map-item-row";
-export { type FetchItemsArgs, fetchItems } from "~queries/wishlist/fetch-items";
-export { fetchItem } from "~queries/wishlist/fetch-item";
+export {
+    type FetchItemsArgs,
+    createFetchItemsQuery,
+    fetchItems,
+} from "~queries/wishlist/fetch-items";
+export { createFetchItemQuery, fetchItem } from "~queries/wishlist/fetch-item";
 export { useItem } from "~queries/wishlist/use-item";
 export { useItems, useItemsByListOwner } from "~queries/wishlist/use-items";
 export {

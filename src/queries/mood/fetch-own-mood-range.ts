@@ -1,10 +1,18 @@
 import type { MoodEntry } from "~interfaces/mood";
 import { getBrowserSupabase } from "~libs/supabase/client";
+import { moodKeys } from "~queries/mood/keys";
 import {
     MOOD_COLUMNS,
     type MoodEntryRow,
     mapMoodRow,
 } from "~queries/mood/map-mood-row";
+
+export const createFetchOwnMoodRangeQuery = (start: string, end: string) => ({
+    queryKey: moodKeys.ownRange(start, end),
+    queryFn: () => fetchOwnMoodRange(start, end),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+});
 
 export async function fetchOwnMoodRange(
     start: string,

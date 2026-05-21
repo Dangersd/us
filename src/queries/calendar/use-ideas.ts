@@ -2,14 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { fetchIdeas } from "~queries/calendar/fetch-ideas";
-import { calendarKeys } from "~queries/calendar/keys";
+import { createFetchIdeasQuery } from "~queries/calendar/fetch-ideas";
 
 export function useIdeas() {
-    return useQuery({
-        queryKey: calendarKeys.ideas(),
-        queryFn: fetchIdeas,
-        staleTime: 0,
-        refetchOnWindowFocus: true,
-    });
+    return useQuery(createFetchIdeasQuery());
 }

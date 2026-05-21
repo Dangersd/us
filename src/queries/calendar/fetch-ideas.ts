@@ -1,10 +1,18 @@
 import type { EventIdea } from "~interfaces/calendar";
 import { getBrowserSupabase } from "~libs/supabase/client";
+import { calendarKeys } from "~queries/calendar/keys";
 import {
     EVENT_IDEA_COLUMNS,
     type EventIdeaRow,
     mapEventIdeaRow,
 } from "~queries/calendar/map-idea-row";
+
+export const createFetchIdeasQuery = () => ({
+    queryKey: calendarKeys.ideas(),
+    queryFn: fetchIdeas,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+});
 
 export async function fetchIdeas(): Promise<EventIdea[]> {
     const supabase = getBrowserSupabase();

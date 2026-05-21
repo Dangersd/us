@@ -1,6 +1,14 @@
 import type { MoodEntry } from "~interfaces/mood";
 import { getBrowserSupabase } from "~libs/supabase/client";
+import { moodKeys } from "~queries/mood/keys";
 import { type MoodEntryRow, mapMoodRow } from "~queries/mood/map-mood-row";
+
+export const createFetchPartnerTodayMoodQuery = (date: string) => ({
+    queryKey: moodKeys.partnerByDate(date),
+    queryFn: () => fetchPartnerTodayMood(date),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+});
 
 // Partner-row за конкретную дату. Идёт через get_partner_mood_range(date, date)
 // SECURITY DEFINER — RLS на mood_entries разрешает SELECT только по

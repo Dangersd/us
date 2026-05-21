@@ -4,11 +4,17 @@ import "server-only";
 
 import type { MoodEntry } from "~interfaces/mood";
 import { getServerSupabase } from "~libs/supabase/server";
+import { moodKeys } from "~queries/mood/keys";
 import {
     MOOD_COLUMNS,
     type MoodEntryRow,
     mapMoodRow,
 } from "~queries/mood/map-mood-row";
+
+export const createFetchTodayMoodServerQuery = (date: string) => ({
+    queryKey: moodKeys.byDate(date),
+    queryFn: () => fetchTodayMoodServer(date),
+});
 
 // De-dup per request: если несколько Server Components внутри одного render-цикла
 // зовут fetchTodayMoodServer(date) — Supabase-запрос реально идёт один раз.

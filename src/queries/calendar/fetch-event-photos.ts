@@ -1,10 +1,21 @@
 import type { EventPhoto } from "~interfaces/calendar";
 import { getBrowserSupabase } from "~libs/supabase/client";
+import { calendarKeys } from "~queries/calendar/keys";
 import {
     EVENT_PHOTO_COLUMNS,
     type EventPhotoRow,
     mapEventPhotoRow,
 } from "~queries/calendar/map-event-photo-row";
+
+export const createFetchEventPhotosQuery = (
+    eventId: string,
+    occurrenceDate: string,
+) => ({
+    queryKey: calendarKeys.eventPhotos(eventId, occurrenceDate),
+    queryFn: () => fetchEventPhotos(eventId, occurrenceDate),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+});
 
 export async function fetchEventPhotos(
     eventId: string,

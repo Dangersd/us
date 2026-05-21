@@ -1,10 +1,17 @@
 import type { AppUser } from "~interfaces/user";
 import { getBrowserSupabase } from "~libs/supabase/client";
+import { userKeys } from "~queries/user/keys";
 import {
     USER_COLUMNS,
     type UserRow,
     mapUserRow,
 } from "~queries/user/map-user-row";
+
+export const createFetchCurrentUserQuery = () => ({
+    queryKey: userKeys.current(),
+    queryFn: fetchCurrentUser,
+    staleTime: 60_000,
+});
 
 export async function fetchCurrentUser(): Promise<AppUser | null> {
     const supabase = getBrowserSupabase();

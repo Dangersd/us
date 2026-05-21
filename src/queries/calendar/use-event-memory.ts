@@ -2,8 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { fetchEventMemory } from "~queries/calendar/fetch-event-memory";
-import { calendarKeys } from "~queries/calendar/keys";
+import { createFetchEventMemoryQuery } from "~queries/calendar/fetch-event-memory";
 
 export function useEventMemory(
     eventId: string | null,
@@ -11,15 +10,10 @@ export function useEventMemory(
 ) {
     const enabled = Boolean(eventId && occurrenceDate);
     return useQuery({
-        queryKey: enabled
-            ? calendarKeys.eventMemory(eventId!, occurrenceDate!)
-            : ["calendar", "event-memory", "none"],
-        queryFn: () =>
-            enabled
-                ? fetchEventMemory(eventId!, occurrenceDate!)
-                : Promise.resolve(null),
+        ...createFetchEventMemoryQuery(
+            eventId ?? "none",
+            occurrenceDate ?? "none",
+        ),
         enabled,
-        staleTime: 0,
-        refetchOnWindowFocus: true,
     });
 }

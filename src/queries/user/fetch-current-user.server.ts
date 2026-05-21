@@ -4,11 +4,17 @@ import "server-only";
 
 import type { AppUser } from "~interfaces/user";
 import { getServerSupabase } from "~libs/supabase/server";
+import { userKeys } from "~queries/user/keys";
 import {
     USER_COLUMNS,
     type UserRow,
     mapUserRow,
 } from "~queries/user/map-user-row";
+
+export const createFetchCurrentUserServerQuery = () => ({
+    queryKey: userKeys.current(),
+    queryFn: fetchCurrentUserServer,
+});
 
 export const fetchCurrentUserServer = cache(
     async (): Promise<AppUser | null> => {

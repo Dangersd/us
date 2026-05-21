@@ -1,26 +1,21 @@
-import LogoutButton from "~components/auth/LogoutButton";
-import RoomShell from "~components/shell/RoomShell";
-import { cn } from "~libs/utils";
-import { fetchCurrentUserServer } from "~queries/user/fetch-current-user.server";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+
+import ProfileClientPage from "~app/(rooms)/profile/ProfileClientPage";
+import { makeQueryClient } from "~libs/react-query/query-client";
+import { createFetchCurrentUserServerQuery } from "~queries/user/fetch-current-user.server";
 
 const ProfilePage = async () => {
-    // Layout уже гарантирует наличие user; повторный вызов дедуплицируется
-    // через React.cache() в самом fetchCurrentUserServer.
-    const user = await fetchCurrentUserServer();
+    // Layout уже гарантирует наличие user; prefetch'им для hydration —
+    // client читает через useCurrentUser() и рендерит greeting без flash.
+    const queryClient = makeQueryClient();
+    await queryClient
+        .prefetchQuery(createFetchCurrentUserServerQuery())
+        .catch(() => undefined);
 
     return (
-        <RoomShell roomId="profile">
-            <div className={cn("flex flex-col items-center gap-6")}>
-                <p className={cn("text-ink-secondary text-base")}>
-                    Привет,{" "}
-                    <span className="text-ink-primary">
-                        {user?.displayName}
-                    </span>
-                    .
-                </p>
-                <LogoutButton variant="soft" size="md" />
-            </div>
-        </RoomShell>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <ProfileClientPage />
+        </HydrationBoundary>
     );
 };
 

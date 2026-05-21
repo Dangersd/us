@@ -1,10 +1,18 @@
 import type { WishlistItem, WishlistList } from "~interfaces/wishlist";
 import { getBrowserSupabase } from "~libs/supabase/client";
+import { wishlistKeys } from "~queries/wishlist/keys";
 import {
     WISHLIST_ITEM_COLUMNS,
     type WishlistItemRow,
     mapWishlistItemRow,
 } from "~queries/wishlist/map-item-row";
+
+export const createFetchItemsQuery = (args: FetchItemsArgs) => ({
+    queryKey: wishlistKeys.itemsList(args.list, args.ownerId),
+    queryFn: () => fetchItems(args),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+});
 
 export interface FetchItemsArgs {
     list: WishlistList;

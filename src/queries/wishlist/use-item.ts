@@ -2,15 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { fetchItem } from "~queries/wishlist/fetch-item";
-import { wishlistKeys } from "~queries/wishlist/keys";
+import { createFetchItemQuery } from "~queries/wishlist/fetch-item";
 
 export function useItem(id: string | null) {
     return useQuery({
-        queryKey: id ? wishlistKeys.itemById(id) : ["wishlist", "item", "none"],
-        queryFn: () => (id ? fetchItem(id) : Promise.resolve(null)),
+        ...createFetchItemQuery(id ?? "none"),
         enabled: Boolean(id),
-        staleTime: 0,
-        refetchOnWindowFocus: true,
     });
 }

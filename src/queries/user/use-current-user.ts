@@ -2,13 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { fetchCurrentUser } from "~queries/user/fetch-current-user";
-import { userKeys } from "~queries/user/keys";
+import { createFetchCurrentUserQuery } from "~queries/user/fetch-current-user";
 
 export function useCurrentUser() {
-    return useQuery({
-        queryKey: userKeys.current(),
-        queryFn: fetchCurrentUser,
-        staleTime: 60_000,
-    });
+    return useQuery(createFetchCurrentUserQuery());
 }

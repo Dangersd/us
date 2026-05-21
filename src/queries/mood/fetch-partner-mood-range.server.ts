@@ -4,7 +4,16 @@ import "server-only";
 
 import type { MoodEntry } from "~interfaces/mood";
 import { getServerSupabase } from "~libs/supabase/server";
+import { moodKeys } from "~queries/mood/keys";
 import { type MoodEntryRow, mapMoodRow } from "~queries/mood/map-mood-row";
+
+export const createFetchPartnerMoodRangeServerQuery = (
+    start: string,
+    end: string,
+) => ({
+    queryKey: moodKeys.partnerRange(start, end),
+    queryFn: () => fetchPartnerMoodRangeServer(start, end),
+});
 
 export const fetchPartnerMoodRangeServer = cache(
     async (start: string, end: string): Promise<MoodEntry[]> => {

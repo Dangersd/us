@@ -11,11 +11,20 @@ import {
     type DateRange,
     expandEventsInRange,
 } from "~queries/calendar/expand-recurring";
+import { calendarKeys } from "~queries/calendar/keys";
 import {
     CALENDAR_EVENT_COLUMNS,
     type CalendarEventRow,
     mapCalendarEventRow,
 } from "~queries/calendar/map-event-row";
+
+export const createFetchEventsRangeServerQuery = (
+    range: DateRange,
+    today: string,
+) => ({
+    queryKey: calendarKeys.eventsRange(range.start, range.end),
+    queryFn: () => fetchEventsRangeServer(range, today),
+});
 
 export const fetchEventsRangeServer = cache(
     async (

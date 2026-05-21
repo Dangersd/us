@@ -3,16 +3,13 @@
 import { useQuery } from "@tanstack/react-query";
 
 import type { WishlistList } from "~interfaces/wishlist";
-import { type FetchItemsArgs, fetchItems } from "~queries/wishlist/fetch-items";
-import { wishlistKeys } from "~queries/wishlist/keys";
+import {
+    type FetchItemsArgs,
+    createFetchItemsQuery,
+} from "~queries/wishlist/fetch-items";
 
 export function useItems(args: FetchItemsArgs) {
-    return useQuery({
-        queryKey: wishlistKeys.itemsList(args.list, args.ownerId),
-        queryFn: () => fetchItems(args),
-        staleTime: 0,
-        refetchOnWindowFocus: true,
-    });
+    return useQuery(createFetchItemsQuery(args));
 }
 
 // Удобная перегрузка без аргумент-объекта (по-умолчанию для прямых вызовов).

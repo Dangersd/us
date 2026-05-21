@@ -1,10 +1,18 @@
 import type { CalendarEvent } from "~interfaces/calendar";
 import { getBrowserSupabase } from "~libs/supabase/client";
+import { calendarKeys } from "~queries/calendar/keys";
 import {
     CALENDAR_EVENT_COLUMNS,
     type CalendarEventRow,
     mapCalendarEventRow,
 } from "~queries/calendar/map-event-row";
+
+export const createFetchEventQuery = (id: string) => ({
+    queryKey: calendarKeys.eventById(id),
+    queryFn: () => fetchEvent(id),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+});
 
 export async function fetchEvent(id: string): Promise<CalendarEvent | null> {
     const supabase = getBrowserSupabase();

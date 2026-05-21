@@ -1,11 +1,6 @@
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 
-import RoomShell from "~components/shell/RoomShell";
-import {
-    CalendarAgendaView,
-    CalendarHeader,
-    CalendarMonthGrid,
-} from "~components/widgets/calendar";
+import CalendarClientPage from "~app/(rooms)/calendar/CalendarClientPage";
 import {
     CALENDAR_DATE_PARAM,
     CALENDAR_MONTH_PARAM,
@@ -15,7 +10,6 @@ import { seedRecurringForCurrentCouple } from "~libs/calendar/seed-recurring";
 import {
     COUPLE_TZ,
     addDays,
-    currentYearMonth,
     getMonthRange,
     getWeekRange,
     parseDay,
@@ -25,13 +19,10 @@ import {
 } from "~libs/date";
 import { makeQueryClient } from "~libs/react-query/query-client";
 import { getServerSupabase } from "~libs/supabase/server";
-import { fetchEventsRangeServer } from "~queries/calendar/fetch-events-range.server";
-import { fetchIdeasServer } from "~queries/calendar/fetch-ideas.server";
-import { calendarKeys } from "~queries/calendar/keys";
-import { fetchPartnerProfileServer } from "~queries/profile/fetch-partner-profile.server";
-import { profileKeys } from "~queries/profile/keys";
-import { fetchCurrentUserServer } from "~queries/user/fetch-current-user.server";
-import { userKeys } from "~queries/user/keys";
+import { createFetchEventsRangeServerQuery } from "~queries/calendar/fetch-events-range.server";
+import { createFetchIdeasServerQuery } from "~queries/calendar/fetch-ideas.server";
+import { createFetchPartnerProfileServerQuery } from "~queries/profile/fetch-partner-profile.server";
+import { createFetchCurrentUserServerQuery } from "~queries/user/fetch-current-user.server";
 
 interface CalendarPageProps {
     // event/idea ушли из URL — модалки управляются ModalProvider (см.
@@ -52,9 +43,6 @@ const CalendarPage = async ({ searchParams }: CalendarPageProps) => {
         params[CALENDAR_VIEW_PARAM] === "month" ? "month" : "agenda";
     const selectedDay = parseDay(params[CALENDAR_DATE_PARAM], ym);
 
-    const user = await fetchCurrentUserServer();
-    const partner = await fetchPartnerProfileServer();
-
     // TENSION-3 fallback: idempotent seed на каждый visit. Когда Profile-
     // мутации будут wire'нуты (Phase 0.9), вызов оттуда придёт раньше,
     // и здесь будут только skip'ы. Fire-and-forget — не блокируем render.
@@ -71,56 +59,34 @@ const CalendarPage = async ({ searchParams }: CalendarPageProps) => {
     const queryClient = makeQueryClient();
     const prefetches = [
         queryClient
-            .prefetchQuery({
-                queryKey: calendarKeys.eventsRange(
-                    agendaRange.start,
-                    agendaRange.end,
+            .prefetchQuery(
+                createFetchEventsRangeServerQuery(agendaRange, today),
+            )
+            .catch(() => undefined),
+        queryClient
+            .prefetchQuery(
+                createFetchEventsRangeServerQuery(
+                    { start: weekRangeStart, end: weekRangeEnd },
+                    today,
                 ),
-                queryFn: () => fetchEventsRangeServer(agendaRange, today),
-            })
+            )
             .catch(() => undefined),
         queryClient
-            .prefetchQuery({
-                queryKey: calendarKeys.eventsRange(
-                    weekRangeStart,
-                    weekRangeEnd,
-                ),
-                queryFn: () =>
-                    fetchEventsRangeServer(
-                        { start: weekRangeStart, end: weekRangeEnd },
-                        today,
-                    ),
-            })
+            .prefetchQuery(createFetchIdeasServerQuery())
             .catch(() => undefined),
         queryClient
-            .prefetchQuery({
-                queryKey: calendarKeys.ideas(),
-                queryFn: fetchIdeasServer,
-            })
+            .prefetchQuery(createFetchCurrentUserServerQuery())
             .catch(() => undefined),
         queryClient
-            .prefetchQuery({
-                queryKey: userKeys.current(),
-                queryFn: fetchCurrentUserServer,
-            })
-            .catch(() => undefined),
-        queryClient
-            .prefetchQuery({
-                queryKey: profileKeys.partner(),
-                queryFn: fetchPartnerProfileServer,
-            })
+            .prefetchQuery(createFetchPartnerProfileServerQuery())
             .catch(() => undefined),
     ];
     if (monthRange) {
         prefetches.push(
             queryClient
-                .prefetchQuery({
-                    queryKey: calendarKeys.eventsRange(
-                        monthRange.start,
-                        monthRange.end,
-                    ),
-                    queryFn: () => fetchEventsRangeServer(monthRange, today),
-                })
+                .prefetchQuery(
+                    createFetchEventsRangeServerQuery(monthRange, today),
+                )
                 .catch(() => undefined),
         );
     }
@@ -128,18 +94,7 @@ const CalendarPage = async ({ searchParams }: CalendarPageProps) => {
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
-            <RoomShell roomId="calendar">
-                <CalendarHeader ym={ym} view={view} />
-                {view === "month" ? (
-                    <CalendarMonthGrid ym={ym} selectedDay={selectedDay} />
-                ) : (
-                    <CalendarAgendaView
-                        currentUserId={user?.id ?? null}
-                        partnerDisplayName={partner?.displayName ?? null}
-                        partnerGender={partner?.gender ?? null}
-                    />
-                )}
-            </RoomShell>
+            <CalendarClientPage ym={ym} view={view} selectedDay={selectedDay} />
         </HydrationBoundary>
     );
 };

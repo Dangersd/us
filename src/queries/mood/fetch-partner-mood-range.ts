@@ -1,6 +1,17 @@
 import type { MoodEntry } from "~interfaces/mood";
 import { getBrowserSupabase } from "~libs/supabase/client";
+import { moodKeys } from "~queries/mood/keys";
 import { type MoodEntryRow, mapMoodRow } from "~queries/mood/map-mood-row";
+
+export const createFetchPartnerMoodRangeQuery = (
+    start: string,
+    end: string,
+) => ({
+    queryKey: moodKeys.partnerRange(start, end),
+    queryFn: () => fetchPartnerMoodRange(start, end),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+});
 
 // Partner-rows доступны через get_partner_mood_range() SECURITY DEFINER:
 // RLS на mood_entries разрешает SELECT только по `user_id = auth.uid()`,
