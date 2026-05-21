@@ -4,9 +4,11 @@ import { useCallback, useState } from "react";
 
 import { BottomSheetModal, DiscardDialog } from "~components/modal";
 import ImportantDatesForm from "~components/widgets/profile/ImportantDatesForm";
-import { useCouple, useUpdateCoupleDates } from "~queries/couple";
-import { usePartnerProfile } from "~queries/profile";
-import { useCurrentUser, useUpdateUserBirthday } from "~queries/user";
+import { useCouple } from "~queries/couple/use-couple";
+import { useUpdateCoupleDates } from "~queries/couple/use-update-couple-dates";
+import { usePartnerProfile } from "~queries/profile/use-partner-profile";
+import { useCurrentUser } from "~queries/user/use-current-user";
+import { useUpdateUserBirthday } from "~queries/user/use-update-user-birthday";
 
 export interface ImportantDatesModalProps {
     open: boolean;

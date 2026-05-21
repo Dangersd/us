@@ -8,9 +8,9 @@ import {
     ProfileHeader,
 } from "~components/widgets/profile";
 import { cn } from "~libs/utils";
-import { useCouple } from "~queries/couple";
-import { usePartnerProfile } from "~queries/profile";
-import { useCurrentUser } from "~queries/user";
+import { useCouple } from "~queries/couple/use-couple";
+import { usePartnerProfile } from "~queries/profile/use-partner-profile";
+import { useCurrentUser } from "~queries/user/use-current-user";
 
 // Profile-комната, фаза 0.10.1: шапка с парными blob'ами + важные даты.
 // Остальные подсекции (stats, achievements, theme/account/notif settings) —

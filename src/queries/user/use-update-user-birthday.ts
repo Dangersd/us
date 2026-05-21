@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import type { AppUser } from "~interfaces/user";
 import { getBrowserSupabase } from "~libs/supabase/client";
-import { reseedAndInvalidate } from "~queries/calendar";
+import { reseedAndInvalidate } from "~queries/calendar/reseed-and-invalidate";
 import { userKeys } from "~queries/user/keys";
 import {
     USER_COLUMNS,

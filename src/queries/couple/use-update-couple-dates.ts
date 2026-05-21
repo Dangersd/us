@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import type { Couple } from "~interfaces/couple";
 import { getBrowserSupabase } from "~libs/supabase/client";
-import { reseedAndInvalidate } from "~queries/calendar";
+import { reseedAndInvalidate } from "~queries/calendar/reseed-and-invalidate";
 import { coupleKeys } from "~queries/couple/keys";
 import {
     COUPLE_COLUMNS,
