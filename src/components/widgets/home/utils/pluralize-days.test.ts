@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { pluralizeDays } from "~components/widgets/home/utils/pluralize-days";
+import {
+    pluralizeDays,
+    pluralizeHours,
+} from "~components/widgets/home/utils/pluralize-days";
 
 describe("pluralizeDays", () => {
     it.each([
@@ -25,5 +28,20 @@ describe("pluralizeDays", () => {
         [0, "дней"],
     ])("pluralizeDays(%i) == %s", (n, expected) => {
         expect(pluralizeDays(n)).toBe(expected);
+    });
+});
+
+describe("pluralizeHours", () => {
+    it.each([
+        [1, "час"],
+        [21, "час"],
+        [2, "часа"],
+        [23, "часа"],
+        [5, "часов"],
+        [11, "часов"],
+        [17208, "часов"],
+        [0, "часов"],
+    ])("pluralizeHours(%i) == %s", (n, expected) => {
+        expect(pluralizeHours(n)).toBe(expected);
     });
 });

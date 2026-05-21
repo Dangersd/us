@@ -11,4 +11,6 @@ export const calendarKeys = {
         [...calendarKeys.all, "event-photos", eventId, occurrenceDate] as const,
     eventMemory: (eventId: string, occurrenceDate: string) =>
         [...calendarKeys.all, "event-memory", eventId, occurrenceDate] as const,
+    memoryOfDay: (today: string) =>
+        [...calendarKeys.all, "memory-of-day", today] as const,
 };

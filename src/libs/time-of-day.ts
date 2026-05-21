@@ -26,6 +26,20 @@ export function getTimeOfDay(
     return "night";
 }
 
+// Текущее время в формате "HH:MM" по заданной таймзоне. Используется
+// pickNextEvent для отсечки прошедших сегодняшних событий.
+export function currentTimeHHMM(
+    now: Date = new Date(),
+    tz: string = COUPLE_TZ,
+): string {
+    return now.toLocaleString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: tz,
+    });
+}
+
 // Inclusive day count от start до today. null если start/today пустой/
 // невалиден или today < start. UTC arithmetic — совпадает с addDays
 // semantics из ~libs/date. Валидируем оба входа симметрично с range-проверкой
