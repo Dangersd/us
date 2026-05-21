@@ -4,6 +4,7 @@ import RoomShell from "~components/shell/RoomShell";
 import { BreathProvider } from "~components/ui/breath-context";
 import {
     AccountSection,
+    AchievementsSection,
     ImportantDatesSection,
     ProfileHeader,
     StatsSection,
@@ -13,8 +14,7 @@ import { useCouple } from "~queries/couple/use-couple";
 import { usePartnerProfile } from "~queries/profile/use-partner-profile";
 import { useCurrentUser } from "~queries/user/use-current-user";
 
-// Profile-комната: шапка → важные даты → stats → account.
-// Achievements добавляются в 0.10.3.
+// Profile-комната: шапка → важные даты → stats → созвездие → account.
 const ProfileClientPage = () => {
     const { data: me } = useCurrentUser();
     const { data: partner } = usePartnerProfile();
@@ -41,6 +41,7 @@ const ProfileClientPage = () => {
                                 partner={partner ?? null}
                                 couple={couple ?? null}
                             />
+                            <AchievementsSection me={me} />
                             <AccountSection />
                         </>
                     ) : null}

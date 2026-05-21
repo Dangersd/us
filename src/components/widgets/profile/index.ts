@@ -1,4 +1,5 @@
 export { default as AccountSection } from "~components/widgets/profile/account/AccountSection";
+export { default as AchievementsSection } from "~components/widgets/profile/achievements/AchievementsSection";
 export { default as DaysCounter } from "~components/widgets/profile/DaysCounter";
 export { default as ImportantDatesSection } from "~components/widgets/profile/ImportantDatesSection";
 export { default as LightThread } from "~components/widgets/profile/LightThread";
