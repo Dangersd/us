@@ -1,71 +1,107 @@
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { Suspense } from "react";
 
-import HomeClientPage from "~app/(rooms)/HomeClientPage";
-import { HOME_NEXT_PLAN_RANGE_DAYS } from "~components/widgets/home/constants";
-import { COUPLE_TZ, addDays, todayDateString } from "~libs/date";
-import { makeQueryClient } from "~libs/react-query/query-client";
-import { createFetchEventsRangeServerQuery } from "~queries/calendar/fetch-events-range.server";
-import { createFetchMemoryOfDayServerQuery } from "~queries/calendar/fetch-memory-of-day.server";
-import { createFetchCoupleServerQuery } from "~queries/couple/fetch-couple.server";
-import { createFetchPartnerTodayMoodServerQuery } from "~queries/mood/fetch-partner-today-mood.server";
-import { createFetchTodayMoodServerQuery } from "~queries/mood/fetch-today-mood.server";
+import { tv } from "tailwind-variants";
+
+import RoomShell from "~components/shell/RoomShell";
+import { HomeAmbient } from "~components/widgets/home";
+import HomeGreetingServer from "~components/widgets/home/HomeGreetingServer";
+import HomeMemoryServer from "~components/widgets/home/HomeMemoryServer";
+import HomeNextPlanServer from "~components/widgets/home/HomeNextPlanServer";
 import {
-    createFetchPartnerProfileServerQuery,
-    fetchPartnerProfileServer,
-} from "~queries/profile/fetch-partner-profile.server";
-import { createFetchActiveEpisodeServerQuery } from "~queries/repair/fetch-active-episode.server";
-import { createFetchCurrentUserServerQuery } from "~queries/user/fetch-current-user.server";
-import { createFetchWishlistPeekServerQuery } from "~queries/wishlist/fetch-wishlist-peek.server";
+    HomeGreetingSkeleton,
+    HomeMemorySkeleton,
+    HomeMoodSkeleton,
+    HomeNextPlanSkeleton,
+    HomeRepairActiveSkeleton,
+    HomeRepairEmptySkeleton,
+    HomeWishlistPeekSkeleton,
+} from "~components/widgets/home/HomeWidgetSkeletons";
+import HomeWishlistPeekServer from "~components/widgets/home/HomeWishlistPeekServer";
+import MoodPairServer from "~components/widgets/pair-glance/MoodPairServer";
+import { RepairWidget } from "~components/widgets/repair";
+import RepairWidgetServer from "~components/widgets/repair/RepairWidgetServer";
+import { cn } from "~libs/utils";
 
-const HomePage = async () => {
-    const today = todayDateString(COUPLE_TZ);
-    const range = {
-        start: today,
-        end: addDays(today, HOME_NEXT_PLAN_RANGE_DAYS),
-    };
+// Home — server-orchestrator. Каждый виджет — отдельный server-component
+// внутри собственного <Suspense>, со своим prefetch+HydrationBoundary. React
+// streaming отдаёт shell мгновенно (виден loading.tsx → потом skeleton'ы),
+// данные доезжают chunks по мере готовности. Медленный widget не блокирует
+// соседей.
+//
+// Repair-данные шарятся между двумя slot'ами (active сверху, empty снизу) —
+// один общий <RepairWidgetServer> оборачивает оба <RepairWidget> client-
+// инстанции, prefetch активного эпизода случается один раз.
+//
+// Mobile = вертикальный стек. Desktop md+ = 2-колоночный grid (Mood 480px /
+// NextPlan fill).
 
-    // partnerId нужен чтобы построить корректный peek-prefetch ключ.
-    // fetchPartnerProfileServer обёрнут React.cache — дубль в Promise.all
-    // ниже дедуплицируется.
-    const partner = await fetchPartnerProfileServer().catch(() => null);
+const layout = tv({
+    slots: {
+        root: cn(
+            "relative flex flex-col gap-6",
+            "md:grid md:grid-cols-[480px_1fr] md:gap-6",
+        ),
+        greetingSlot: cn("md:col-span-2"),
+        repairActiveSlot: cn("md:col-span-2"),
+        moodSlot: cn("md:col-span-1"),
+        nextPlanSlot: cn("md:col-span-1"),
+        memorySlot: cn("md:col-span-2"),
+        wishlistSlot: cn("md:col-span-2"),
+        repairEmptySlot: cn("md:col-span-2"),
+    },
+});
 
-    const queryClient = makeQueryClient();
-    await Promise.all([
-        queryClient
-            .prefetchQuery(createFetchCurrentUserServerQuery())
-            .catch(() => undefined),
-        queryClient
-            .prefetchQuery(createFetchPartnerProfileServerQuery())
-            .catch(() => undefined),
-        queryClient
-            .prefetchQuery(createFetchCoupleServerQuery())
-            .catch(() => undefined),
-        queryClient
-            .prefetchQuery(createFetchTodayMoodServerQuery(today))
-            .catch(() => undefined),
-        queryClient
-            .prefetchQuery(createFetchPartnerTodayMoodServerQuery(today))
-            .catch(() => undefined),
-        queryClient
-            .prefetchQuery(createFetchEventsRangeServerQuery(range, today))
-            .catch(() => undefined),
-        queryClient
-            .prefetchQuery(createFetchMemoryOfDayServerQuery(today))
-            .catch(() => undefined),
-        queryClient
-            .prefetchQuery(
-                createFetchWishlistPeekServerQuery(partner?.id ?? null),
-            )
-            .catch(() => undefined),
-        queryClient
-            .prefetchQuery(createFetchActiveEpisodeServerQuery())
-            .catch(() => undefined),
-    ]);
-
+const HomePage = () => {
+    const s = layout();
     return (
-        <HydrationBoundary state={dehydrate(queryClient)}>
-            <HomeClientPage />
-        </HydrationBoundary>
+        <RoomShell roomId="home">
+            <HomeAmbient />
+            <div className={cn("relative", s.root())}>
+                <div className={s.greetingSlot()}>
+                    <Suspense fallback={<HomeGreetingSkeleton />}>
+                        <HomeGreetingServer />
+                    </Suspense>
+                </div>
+                <div className={s.repairActiveSlot()}>
+                    <Suspense fallback={<HomeRepairActiveSkeleton />}>
+                        <RepairWidgetServer>
+                            <RepairWidget slot="active" />
+                        </RepairWidgetServer>
+                    </Suspense>
+                </div>
+                <div className={s.moodSlot()}>
+                    <Suspense fallback={<HomeMoodSkeleton />}>
+                        <MoodPairServer
+                            userFallbackColor="#E8A87C"
+                            partnerFallbackColor="#F4A5B9"
+                            partnerMissingLabel="ещё не отметилась"
+                        />
+                    </Suspense>
+                </div>
+                <div className={s.nextPlanSlot()}>
+                    <Suspense fallback={<HomeNextPlanSkeleton />}>
+                        <HomeNextPlanServer />
+                    </Suspense>
+                </div>
+                <div className={s.memorySlot()}>
+                    <Suspense fallback={<HomeMemorySkeleton />}>
+                        <HomeMemoryServer />
+                    </Suspense>
+                </div>
+                <div className={s.wishlistSlot()}>
+                    <Suspense fallback={<HomeWishlistPeekSkeleton />}>
+                        <HomeWishlistPeekServer />
+                    </Suspense>
+                </div>
+                <div className={s.repairEmptySlot()}>
+                    <Suspense fallback={<HomeRepairEmptySkeleton />}>
+                        <RepairWidgetServer>
+                            <RepairWidget slot="empty" />
+                        </RepairWidgetServer>
+                    </Suspense>
+                </div>
+            </div>
+        </RoomShell>
     );
 };
 

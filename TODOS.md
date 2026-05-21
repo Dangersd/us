@@ -2,6 +2,35 @@
 
 Отложенные задачи. Каждая запись: что, зачем, контекст, зависимости.
 
+## Performance follow-ups
+
+### Widget-split для Mood / Calendar / Wishlist page'ей
+
+- **What:** Применить тот же widget-server-component паттерн, что и Home, к
+  оставшимся «толстым» page'ам: `src/app/(rooms)/{mood,calendar,wishlist}/page.tsx`.
+  Каждый widget — отдельный async server-component с локальным prefetch +
+  HydrationBoundary, обёрнут в `<Suspense fallback={<Skeleton/>}>`.
+- **Why:** Сейчас эти страницы по-прежнему делают `await Promise.all([...все prefetch'и...])`
+  на странице перед отправкой первого байта. С widget-split'ом каждый блок
+  стримился бы independently, ускоряя TTFB на 100-300ms.
+- **Pros:** Equal-class streaming со страницей Home; уменьшает blocking time на
+  всех heavy-route переходах.
+- **Cons:** Требует переделки `MoodClientPage`/`CalendarClientPage`/`WishlistClientPage` —
+  каждая из них сейчас hoist'ит `useCurrentUser` и/или `usePartnerProfile` наверх
+  и пробрасывает данные через props в дочерние widget'ы. Чтобы расщепить, нужно
+  либо вернуть эти queries в каждый widget (дешевле теперь с staleTime 5min),
+  либо передавать `currentUser`/`partner` пропсами из server-orchestrator'а.
+- **Context:** Часть perf-фикса (ветка `Dangersd/investigate-page-navigation-lag`)
+  была развёрнута в Phase 0.10. Home полностью переписан, оставшиеся page'и пока
+  работают по-старому, но уже получают cross-cutting win'ы: новый `loading.tsx`,
+  T4 (`refetchOnWindowFocus:true` снят с wishlist/calendar/own-mood-range), T5
+  (5-min `staleTime` на currentUser+partnerProfile), T6 (middleware matcher
+  исключает RSC-prefetch'и). Plan-eng-review зафиксировал эту работу как
+  отложенную ради scoping.
+- **Depends on:** Ship Phase 0.10 perf-фикса → собрать real-world numbers с
+  Lighthouse/Network panel → понять, какие из остающихся 3 страниц достаточно
+  тормозят, чтобы оправдать widget-split. Возможно, для одной/двух будет достаточно.
+
 ## Phase 2 — после ship’а Repair Episodes MVP
 
 ### Web Push + Notification API

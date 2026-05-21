@@ -10,8 +10,6 @@ import {
 export const createFetchItemsQuery = (args: FetchItemsArgs) => ({
     queryKey: wishlistKeys.itemsList(args.list, args.ownerId),
     queryFn: () => fetchItems(args),
-    staleTime: 0,
-    refetchOnWindowFocus: true,
 });
 
 export interface FetchItemsArgs {

@@ -20,8 +20,6 @@ export const createFetchEventsRangeQuery = (
 ) => ({
     queryKey: calendarKeys.eventsRange(range.start, range.end),
     queryFn: () => fetchEventsRange(range, today),
-    staleTime: 0,
-    refetchOnWindowFocus: true,
 });
 
 // today — обязательный параметр: cross-midnight isPast корректность.
