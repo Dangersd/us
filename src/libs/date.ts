@@ -162,3 +162,21 @@ export function getWeekRange(date: string): DateRange {
 export function getMonthRange(ym: string): DateRange {
     return { start: startOfMonth(ym), end: endOfMonth(ym) };
 }
+
+// Genitive forms ("января...") для date-line "Пт · 22 мая".
+// Лежит здесь рядом с RU_MONTHS_NOM чтобы виджеты тянули формы месяцев
+// из одного места.
+export const RU_MONTHS_GEN = [
+    "января",
+    "февраля",
+    "марта",
+    "апреля",
+    "мая",
+    "июня",
+    "июля",
+    "августа",
+    "сентября",
+    "октября",
+    "ноября",
+    "декабря",
+] as const;

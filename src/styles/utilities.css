@@ -174,3 +174,49 @@
     padding-left: var(--container-padding);
     padding-right: var(--container-padding);
 }
+
+/* === Phase 0.8.1: Home ambient layer === */
+
+/* Доп. peach-glow для HomeAmbient (поверх bg-ambient-home от RoomShell).
+ * Мобайл: ellipse 300×400 top-left @50%. Десктоп: 700×600 @70%. */
+@utility bg-home-ambient-glow {
+    background: radial-gradient(
+        circle,
+        rgba(255, 201, 168, 0.3) 0%,
+        rgba(255, 201, 168, 0) 70%
+    );
+}
+
+/* Drifting dust-mote anim для HomeAmbient particles. */
+@utility particle-drift {
+    animation: home-particle-drift 18s ease-in-out infinite;
+}
+
+@keyframes home-particle-drift {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.35;
+    }
+    25% {
+        transform: translate(8px, -12px) scale(1.05);
+        opacity: 0.55;
+    }
+    50% {
+        transform: translate(-6px, -20px) scale(0.95);
+        opacity: 0.4;
+    }
+    75% {
+        transform: translate(4px, -8px) scale(1.02);
+        opacity: 0.5;
+    }
+    100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.35;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .particle-drift {
+        animation: none;
+    }
+}
