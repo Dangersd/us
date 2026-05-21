@@ -80,6 +80,22 @@
 /* === Base body === */
 :root {
     color-scheme: dark;
+    /* Responsive page-side padding. Используется через @utility
+     * container-padding и <Container/>. Никаких px-4 md:px-10 в страничных
+     * компонентах — только container/Container. */
+    --container-padding: 1rem;
+}
+
+@media (min-width: 768px) {
+    :root {
+        --container-padding: 2.5rem;
+    }
+}
+
+@media (min-width: 1280px) {
+    :root {
+        --container-padding: 3rem;
+    }
 }
 
 html,

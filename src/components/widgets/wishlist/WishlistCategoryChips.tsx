@@ -18,7 +18,7 @@ const chip = tv({
         "transition-[background,border-color,color] duration-200",
         "outline-none focus-visible:outline-2 focus-visible:outline-offset-2",
         "focus-visible:outline-glow-soft",
-        "min-h-[36px]",
+        "min-h-9",
     ),
     variants: {
         active: {
@@ -47,8 +47,7 @@ const WishlistCategoryChips = ({
     return (
         <div
             className={cn(
-                "-mx-4 px-4 flex items-center gap-1.5 overflow-x-auto",
-                "scrollbar-none",
+                "flex items-center gap-1.5 overflow-x-auto scrollbar-none",
             )}
         >
             {WISHLIST_CATEGORIES.map((cat) => {

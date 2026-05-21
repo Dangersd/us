@@ -34,7 +34,7 @@ const styles = tv({
             "transition-[background,color] duration-200",
             "outline-none focus-visible:outline-2 focus-visible:outline-offset-2",
             "focus-visible:outline-glow-soft",
-            "min-h-[36px]",
+            "min-h-9",
         ),
         detailsToggle: cn(
             "flex items-center justify-between w-full",
@@ -196,7 +196,7 @@ const WishlistItemFormFields = ({
                                                 }
                                                 className={cn(
                                                     "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm",
-                                                    "min-h-[36px] transition-[background,color,border-color]",
+                                                    "min-h-9 transition-[background,color,border-color]",
                                                     active
                                                         ? "bg-bg-surface-1 border-border-warm text-ink-primary"
                                                         : "bg-transparent border-border-subtle text-ink-secondary",

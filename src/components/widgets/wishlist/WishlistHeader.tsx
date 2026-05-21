@@ -12,29 +12,50 @@ export interface WishlistHeaderProps {
     onTabChange: (next: WishlistTabId) => void;
 }
 
-const tabVariants = tv({
+// Segmented control track + горизонтальный скролл при overflow. Зеркалит
+// паттерн CalendarHeader (`bg-bg-surface-1 p-[3px] border rounded-full`),
+// но содержит больше вкладок и потому скроллируется ВНУТРИ track'a без
+// bleed'а за пределы Container'а страницы.
+const styles = tv({
+    slots: {
+        track: cn(
+            "inline-flex w-full max-w-full items-stretch",
+            "rounded-full bg-bg-surface-1 border border-border-subtle",
+            "p-0.75 overflow-hidden",
+        ),
+        scroller: cn(
+            "flex w-full items-stretch gap-0.5 overflow-x-auto scrollbar-none",
+            "snap-x snap-mandatory",
+        ),
+    },
+    variants: {},
+});
+
+const segBtn = tv({
     base: cn(
-        "shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium",
-        "transition-[background,color,opacity] duration-200",
+        "shrink-0 snap-start whitespace-nowrap",
+        "rounded-full px-3 py-1.5 text-[13px] font-medium leading-none",
+        "transition-[background,color] duration-200",
         "outline-none focus-visible:outline-2 focus-visible:outline-offset-2",
         "focus-visible:outline-glow-soft",
-        "min-h-[44px]", // touch target
+        "min-h-9 flex items-center justify-center",
     ),
     variants: {
         active: {
-            true: cn("bg-bg-surface-1 text-ink-primary"),
-            false: cn("bg-transparent text-ink-secondary"),
+            true: cn("bg-bg-surface-3 text-ink-primary"),
+            false: cn("bg-transparent text-ink-muted hover:text-ink-secondary"),
         },
     },
 });
 
 const WishlistHeader = ({ activeTab, onTabChange }: WishlistHeaderProps) => {
-    const containerRef = useRef<HTMLDivElement>(null);
+    const { track, scroller } = styles();
+    const scrollerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const container = containerRef.current;
-        if (!container) return;
-        const el = container.querySelector<HTMLButtonElement>(
+        const scroller = scrollerRef.current;
+        if (!scroller) return;
+        const el = scroller.querySelector<HTMLButtonElement>(
             `[data-tab-id="${activeTab}"]`,
         );
         if (!el) return;
@@ -46,34 +67,25 @@ const WishlistHeader = ({ activeTab, onTabChange }: WishlistHeaderProps) => {
     }, [activeTab]);
 
     return (
-        <div
-            ref={containerRef}
-            role="tablist"
-            aria-label="Списки желаний"
-            className={cn(
-                "-mx-4 px-4 flex items-center gap-1 overflow-x-auto",
-                "scrollbar-none snap-x snap-mandatory",
-            )}
-        >
-            {WISHLIST_TABS.map((tab) => {
-                const isActive = tab.id === activeTab;
-                return (
-                    <button
-                        key={tab.id}
-                        type="button"
-                        role="tab"
-                        aria-selected={isActive}
-                        data-tab-id={tab.id}
-                        onClick={() => onTabChange(tab.id)}
-                        className={cn(
-                            tabVariants({ active: isActive }),
-                            "snap-start",
-                        )}
-                    >
-                        {tab.label}
-                    </button>
-                );
-            })}
+        <div className={track()} role="tablist" aria-label="Списки желаний">
+            <div ref={scrollerRef} className={scroller()}>
+                {WISHLIST_TABS.map((tab) => {
+                    const isActive = tab.id === activeTab;
+                    return (
+                        <button
+                            key={tab.id}
+                            type="button"
+                            role="tab"
+                            aria-selected={isActive}
+                            data-tab-id={tab.id}
+                            onClick={() => onTabChange(tab.id)}
+                            className={cn(segBtn({ active: isActive }))}
+                        >
+                            {tab.label}
+                        </button>
+                    );
+                })}
+            </div>
         </div>
     );
 };

@@ -154,3 +154,23 @@
         rgba(255, 180, 209, 0) 100%
     );
 }
+
+/* === Page side-padding === */
+/* Used by <Container/> and any shell-level component that owns page-edge
+ * padding. CSS var --container-padding отвечает за breakpoints (см.
+ * globals.css). НЕ хардкодить px-4 md:px-10 в страничных компонентах —
+ * только container-padding или <Container/>. */
+@utility container-padding {
+    padding-left: var(--container-padding);
+    padding-right: var(--container-padding);
+}
+
+/* Negative-margin counterpart — используется когда нужен bleed-effect
+ * (full-bleed карусели), но мы хотим, чтобы он точно компенсировал
+ * текущий container-padding (а не фиксированный px-4). */
+@utility container-padding-bleed {
+    margin-left: calc(var(--container-padding) * -1);
+    margin-right: calc(var(--container-padding) * -1);
+    padding-left: var(--container-padding);
+    padding-right: var(--container-padding);
+}

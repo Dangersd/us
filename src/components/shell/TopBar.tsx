@@ -1,5 +1,6 @@
 "use client";
 
+import Container from "~components/layout/Container";
 import AvatarLink from "~components/shell/AvatarLink";
 import PartnerStatus from "~components/shell/PartnerStatus";
 import { useActiveRoom } from "~components/shell/use-active-room";
@@ -28,29 +29,31 @@ const TopBar = ({ user }: TopBarProps) => {
                 "pt-[env(safe-area-inset-top)]",
             )}
         >
-            <div
-                className={cn(
-                    "relative flex h-14 items-center justify-between px-4",
-                    "md:h-16 md:px-10",
-                )}
-            >
-                <PartnerStatus />
-
-                <h1
+            <Container size="xl">
+                <div
                     className={cn(
-                        "absolute left-1/2 -translate-x-1/2",
-                        "font-sans text-sm font-medium text-ink-secondary",
-                        "md:hidden",
+                        "relative flex h-14 items-center justify-between",
+                        "md:h-16",
                     )}
                 >
-                    {title}
-                </h1>
+                    <PartnerStatus />
 
-                <AvatarLink
-                    gender={user.gender}
-                    displayName={user.displayName}
-                />
-            </div>
+                    <h1
+                        className={cn(
+                            "absolute left-1/2 -translate-x-1/2",
+                            "font-sans text-sm font-medium text-ink-secondary",
+                            "md:hidden",
+                        )}
+                    >
+                        {title}
+                    </h1>
+
+                    <AvatarLink
+                        gender={user.gender}
+                        displayName={user.displayName}
+                    />
+                </div>
+            </Container>
         </header>
     );
 };
