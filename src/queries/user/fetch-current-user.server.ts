@@ -11,9 +11,14 @@ import {
     mapUserRow,
 } from "~queries/user/map-user-row";
 
+// Current user row меняется только из Profile (display_name/avatar). 5 мин —
+// тот же баланс, что и partner profile / couple.
+const CURRENT_USER_STALE_TIME_MS = 5 * 60 * 1000;
+
 export const createFetchCurrentUserServerQuery = () => ({
     queryKey: userKeys.current(),
     queryFn: fetchCurrentUserServer,
+    staleTime: CURRENT_USER_STALE_TIME_MS,
 });
 
 export const fetchCurrentUserServer = cache(

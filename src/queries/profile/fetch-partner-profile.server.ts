@@ -11,9 +11,15 @@ import {
     mapUserRow,
 } from "~queries/user/map-user-row";
 
+// Profile row меняется ~никогда (avatar/name редактируются вручную в Profile).
+// 5 минут — баланс между актуальностью и тем, чтобы не дёргать RLS на каждом
+// focus / page switch.
+const PARTNER_PROFILE_STALE_TIME_MS = 5 * 60 * 1000;
+
 export const createFetchPartnerProfileServerQuery = () => ({
     queryKey: profileKeys.partner(),
     queryFn: fetchPartnerProfileServer,
+    staleTime: PARTNER_PROFILE_STALE_TIME_MS,
 });
 
 // См. комментарий про RLS-инвариант в ~queries/profile/fetch-partner-profile.

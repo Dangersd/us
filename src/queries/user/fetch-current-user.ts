@@ -10,7 +10,10 @@ import {
 export const createFetchCurrentUserQuery = () => ({
     queryKey: userKeys.current(),
     queryFn: fetchCurrentUser,
-    staleTime: 60_000,
+    // Симметрия с server factory (см. fetch-current-user.server.ts) и
+    // partner profile — current user меняется только из Profile, перезапрос
+    // каждые 60s после hydration переплачивается зря.
+    staleTime: 5 * 60_000,
 });
 
 export async function fetchCurrentUser(): Promise<AppUser | null> {

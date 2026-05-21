@@ -10,8 +10,6 @@ import {
 export const createFetchOwnMoodRangeQuery = (start: string, end: string) => ({
     queryKey: moodKeys.ownRange(start, end),
     queryFn: () => fetchOwnMoodRange(start, end),
-    staleTime: 0,
-    refetchOnWindowFocus: true,
 });
 
 export async function fetchOwnMoodRange(
