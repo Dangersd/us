@@ -20,3 +20,7 @@ export {
     useSignIn,
 } from "~queries/user/use-sign-in";
 export { useSignOut } from "~queries/user/use-sign-out";
+export {
+    type UpdateUserBirthdayInput,
+    useUpdateUserBirthday,
+} from "~queries/user/use-update-user-birthday";

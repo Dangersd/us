@@ -26,6 +26,7 @@ export {
     fetchIdeas,
 } from "~queries/calendar/fetch-ideas";
 export { calendarKeys } from "~queries/calendar/keys";
+export { reseedAndInvalidate } from "~queries/calendar/reseed-and-invalidate";
 export {
     CALENDAR_EVENT_COLUMNS,
     type CalendarEventRow,

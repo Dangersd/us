@@ -69,3 +69,26 @@
   Approach A — без накопленного dataset’а чарты бессмысленны.
 - **Depends on:** Repair Episodes Approach A shipped + 3+ недели данных +
   ощущение «я хочу увидеть, что повторяется».
+
+## Phase 0.10.x — после Profile foundation
+
+### Profile important-dates concurrency: ghost anniversary
+
+- **What:** Сделать DELETE+UPDATE+seed flow в `useUpdateCoupleDates` /
+  `useUpdateUserBirthday` атомарным (Postgres RPC `sync_couple_anchor_dates`
+  или transaction-обёртку).
+- **Why:** В текущей имплементации две параллельные мутации (партнёры
+  жмут «Сохранить» одновременно) могут оставить ghost-годовщину при старой
+  дате в `calendar_events`: P1 DELETE → P2 DELETE noop → P1 UPDATE+seed
+  (anchor=date1) → P2 UPDATE+seed (anchor=date2). Partial unique index
+  включает anchor_date, поэтому оба INSERT'а проходят. Surfaced
+  /plan-eng-review (D1) и /review specialists (data-migration, conf 7).
+- **Pros:** Полная атомарность, нет race. Чище инвариант «1 anniversary
+  per couple».
+- **Cons:** +1 миграция, +1 SECURITY DEFINER RPC; расходится с direct-CRUD
+  стилем проекта. Race практически невозможна для 2-личной пары (нужен
+  одновременный клик в одну секунду).
+- **Context:** Принято для MVP не блокировать ship'ом — реальная вероятность
+  низкая. Если ghost-анивер всплывёт в проде — это первый сигнал, что нужен
+  фикс. См. комментарий в `src/queries/couple/use-update-couple-dates.ts`.
+- **Depends on:** наблюдение, что race случается у реальной пары.

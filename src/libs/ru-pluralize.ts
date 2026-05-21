@@ -1,5 +1,6 @@
 // RU плюрализация для счётчиков «N дней» / «N часов» — стандартная
-// mod10/mod100 формула.
+// mod10/mod100 формула. Pure, общая утилита; жила в widgets/home/utils
+// до 0.10.1 review (см. specialist finding I10: cross-widget import smell).
 function pluralizeRu(
     n: number,
     [one, few, many]: readonly [string, string, string],

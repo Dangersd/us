@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-    pluralizeDays,
-    pluralizeHours,
-} from "~components/widgets/home/utils/pluralize-days";
+import { pluralizeDays, pluralizeHours } from "~libs/ru-pluralize";
 
 describe("pluralizeDays", () => {
     it.each([

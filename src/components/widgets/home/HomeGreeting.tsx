@@ -3,11 +3,8 @@
 import { tv } from "tailwind-variants";
 
 import AvatarLink from "~components/shell/AvatarLink";
-import {
-    pluralizeDays,
-    pluralizeHours,
-} from "~components/widgets/home/utils/pluralize-days";
 import { COUPLE_TZ, todayDateString } from "~libs/date";
+import { pluralizeDays, pluralizeHours } from "~libs/ru-pluralize";
 import { daysSince } from "~libs/time-of-day";
 import { cn } from "~libs/utils";
 import { useCouple } from "~queries/couple/use-couple";

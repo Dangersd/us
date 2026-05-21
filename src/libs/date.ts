@@ -180,3 +180,17 @@ export const RU_MONTHS_GEN = [
     "ноября",
     "декабря",
 ] as const;
+
+// «13 мая 2024» — RU full-date readout (родительный падеж, leading-zero
+// strip). Используется в MoodDayDetail title и Profile important-dates.
+// null → null (caller рендерит fallback). Невалидный YYYY-MM-DD → возвращаем
+// input как есть, пусть caller отловит/покажет сырьё.
+export function formatRuFullDate(iso: string | null): string | null {
+    if (!iso) return null;
+    const match = ISO_DAY_RE.exec(iso);
+    if (!match) return iso;
+    const y = iso.slice(0, 4);
+    const m = Number(iso.slice(5, 7)) - 1;
+    const d = Number(iso.slice(8, 10));
+    return `${d} ${RU_MONTHS_GEN[m]} ${y}`;
+}

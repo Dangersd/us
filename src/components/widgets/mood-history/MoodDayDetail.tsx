@@ -6,7 +6,7 @@ import { tv } from "tailwind-variants";
 
 import MoodReadoutRows from "~components/widgets/pair-glance/MoodReadoutRows";
 import type { MoodEntry } from "~interfaces/mood";
-import { getMonthRange } from "~libs/date";
+import { formatRuFullDate, getMonthRange } from "~libs/date";
 import { cn } from "~libs/utils";
 import { useOwnMoodRange } from "~queries/mood/use-own-mood-range";
 import { usePartnerMoodRange } from "~queries/mood/use-partner-mood-range";
@@ -110,29 +110,6 @@ function findByDate(
 ): MoodEntry | null {
     if (!entries) return null;
     return entries.find((e) => e.date === date) ?? null;
-}
-
-const RU_MONTH_GEN = [
-    "января",
-    "февраля",
-    "марта",
-    "апреля",
-    "мая",
-    "июня",
-    "июля",
-    "августа",
-    "сентября",
-    "октября",
-    "ноября",
-    "декабря",
-] as const;
-
-function formatRuFullDate(date: string): string {
-    // YYYY-MM-DD → «12 мая 2026» (родительный падеж — естественный для даты).
-    const y = date.slice(0, 4);
-    const m = Number(date.slice(5, 7)) - 1;
-    const d = Number(date.slice(8, 10));
-    return `${d} ${RU_MONTH_GEN[m]} ${y}`;
 }
 
 export default MoodDayDetail;
