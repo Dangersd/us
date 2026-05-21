@@ -104,3 +104,23 @@ Detailed coding conventions are in `.claude/rules/`. Always-apply rules:
 - `docs/05-tech.md` — Stack details, data model sketch
 - `docs/06-roadmap.md` — MVP / v0.2 (cycle) / future
 - `docs/07-open-questions.md` — TBDs
+
+## Skill routing
+
+When the user's request matches an available skill, invoke it via the Skill tool.
+The skill has multi-step workflows and quality gates that beat ad-hoc answers.
+
+Key routing rules:
+- Product ideas, brainstorming, "is this worth building" → /office-hours
+- Strategy, scope, "think bigger" → /plan-ceo-review
+- Architecture review of a plan → /plan-eng-review
+- Design system, brand → /design-consultation
+- Design review of a plan → /plan-design-review
+- Bugs, errors, "why is this broken" → /investigate
+- Test the site, "does this work" → /qa (or /qa-only for report only)
+- Code review, check the diff → /review
+- Visual polish on live site → /design-review
+- Ship, deploy, create a PR → /ship
+- Save / restore working context → /context-save, /context-restore
+- Security audit → /cso
+- Upgrade gstack → /gstack-upgrade
