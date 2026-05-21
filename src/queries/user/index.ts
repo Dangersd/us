@@ -4,6 +4,10 @@
 // next/headers в client bundle.
 export { ACCOUNT_EMAILS } from "~queries/user/account-emails";
 export {
+    type ChangePasswordInput,
+    useChangePassword,
+} from "~queries/user/use-change-password";
+export {
     createFetchCurrentUserQuery,
     fetchCurrentUser,
 } from "~queries/user/fetch-current-user";

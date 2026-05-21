@@ -4,10 +4,12 @@ import ProfileClientPage from "~app/(rooms)/profile/ProfileClientPage";
 import { makeQueryClient } from "~libs/react-query/query-client";
 import { createFetchCoupleServerQuery } from "~queries/couple/fetch-couple.server";
 import { createFetchPartnerProfileServerQuery } from "~queries/profile/fetch-partner-profile.server";
+import { createFetchCoupleStatsServerQuery } from "~queries/stats/fetch-couple-stats.server";
 import { createFetchCurrentUserServerQuery } from "~queries/user/fetch-current-user.server";
 
-// Server prefetch для шапки Profile: me + partner + couple идут одним
-// Promise.all → клиент рендерит ProfileHeader без flash.
+// Server prefetch: me + partner + couple + stats одним Promise.all → клиент
+// рендерит Profile без flash. .catch(undefined) на каждом — частичный
+// прогрев не валит весь page.
 const ProfilePage = async () => {
     const queryClient = makeQueryClient();
     await Promise.all([
@@ -19,6 +21,9 @@ const ProfilePage = async () => {
             .catch(() => undefined),
         queryClient
             .prefetchQuery(createFetchCoupleServerQuery())
+            .catch(() => undefined),
+        queryClient
+            .prefetchQuery(createFetchCoupleStatsServerQuery())
             .catch(() => undefined),
     ]);
 
