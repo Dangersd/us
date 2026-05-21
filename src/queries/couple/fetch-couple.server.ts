@@ -5,29 +5,21 @@ import "server-only";
 import type { Couple } from "~interfaces/couple";
 import { getServerSupabase } from "~libs/supabase/server";
 import { coupleKeys } from "~queries/couple/keys";
+import {
+    COUPLE_COLUMNS,
+    type CoupleRow,
+    mapCoupleRow,
+} from "~queries/couple/map-couple-row";
 
-interface CoupleRow {
-    id: string;
-    created_at: string;
-    relationship_start_date: string | null;
-    acquaintance_date: string | null;
-}
-
-const COUPLE_COLUMNS =
-    "id, created_at, relationship_start_date, acquaintance_date";
-
-function mapCoupleRow(row: CoupleRow): Couple {
-    return {
-        id: row.id,
-        createdAt: row.created_at,
-        relationshipStartDate: row.relationship_start_date,
-        acquaintanceDate: row.acquaintance_date,
-    };
-}
+// Couple row меняется ~никогда (start_date/acquaintance_date правятся вручную
+// в Profile, а row создаётся один раз при онбординге). Держим 5 минут как
+// partner-profile, чтобы не дёргать RLS на каждом focus.
+const COUPLE_STALE_TIME_MS = 5 * 60 * 1000;
 
 export const createFetchCoupleServerQuery = () => ({
     queryKey: coupleKeys.current(),
     queryFn: fetchCoupleServer,
+    staleTime: COUPLE_STALE_TIME_MS,
 });
 
 // RLS couples_select_own ограничивает выбор строкой пары текущего юзера —

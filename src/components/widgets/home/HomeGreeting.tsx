@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { tv } from "tailwind-variants";
 
 import AvatarLink from "~components/shell/AvatarLink";
 import { pluralizeDays } from "~components/widgets/home/utils/pluralize-days";
 import { COUPLE_TZ, todayDateString } from "~libs/date";
-import { daysSince, getTimeOfDay } from "~libs/time-of-day";
+import { type TimeOfDay, daysSince, getTimeOfDay } from "~libs/time-of-day";
 import { cn } from "~libs/utils";
 import { useCouple } from "~queries/couple/use-couple";
 import { usePartnerProfile } from "~queries/profile/use-partner-profile";
@@ -30,16 +32,31 @@ const styles = tv({
     },
 });
 
+const ONE_MINUTE_MS = 60 * 1000;
+
 const HomeGreeting = () => {
     const user = useCurrentUser();
     const partner = usePartnerProfile();
     const couple = useCouple();
     const { root, title, subtitle, avatars } = styles();
 
-    // SSR + client считают через COUPLE_TZ → одинаковое значение → нет
-    // hydration mismatch и нет flicker. Recompute через useEffect был бы
-    // no-op и только давал шанс одно-кадрового мерцания вне Бишкека.
-    const greetingWord = GREETING_RU[getTimeOfDay(new Date(), COUPLE_TZ)];
+    // SSR считает через COUPLE_TZ, и client тоже — но `new Date()` снимается
+    // в РАЗНЫЕ моменты. Если delta между рендерами страддлит границу 5/11/18/23
+    // Бишкек-времени → hydration mismatch warning. Плюс без интервала
+    // значение «замораживается» на жизнь вкладки. Решение: SSR-initial value
+    // + useEffect-recompute + setInterval(60s). suppressHydrationWarning на
+    // h1 покрывает редкий boundary-crossing случай.
+    const [tod, setTod] = useState<TimeOfDay>(() =>
+        getTimeOfDay(new Date(), COUPLE_TZ),
+    );
+    useEffect(() => {
+        const tick = () => setTod(getTimeOfDay(new Date(), COUPLE_TZ));
+        tick();
+        const id = setInterval(tick, ONE_MINUTE_MS);
+        return () => clearInterval(id);
+    }, []);
+
+    const greetingWord = GREETING_RU[tod];
     const myName = user.data?.displayName ?? "";
     const days = daysSince(
         couple.data?.relationshipStartDate ?? null,
@@ -64,13 +81,13 @@ const HomeGreeting = () => {
                     />
                 ) : null}
             </div>
-            <h1 className={title()}>
+            <h1 className={title()} suppressHydrationWarning>
                 {greetingWord}
                 {myName ? `, ${myName}` : ""}
             </h1>
             {days != null ? (
                 <p className={subtitle()}>
-                    {`Вы знаете друг друга ${days} ${pluralizeDays(days)}`}
+                    {`Мы знаем друг друга ${days} ${pluralizeDays(days)}`}
                 </p>
             ) : null}
         </header>

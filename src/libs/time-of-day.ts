@@ -26,15 +26,22 @@ export function getTimeOfDay(
     return "night";
 }
 
-// Inclusive day count от start до today. null если start пустой/невалиден/
-// в будущем. UTC arithmetic — совпадает с addDays semantics из ~libs/date.
+// Inclusive day count от start до today. null если start/today пустой/
+// невалиден или today < start. UTC arithmetic — совпадает с addDays
+// semantics из ~libs/date. Валидируем оба входа симметрично с range-проверкой
+// месяца (01-12) и дня (01-31) — без этого «0000-00-00» проходит регекс,
+// Date.UTC(0,-1,0) даёт валидный timestamp, и daysSince возвращает мусор.
+const ISO_DATE_STRICT_RE = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+
 export function daysSince(start: string | null, today: string): number | null {
     if (!start) return null;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(start)) return null;
+    if (!ISO_DATE_STRICT_RE.test(start)) return null;
+    if (!ISO_DATE_STRICT_RE.test(today)) return null;
     const [sy, sm, sd] = start.split("-").map(Number);
     const [ty, tm, td] = today.split("-").map(Number);
     const startMs = Date.UTC(sy, sm - 1, sd);
     const todayMs = Date.UTC(ty, tm - 1, td);
+    if (Number.isNaN(startMs) || Number.isNaN(todayMs)) return null;
     if (todayMs < startMs) return null;
     return Math.round((todayMs - startMs) / 86400000);
 }

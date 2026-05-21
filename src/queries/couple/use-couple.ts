@@ -5,33 +5,28 @@ import { useQuery } from "@tanstack/react-query";
 import type { Couple } from "~interfaces/couple";
 import { getBrowserSupabase } from "~libs/supabase/client";
 import { coupleKeys } from "~queries/couple/keys";
+import {
+    COUPLE_COLUMNS,
+    type CoupleRow,
+    mapCoupleRow,
+} from "~queries/couple/map-couple-row";
 
-interface CoupleRow {
-    id: string;
-    created_at: string;
-    relationship_start_date: string | null;
-    acquaintance_date: string | null;
-}
+const COUPLE_STALE_TIME_MS = 5 * 60 * 1000;
 
 async function fetchCoupleBrowser(): Promise<Couple | null> {
     const supabase = getBrowserSupabase();
     const { data, error } = await supabase
         .from("couples")
-        .select("id, created_at, relationship_start_date, acquaintance_date")
+        .select(COUPLE_COLUMNS)
         .maybeSingle<CoupleRow>();
     if (error) throw error;
-    if (!data) return null;
-    return {
-        id: data.id,
-        createdAt: data.created_at,
-        relationshipStartDate: data.relationship_start_date,
-        acquaintanceDate: data.acquaintance_date,
-    };
+    return data ? mapCoupleRow(data) : null;
 }
 
 export function useCouple() {
     return useQuery({
         queryKey: coupleKeys.current(),
         queryFn: fetchCoupleBrowser,
+        staleTime: COUPLE_STALE_TIME_MS,
     });
 }
