@@ -61,9 +61,7 @@ create table public.wishlist_items (
 );
 
 comment on table public.wishlist_items is
-'Хотелки пары. 3 списка: want/love/shared. shared <=> owner_id=null. '
-|| 'list/owner_id/couple_id/created_by иммутабельны — '
-|| '"переместить в другой список" = delete + recreate.';
+'Хотелки пары. 3 списка: want/love/shared. shared <=> owner_id=null. list/owner_id/couple_id/created_by иммутабельны — "переместить в другой список" = delete + recreate.';
 
 create index wishlist_items_couple_list_idx
     on public.wishlist_items (couple_id, list, created_at desc);
