@@ -1,5 +1,10 @@
 {
-    "permissions": {
-        "allow": ["Bash(yarn build:*)", "Bash(yarn lint:*)", "Bash(yarn prettier:*)"]
-    }
+  "permissions": {
+    "allow": [
+      "Bash(yarn build:*)",
+      "Bash(yarn lint:*)",
+      "Bash(yarn prettier:*)",
+      "Read(//Users/founded/projects/dangercactus-indigo/indigo-spa/src/components/layout/**)"
+    ]
+  }
 }

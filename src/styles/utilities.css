@@ -157,22 +157,45 @@
 
 /* === Page side-padding === */
 /* Used by <Container/> and any shell-level component that owns page-edge
- * padding. CSS var --container-padding отвечает за breakpoints (см.
- * globals.css). НЕ хардкодить px-4 md:px-10 в страничных компонентах —
- * только container-padding или <Container/>. */
+ * padding. Responsive значения зашиты прямо в утилиту: индиректный CSS
+ * var Lightning CSS (Turbopack dev pipeline) выпиливал как «unused» — в
+ * dev-сборке :root { --container-padding } исчезал, и боковые отступы
+ * страниц схлопывались в 0. НЕ хардкодить px-4 md:px-10 в страничных
+ * компонентах — только container-padding или <Container/>. */
 @utility container-padding {
-    padding-left: var(--container-padding);
-    padding-right: var(--container-padding);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    @media (min-width: 768px) {
+        padding-left: 2.5rem;
+        padding-right: 2.5rem;
+    }
+    @media (min-width: 1280px) {
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
 }
 
 /* Negative-margin counterpart — используется когда нужен bleed-effect
  * (full-bleed карусели), но мы хотим, чтобы он точно компенсировал
- * текущий container-padding (а не фиксированный px-4). */
+ * текущий container-padding (а не фиксированный px-4). Значения держим
+ * в синхроне с container-padding выше. */
 @utility container-padding-bleed {
-    margin-left: calc(var(--container-padding) * -1);
-    margin-right: calc(var(--container-padding) * -1);
-    padding-left: var(--container-padding);
-    padding-right: var(--container-padding);
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    @media (min-width: 768px) {
+        margin-left: -2.5rem;
+        margin-right: -2.5rem;
+        padding-left: 2.5rem;
+        padding-right: 2.5rem;
+    }
+    @media (min-width: 1280px) {
+        margin-left: -3rem;
+        margin-right: -3rem;
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
 }
 
 /* === Phase 0.8.2: Home next-plan accent bar === */
