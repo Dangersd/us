@@ -1,9 +1,11 @@
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 
 import HomeClientPage from "~app/(rooms)/HomeClientPage";
+import { HOME_NEXT_PLAN_RANGE_DAYS } from "~components/widgets/home/constants";
 import { COUPLE_TZ, addDays, todayDateString } from "~libs/date";
 import { makeQueryClient } from "~libs/react-query/query-client";
 import { createFetchEventsRangeServerQuery } from "~queries/calendar/fetch-events-range.server";
+import { createFetchMemoryOfDayServerQuery } from "~queries/calendar/fetch-memory-of-day.server";
 import { createFetchCoupleServerQuery } from "~queries/couple/fetch-couple.server";
 import { createFetchPartnerTodayMoodServerQuery } from "~queries/mood/fetch-partner-today-mood.server";
 import { createFetchTodayMoodServerQuery } from "~queries/mood/fetch-today-mood.server";
@@ -16,7 +18,10 @@ import { createFetchWishlistPeekServerQuery } from "~queries/wishlist/fetch-wish
 
 const HomePage = async () => {
     const today = todayDateString(COUPLE_TZ);
-    const range = { start: today, end: addDays(today, 60) };
+    const range = {
+        start: today,
+        end: addDays(today, HOME_NEXT_PLAN_RANGE_DAYS),
+    };
 
     // partnerId нужен чтобы построить корректный peek-prefetch ключ.
     // fetchPartnerProfileServer обёрнут React.cache — дубль в Promise.all
@@ -42,6 +47,9 @@ const HomePage = async () => {
             .catch(() => undefined),
         queryClient
             .prefetchQuery(createFetchEventsRangeServerQuery(range, today))
+            .catch(() => undefined),
+        queryClient
+            .prefetchQuery(createFetchMemoryOfDayServerQuery(today))
             .catch(() => undefined),
         queryClient
             .prefetchQuery(

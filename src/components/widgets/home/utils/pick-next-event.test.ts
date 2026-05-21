@@ -45,13 +45,32 @@ describe("pickNextEvent", () => {
         const future = occ({ id: "f", occurrenceDate: "2026-05-22" });
         expect(pickNextEvent([past, future], "2026-05-21")?.id).toBe("f");
     });
-    it("includes today", () => {
+    it("includes today timed event when not yet passed", () => {
         const t = occ({
             id: "t",
             occurrenceDate: "2026-05-21",
             time: "10:00:00",
         });
-        expect(pickNextEvent([t], "2026-05-21")?.id).toBe("t");
+        expect(pickNextEvent([t], "2026-05-21", "09:00")?.id).toBe("t");
+    });
+    it("skips today timed event that already passed", () => {
+        const past = occ({
+            id: "past",
+            occurrenceDate: "2026-05-21",
+            time: "09:00:00",
+        });
+        const future = occ({ id: "tmrw", occurrenceDate: "2026-05-22" });
+        expect(pickNextEvent([past, future], "2026-05-21", "14:00")?.id).toBe(
+            "tmrw",
+        );
+    });
+    it("always includes today all-day event regardless of nowHHMM", () => {
+        const allday = occ({
+            id: "a",
+            occurrenceDate: "2026-05-21",
+            time: null,
+        });
+        expect(pickNextEvent([allday], "2026-05-21", "23:30")?.id).toBe("a");
     });
     it("skips cancelled", () => {
         const c = occ({

@@ -30,9 +30,13 @@ interface Props {
     item: WishlistItem;
 }
 
+const FALLBACK_CATEGORY = { label: "Другое", dot: "#BFB3A8" } as const;
+
 const HomeWishlistPeekCard = ({ item }: Props) => {
     const { root, imageWrap, body, title, meta, dot } = styles();
-    const cat = WISHLIST_CATEGORY_BY_ID[item.category];
+    // Defensive: если DB-enum опередил клиент (новая категория) — fallback на
+    // нейтральные label/dot вместо краша на cat.dot.
+    const cat = WISHLIST_CATEGORY_BY_ID[item.category] ?? FALLBACK_CATEGORY;
     return (
         <Link href={WISHLIST_R()} className={root()} aria-label={item.title}>
             <div className={imageWrap()}>

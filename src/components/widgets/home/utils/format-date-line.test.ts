@@ -19,4 +19,11 @@ describe("formatDateLine", () => {
         // 2028-02-29 — вторник.
         expect(formatDateLine("2028-02-29")).toBe("Вт · 29 февраля");
     });
+    it("returns empty string on malformed input", () => {
+        expect(formatDateLine("garbage")).toBe("");
+        expect(formatDateLine("")).toBe("");
+        expect(formatDateLine("2026/05/22")).toBe("");
+        expect(formatDateLine("2026-13-01")).toBe("");
+        expect(formatDateLine("2026-05-32")).toBe("");
+    });
 });

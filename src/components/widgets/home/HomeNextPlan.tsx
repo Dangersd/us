@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { tv } from "tailwind-variants";
 
+import { HOME_NEXT_PLAN_RANGE_DAYS } from "~components/widgets/home/constants";
 import { formatDateLine } from "~components/widgets/home/utils/format-date-line";
 import { pickNextEvent } from "~components/widgets/home/utils/pick-next-event";
 import { EVENT_CATEGORY_BY_ID } from "~config/calendar";
 import { CALENDAR_R } from "~config/routes";
 import { useTodayDate } from "~hooks/use-today-date";
 import { addDays } from "~libs/date";
+import { currentTimeHHMM } from "~libs/time-of-day";
 import { cn } from "~libs/utils";
 import { useEventsRange } from "~queries/calendar/use-events-range";
 
@@ -22,7 +24,7 @@ const styles = tv({
         ),
         accent: cn(
             "pointer-events-none absolute left-0 top-1/2 -translate-y-1/2",
-            "h-32 w-[3px] rounded-r-full",
+            "h-32 w-0.75 rounded-r-full",
             "bg-home-accent-bar",
         ),
         topRow: cn("flex items-center gap-2 text-[13px] text-ink-muted"),
@@ -39,11 +41,16 @@ const styles = tv({
     },
 });
 
+const FALLBACK_DOT_COLOR = "#BFB3A8";
+
 const HomeNextPlan = () => {
     const today = useTodayDate();
-    const range = { start: today, end: addDays(today, 60) };
+    const range = {
+        start: today,
+        end: addDays(today, HOME_NEXT_PLAN_RANGE_DAYS),
+    };
     const events = useEventsRange(range, today);
-    const next = pickNextEvent(events.data, today);
+    const next = pickNextEvent(events.data, today, currentTimeHHMM());
     const { root, accent, topRow, dot, title, sub, empty } = styles();
 
     if (!next) {
@@ -54,7 +61,11 @@ const HomeNextPlan = () => {
         );
     }
 
+    // Если DB-enum опередил клиентскую сборку (новая категория, stale build) —
+    // fallback на ink-muted dot, чтобы не крашиться на cat.color.
     const cat = EVENT_CATEGORY_BY_ID[next.category];
+    const dotColor = cat?.color ?? FALLBACK_DOT_COLOR;
+    const dateLine = formatDateLine(next.occurrenceDate);
 
     return (
         <Link href={CALENDAR_R()} className={root()}>
@@ -63,11 +74,11 @@ const HomeNextPlan = () => {
                 <span
                     aria-hidden
                     className={dot()}
-                    style={{ backgroundColor: cat.color }}
+                    style={{ backgroundColor: dotColor }}
                 />
-                <span className="uppercase tracking-wide">
-                    {formatDateLine(next.occurrenceDate)}
-                </span>
+                {dateLine ? (
+                    <span className="uppercase tracking-wide">{dateLine}</span>
+                ) : null}
                 {next.time ? (
                     <>
                         <span aria-hidden>·</span>

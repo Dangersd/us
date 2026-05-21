@@ -10,13 +10,17 @@ import { useWishlistPeek } from "~queries/wishlist/use-wishlist-peek";
 // D9: dative-хелпер дропнут — он давал mixed-script мусор для латинских
 // displayName. Заголовок в номинативе («Имя сейчас хочет...»).
 
+// row на мобайле использует container-padding-bleed чтобы выехать за края
+// Container'а и дать карточкам полноширинный horizontal scroll. На desktop
+// (md+) bleed отключается и карточки wrap'ятся в обычной сетке.
 const styles = tv({
     slots: {
         root: cn("flex flex-col gap-3 py-4"),
         heading: cn("text-sm text-ink-secondary"),
         row: cn(
-            "flex gap-3 overflow-x-auto md:overflow-visible md:flex-wrap",
-            "container-padding-bleed md:p-0 -mx-4 md:mx-0 px-4 md:px-0",
+            "flex gap-3 overflow-x-auto",
+            "container-padding-bleed",
+            "md:overflow-visible md:flex-wrap md:m-0 md:p-0",
         ),
     },
 });

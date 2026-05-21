@@ -6,6 +6,7 @@ import RoomShell from "~components/shell/RoomShell";
 import {
     HomeAmbient,
     HomeGreeting,
+    HomeMemoryOfTheDay,
     HomeNextPlan,
     HomeWishlistPeek,
 } from "~components/widgets/home";
@@ -13,8 +14,8 @@ import { MoodPairGlance } from "~components/widgets/pair-glance";
 import { cn } from "~libs/utils";
 
 // Mobile = вертикальный стек. Desktop md+ = 2-колоночный grid (Mood 480px /
-// NextPlan fill). Memory of the Day слот добавится в 0.8.3 между NextPlan и
-// WishlistPeek с md:col-span-2.
+// NextPlan fill). Memory of the Day лежит full-width между NextPlan и
+// WishlistPeek (md:col-span-2).
 const layout = tv({
     slots: {
         root: cn(
@@ -24,6 +25,7 @@ const layout = tv({
         greetingSlot: cn("md:col-span-2"),
         moodSlot: cn("md:col-span-1"),
         nextPlanSlot: cn("md:col-span-1"),
+        memorySlot: cn("md:col-span-2"),
         wishlistSlot: cn("md:col-span-2"),
     },
 });
@@ -46,6 +48,9 @@ const HomeClientPage = () => {
                 </div>
                 <div className={s.nextPlanSlot()}>
                     <HomeNextPlan />
+                </div>
+                <div className={s.memorySlot()}>
+                    <HomeMemoryOfTheDay />
                 </div>
                 <div className={s.wishlistSlot()}>
                     <HomeWishlistPeek />
