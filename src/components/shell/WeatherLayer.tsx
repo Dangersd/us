@@ -60,7 +60,7 @@ const isCoarsePointer = (): boolean => {
 };
 
 const FRAME_INTERVAL_DESKTOP = 1000 / 60;
-const FRAME_INTERVAL_MOBILE = 1000 / 35; // ещё ниже — 20fps
+const FRAME_INTERVAL_MOBILE = 1000 / 20; // ещё ниже — 20fps
 const DENSITY_DESKTOP = 1;
 const DENSITY_MOBILE = 0.3; // ~36 drops вместо 120
 
@@ -119,6 +119,10 @@ const WeatherLayer = () => {
     useEffect(() => {
         if (!enabled || !weather || reducedMotion) return;
         if (weather.state !== "rain" && weather.state !== "snow") return;
+        // Mobile (coarse-pointer): только tint, без canvas/RAF/observer.
+        // iPhone Safari + backdrop-blur cards + canvas overlay = unavoidable
+        // compositor lag. User trade-off в пользу плавности app.
+        if (coarsePointer) return;
 
         const rainCanvas = rainCanvasRef.current;
         const splashCanvas = splashCanvasRef.current;
@@ -316,7 +320,9 @@ const WeatherLayer = () => {
 
     const tint = TINT[weather.state];
     const tintOpacity = tint ? (weather.isDay ? tint.day : tint.night) : 0;
+    // Canvases только на desktop. Mobile получает только tint (см. effect).
     const showCanvases =
+        !coarsePointer &&
         !reducedMotion &&
         (weather.state === "rain" || weather.state === "snow");
 
