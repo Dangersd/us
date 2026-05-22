@@ -4,6 +4,7 @@
 // Соответствие key ↔ criteria в evaluate_and_unlock_achievements() RPC
 // (см. supabase/migrations/20260531000001_achievement_rpcs.sql). Изменение
 // key требует и миграции (для существующих unlock-строк), и обновления RPC.
+import type { Gender } from "~interfaces/user";
 
 export type AchievementScope = "couple" | "user";
 
@@ -21,6 +22,11 @@ export interface AchievementDef {
     // false => звезда рендерится permanently locked, criterion не проверяется
     // в RPC (зарезервировано на v0.2 — например twelve_moons требует cycle-tracker).
     enabled: boolean;
+    // Если задан — звезда видна ТОЛЬКО юзеру указанного gender'а. Partner с
+    // другим gender'ом не видит ни серой звезды, ни unlock (privacy). Phase 0.11:
+    // lunar_journal — gendered=female (мужчина не должен знать что cycle-tracker
+    // существует у неё).
+    gendered?: Gender;
 }
 
 export const ACHIEVEMENTS: readonly AchievementDef[] = [
@@ -118,6 +124,15 @@ export const ACHIEVEMENTS: readonly AchievementDef[] = [
         description: "Первая фотография, прикреплённая к моменту",
         criterion: "Добавить фото к событию в календаре",
         scope: "couple",
+        enabled: true,
+    },
+    {
+        key: "lunar_journal",
+        title: "Лунный дневник",
+        description: "Три полных цикла под наблюдением",
+        criterion: "Залогировать 3 завершённых цикла",
+        scope: "user",
+        gendered: "female",
         enabled: true,
     },
 ] as const;
