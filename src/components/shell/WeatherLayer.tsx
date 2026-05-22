@@ -64,6 +64,11 @@ const FRAME_INTERVAL_MOBILE = 1000 / 20; // ещё ниже — 20fps
 const DENSITY_DESKTOP = 1;
 const DENSITY_MOBILE = 0.3; // ~36 drops вместо 120
 
+// Hard cap длительности активного weather-эффекта. Через 10 минут rain/snow
+// очищается с canvas и RAF останавливается — батарея спасена. Следующая
+// state-смена (refetch weather → новое состояние) перезапустит таймер.
+const EFFECT_MAX_DURATION_MS = 10 * 60 * 1000;
+
 // Mount-detection без setState-in-effect (mirror MoodBlob pattern).
 // Сервер всегда возвращает false → WeatherLayer returns null. Client после
 // hydration → true. Это гарантирует одинаковый tree-shape на сервере и при
@@ -108,6 +113,7 @@ const WeatherLayer = () => {
     const splashPoolRef = useRef<SplashParticle[]>([]);
 
     const stateRef = useRef<WeatherStateKind | null>(null);
+    const stateStartedAtRef = useRef(0);
     const windRef = useRef(0);
 
     useEffect(() => {
@@ -124,7 +130,8 @@ const WeatherLayer = () => {
             : FRAME_INTERVAL_DESKTOP;
         const density = coarsePointer ? DENSITY_MOBILE : DENSITY_DESKTOP;
 
-        // State changed → clear splash pool + init new pool
+        // State changed → clear splash pool + init new pool + перезапуск
+        // 10-min таймера экономии батареи.
         if (stateRef.current !== weather.state) {
             splashPoolRef.current.length = 0;
             rainCanvas.setup();
@@ -138,10 +145,17 @@ const WeatherLayer = () => {
                 rainPoolRef.current = [];
             }
             stateRef.current = weather.state;
+            stateStartedAtRef.current = Date.now();
         }
         windRef.current = weather.windSpeed;
 
-        // Surface observer (attributeFilter — eng review D6)
+        // Surface refresh strategy зависит от устройства:
+        //  - Desktop: MutationObserver на body с attributeFilter — мгновенное
+        //    обнаружение новых modal/card mounts.
+        //  - Mobile: MutationObserver — persistent CPU overhead (даже с
+        //    attributeFilter браузер фильтрует ВСЕ мутации body subtree).
+        //    Заменяем на periodic poll (1.5s). Modals регистрируются с
+        //    задержкой до 1.5s, что приемлемо для атмосферного эффекта.
         let refreshTimer: number | undefined;
         const scheduleRefresh = () => {
             window.clearTimeout(refreshTimer);
@@ -151,13 +165,19 @@ const WeatherLayer = () => {
             );
         };
         refreshSurfaceCache(); // initial
-        const mo = new MutationObserver(scheduleRefresh);
-        mo.observe(document.body, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ["data-weather-surface"],
-        });
+        let mo: MutationObserver | null = null;
+        let pollInterval: number | undefined;
+        if (coarsePointer) {
+            pollInterval = window.setInterval(refreshSurfaceCache, 1500);
+        } else {
+            mo = new MutationObserver(scheduleRefresh);
+            mo.observe(document.body, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ["data-weather-surface"],
+            });
+        }
 
         const onResize = () => {
             rainCanvas.setup();
@@ -216,6 +236,20 @@ const WeatherLayer = () => {
         };
 
         const tick = (ts: number) => {
+            // 10-min hard cap. Если состояние держится дольше — глушим canvas
+            // и останавливаем RAF до следующей state-смены (re-fire effect).
+            if (
+                Date.now() - stateStartedAtRef.current >
+                EFFECT_MAX_DURATION_MS
+            ) {
+                const rainCtxFinal = rainCanvas.getCtx();
+                const splashCtxFinal = splashCanvas.getCtx();
+                const { w: fw, h: fh } = rainCanvas.getSize();
+                if (rainCtxFinal) rainCtxFinal.clearRect(0, 0, fw, fh);
+                if (splashCtxFinal) splashCtxFinal.clearRect(0, 0, fw, fh);
+                rafId = null;
+                return;
+            }
             rafId = requestAnimationFrame(tick);
             if (ts - lastFrame < frameInterval) return;
             lastFrame = ts;
@@ -269,7 +303,8 @@ const WeatherLayer = () => {
 
         return () => {
             if (rafId != null) cancelAnimationFrame(rafId);
-            mo.disconnect();
+            mo?.disconnect();
+            if (pollInterval) window.clearInterval(pollInterval);
             window.removeEventListener("resize", debouncedResize);
             if (refreshTimer) window.clearTimeout(refreshTimer);
             if (resizeTimer) window.clearTimeout(resizeTimer);
