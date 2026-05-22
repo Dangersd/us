@@ -89,6 +89,7 @@ const WishlistItemCard = ({
             aria-label={item.title}
             disabled={!interactive}
             className={card({ interactive })}
+            data-weather-surface="true"
         >
             <div className="relative">
                 <WishlistImagePreview

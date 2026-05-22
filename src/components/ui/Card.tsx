@@ -62,6 +62,13 @@ type CardVariants = VariantProps<typeof card>;
 export type CardProps = HTMLAttributes<HTMLDivElement> &
     CardVariants & {
         children?: ReactNode;
+        /**
+         * Whether this Card catches rain particles (Phase 2 weather splash).
+         * Default true — все карточки ловят дождь. Set `catchRain={false}`
+         * для list-item cards в densely-populated rooms (Wishlist), если
+         * визуально перегружено. См. plan known concerns + TODOS.md.
+         */
+        catchRain?: boolean;
     };
 
 const Card = ({
@@ -70,10 +77,12 @@ const Card = ({
     interactive,
     className,
     children,
+    catchRain = true,
     ...rest
 }: CardProps) => (
     <div
         {...rest}
+        {...(catchRain ? { "data-weather-surface": "true" } : {})}
         className={cn(card({ variant, tone, interactive }), className)}
     >
         {children}

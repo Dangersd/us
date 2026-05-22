@@ -126,6 +126,7 @@ const CalendarEventCard = ({
                 isCancelled ? cancelled() : occurrence.isPast && pastDim(),
             )}
             aria-label={occurrence.title}
+            data-weather-surface="true"
         >
             <div className={header()}>
                 <span className={dateRow()}>

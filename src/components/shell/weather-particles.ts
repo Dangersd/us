@@ -6,6 +6,15 @@
 //
 // Параллакс — 3 слоя (far/mid/near), разная скорость / размер / альфа.
 // Размер pool'а фиксированный, мутируем in place — без per-frame allocations.
+//
+// Phase 2: updateRainPool принимает surfaces + onCollision callback.
+// При пересечении top-edge surface'а капля респавнится сверху и вызывается
+// onCollision со снимком события. WeatherLayer передаёт callback, который
+// throttle'ит через canSpawnOnSurface и spawn'ит splash + stuck.
+import {
+    type SurfaceSnapshot,
+    findTopEdgeHit,
+} from "~components/shell/weather-surfaces";
 
 export interface RainParticle {
     layer: 0 | 1 | 2;
@@ -113,12 +122,20 @@ export const driftForRainParticle = (
     return raw;
 };
 
+export interface RainCollision {
+    x: number;
+    y: number;
+    surface: SurfaceSnapshot;
+}
+
 export const updateRainPool = (
     pool: RainParticle[],
     width: number,
     height: number,
     windSpeed: number,
     decayActive: boolean,
+    surfaces: SurfaceSnapshot[] = [],
+    onCollision?: (c: RainCollision) => void,
 ): void => {
     for (let i = 0; i < pool.length; i += 1) {
         const p = pool[i];
@@ -128,8 +145,22 @@ export const updateRainPool = (
         } else if (p.alpha < p.targetAlpha) {
             p.alpha = Math.min(p.alpha + 0.02, p.targetAlpha);
         }
+        const prevY = p.y;
         p.y += p.speed;
         p.x += driftForRainParticle(p.speed, windSpeed, p.windFactor);
+
+        // Phase 2 collision: head капли (нижняя точка линии) пересекла surface.top
+        if (surfaces.length > 0 && onCollision) {
+            const hit = findTopEdgeHit(p.x, prevY, p.y, surfaces);
+            if (hit) {
+                onCollision({ x: p.x, y: hit.rect.top, surface: hit });
+                p.y = -p.length - Math.random() * 50;
+                p.x = Math.random() * width;
+                p.alpha = 0;
+                continue;
+            }
+        }
+
         if (p.y > height + p.length) {
             p.y = -p.length;
             p.x = Math.random() * width;

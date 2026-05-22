@@ -49,7 +49,6 @@ const AppShell = ({ user, children }: AppShellProps) => {
                 style={style}
             >
                 <EdgeGlow />
-                <WeatherLayer />
                 <Sidebar user={user} activeId={activeId} />
 
                 <div className={cn("flex min-w-0 flex-1 flex-col")}>
@@ -59,6 +58,11 @@ const AppShell = ({ user, children }: AppShellProps) => {
                     </main>
                     <BottomNav activeId={activeId} />
                 </div>
+
+                {/* WeatherLayer как LAST child #global_content — fixed-position
+                 * (не влияет на layout), но позиция в дереве позже main/MoodBlob,
+                 * чтобы useId-counter downstream компонентов не сдвигался. */}
+                <WeatherLayer />
             </div>
         </BreathProvider>
     );

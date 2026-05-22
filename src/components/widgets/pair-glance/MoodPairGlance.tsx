@@ -79,6 +79,7 @@ const MoodPairGlance = ({
     return (
         <div className={cn("flex flex-col items-stretch gap-3 mb-6")}>
             <div
+                data-weather-surface="true"
                 className={cn(
                     "relative overflow-hidden",
                     "rounded-[32px] p-4 md:p-6",

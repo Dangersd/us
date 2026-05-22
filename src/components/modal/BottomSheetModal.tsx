@@ -169,6 +169,7 @@ const BottomSheetModal = ({
                         role="dialog"
                         aria-modal="true"
                         aria-label={ariaLabel}
+                        data-weather-surface="true"
                         className={sheet()}
                         style={{ y }}
                         initial={{ y: "100%" }}

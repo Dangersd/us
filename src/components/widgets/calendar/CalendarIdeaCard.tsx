@@ -54,7 +54,7 @@ const CalendarIdeaCard = ({ idea }: CalendarIdeaCardProps) => {
     const handleEdit = () => openIdeaModal({ existing: idea });
 
     return (
-        <div className={root()}>
+        <div className={root()} data-weather-surface="true">
             <button type="button" onClick={handleAssign} className={main()}>
                 <div className={text()}>
                     <div className={title()}>{idea.title}</div>

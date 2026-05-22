@@ -55,7 +55,11 @@ const HomeNextPlan = () => {
 
     if (!next) {
         return (
-            <Link href={CALENDAR_R()} className={empty()}>
+            <Link
+                href={CALENDAR_R()}
+                className={empty()}
+                data-weather-surface="true"
+            >
                 Тишина. Может, придумаем что-то?
             </Link>
         );
@@ -68,7 +72,11 @@ const HomeNextPlan = () => {
     const dateLine = formatDateLine(next.occurrenceDate);
 
     return (
-        <Link href={CALENDAR_R()} className={root()}>
+        <Link
+            href={CALENDAR_R()}
+            className={root()}
+            data-weather-surface="true"
+        >
             <span aria-hidden className={accent()} />
             <div className={topRow()}>
                 <span

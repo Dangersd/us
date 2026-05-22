@@ -66,6 +66,7 @@ const HomeMemoryOfTheDay = () => {
             onClick={handleOpen}
             className={root()}
             aria-label={m.eventTitle}
+            data-weather-surface="true"
         >
             <div className={photo()}>
                 <Image

@@ -38,7 +38,12 @@ const HomeWishlistPeekCard = ({ item }: Props) => {
     // нейтральные label/dot вместо краша на cat.dot.
     const cat = WISHLIST_CATEGORY_BY_ID[item.category] ?? FALLBACK_CATEGORY;
     return (
-        <Link href={WISHLIST_R()} className={root()} aria-label={item.title}>
+        <Link
+            href={WISHLIST_R()}
+            className={root()}
+            aria-label={item.title}
+            data-weather-surface="true"
+        >
             <div className={imageWrap()}>
                 <WishlistImagePreview
                     url={item.imageUrl}

@@ -40,7 +40,10 @@ const CycleHero = ({ phase }: CycleHeroProps) => {
 
     if (!phase || phase.phase === null || phase.dayOfCycle === null) {
         return (
-            <div className={cn(root(), "flex flex-col gap-2")}>
+            <div
+                className={cn(root(), "flex flex-col gap-2")}
+                data-weather-surface="true"
+            >
                 <div aria-hidden className={halo()} />
                 <span className={chip()}>
                     <span className={chipDot()} />
@@ -54,7 +57,7 @@ const CycleHero = ({ phase }: CycleHeroProps) => {
     }
 
     return (
-        <div className={cn(root(), "relative")}>
+        <div className={cn(root(), "relative")} data-weather-surface="true">
             <div aria-hidden className={halo()} />
             <div className="relative z-10 flex flex-col items-start">
                 <span className={chip()}>

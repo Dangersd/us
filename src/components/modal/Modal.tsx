@@ -113,6 +113,7 @@ const Modal = ({
                             role="dialog"
                             aria-modal="true"
                             aria-label={ariaLabel}
+                            data-weather-surface="true"
                             className={card()}
                             initial={
                                 isFullscreen
