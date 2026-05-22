@@ -9,6 +9,7 @@ import {
     ProfileHeader,
     StatsSection,
 } from "~components/widgets/profile";
+import { CyclePreviewCard } from "~components/widgets/profile/cycle";
 import { cn } from "~libs/utils";
 import { useCouple } from "~queries/couple/use-couple";
 import { usePartnerProfile } from "~queries/profile/use-partner-profile";
@@ -41,6 +42,9 @@ const ProfileClientPage = () => {
                                 partner={partner ?? null}
                                 couple={couple ?? null}
                             />
+                            {me.gender === "female" ? (
+                                <CyclePreviewCard />
+                            ) : null}
                             <AchievementsSection me={me} />
                             <AccountSection />
                         </>

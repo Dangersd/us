@@ -63,6 +63,17 @@ const AchievementsSection = ({ me, className }: AchievementsSectionProps) => {
         [unlocks, me.id],
     );
 
+    // Phase 0.11: gendered-фильтр. Звёзды с указанным `gendered` видны только
+    // соответствующему gender'у (privacy: партнёр-male не должен знать, что
+    // cycle-tracker существует у неё). lunar_journal — gendered=female.
+    const visibleAchievements = useMemo(
+        () =>
+            ACHIEVEMENTS.filter(
+                (d) => d.gendered === undefined || d.gendered === me.gender,
+            ),
+        [me.gender],
+    );
+
     const handleStarClick = useCallback(
         (def: AchievementDef) => {
             if (!def.enabled) {
@@ -86,7 +97,7 @@ const AchievementsSection = ({ me, className }: AchievementsSectionProps) => {
         <section className={cn(root(), className)}>
             <h2 className={title()}>Созвездие</h2>
             <div className={grid()}>
-                {ACHIEVEMENTS.map((def) => (
+                {visibleAchievements.map((def) => (
                     <AchievementStar
                         key={def.key}
                         def={def}

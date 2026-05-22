@@ -5,6 +5,7 @@ export const MOOD_HISTORY_R = () => "/mood/history";
 export const CALENDAR_R = () => "/calendar";
 export const WISHLIST_R = () => "/wishlist";
 export const PROFILE_R = () => "/profile";
+export const PROFILE_CYCLE_R = () => "/profile/cycle";
 export const LOGIN_R = () => "/login";
 
 // Публичные пути, на которые proxy пускает анонимного гостя.

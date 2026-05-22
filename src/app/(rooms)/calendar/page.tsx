@@ -21,8 +21,13 @@ import { makeQueryClient } from "~libs/react-query/query-client";
 import { getServerSupabase } from "~libs/supabase/server";
 import { createFetchEventsRangeServerQuery } from "~queries/calendar/fetch-events-range.server";
 import { createFetchIdeasServerQuery } from "~queries/calendar/fetch-ideas.server";
+import { createFetchCycleHistoryServerQuery } from "~queries/cycle/fetch-cycle-history.server";
+import { createFetchCycleMonthServerQuery } from "~queries/cycle/fetch-cycle-month.server";
 import { createFetchPartnerProfileServerQuery } from "~queries/profile/fetch-partner-profile.server";
-import { createFetchCurrentUserServerQuery } from "~queries/user/fetch-current-user.server";
+import {
+    createFetchCurrentUserServerQuery,
+    fetchCurrentUserServer,
+} from "~queries/user/fetch-current-user.server";
 
 interface CalendarPageProps {
     // event/idea ушли из URL — модалки управляются ModalProvider (см.
@@ -90,6 +95,22 @@ const CalendarPage = async ({ searchParams }: CalendarPageProps) => {
                 .catch(() => undefined),
         );
     }
+
+    // Phase 0.11: cycle overlay в месячном grid — prefetch только для
+    // female-аккаунта. Male user не должен запрашивать cycle data (RLS
+    // вернёт пустоту, но избегаем лишнего round-trip).
+    const me = await fetchCurrentUserServer().catch(() => null);
+    if (me?.gender === "female" && monthRange) {
+        prefetches.push(
+            queryClient
+                .prefetchQuery(createFetchCycleMonthServerQuery(ym))
+                .catch(() => undefined),
+            queryClient
+                .prefetchQuery(createFetchCycleHistoryServerQuery(180))
+                .catch(() => undefined),
+        );
+    }
+
     await Promise.all(prefetches);
 
     return (

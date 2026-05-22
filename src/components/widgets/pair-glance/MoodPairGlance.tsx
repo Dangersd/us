@@ -11,9 +11,11 @@ import PartnerMoodReadout from "~components/widgets/pair-glance/PartnerMoodReado
 import PrivacyPill from "~components/widgets/pair-glance/PrivacyPill";
 import { EMOTION_BY_ID, emotionLabel } from "~config/mood";
 import { useTodayDate } from "~hooks/use-today-date";
+import type { CyclePhaseInfo } from "~interfaces/cycle";
 import type { MoodEntry } from "~interfaces/mood";
 import type { Gender } from "~interfaces/user";
 import { cn } from "~libs/utils";
+import { usePartnerPhase } from "~queries/cycle/use-partner-phase";
 import { usePartnerTodayMood } from "~queries/mood/use-partner-today-mood";
 import { useTodayMood } from "~queries/mood/use-today-mood";
 import { usePartnerProfile } from "~queries/profile/use-partner-profile";
@@ -54,6 +56,13 @@ const MoodPairGlance = ({
     const partner = usePartnerTodayMood(date);
     const partnerProfile = usePartnerProfile();
     const currentUser = useCurrentUser();
+    // Phase 0.11: partner ambient. usePartnerPhase сам gates по
+    // phase_visible_to_partner toggle (default OFF). Партнёр-female не
+    // получает данных (RPC возвращает null). Female-viewer тоже не получит
+    // (RPC ищет partner с gender=female).
+    const partnerPhase = usePartnerPhase();
+    const showPartnerPhaseRing =
+        partnerProfile.data?.gender === "female" && partnerPhase.data != null;
 
     const [open, setOpen] = useState(false);
 
@@ -135,6 +144,11 @@ const MoodPairGlance = ({
                         as="button"
                         onClick={toggleReadout}
                         open={open}
+                        phaseRing={
+                            showPartnerPhaseRing
+                                ? (partnerPhase.data ?? null)
+                                : null
+                        }
                     />
                 </div>
             </div>
@@ -178,6 +192,9 @@ interface PairColumnProps {
     as?: "div" | "button";
     onClick?: () => void;
     open?: boolean;
+    /** Phase 0.11: ambient moon-ring вокруг blob'а. Null если toggle OFF
+     *  у партнёра или viewer-female. */
+    phaseRing?: CyclePhaseInfo | null;
 }
 
 const PairColumn = ({
@@ -190,6 +207,7 @@ const PairColumn = ({
     as = "div",
     onClick,
     open,
+    phaseRing,
 }: PairColumnProps) => {
     const hasEntry = entry != null;
     const color = hasEntry
@@ -203,22 +221,37 @@ const PairColumn = ({
 
     const content = (
         <>
-            <MoodBlob
-                color={color}
-                energy={entry?.energy ?? 50}
-                stress={entry?.stress ?? 0}
-                socialBattery={entry?.socialBattery ?? 50}
-                size={BLOB_SIZE}
-                aura={hasEntry}
-                className={cn("size-30 md:size-40", {
-                    "opacity-50": !hasEntry,
-                })}
-                aria-label={
-                    hasEntry
-                        ? `Блоб настроения: ${name}`
-                        : `${name}: ${missingLabel}`
-                }
-            />
+            <div className={cn("relative")}>
+                {phaseRing ? (
+                    <span
+                        aria-hidden
+                        className={cn(
+                            "pointer-events-none absolute inset-0 rounded-full",
+                            "border border-hue-female/40",
+                            "size-30 md:size-40",
+                        )}
+                        style={{
+                            boxShadow: "0 0 24px rgba(184, 143, 170, 0.25)",
+                        }}
+                    />
+                ) : null}
+                <MoodBlob
+                    color={color}
+                    energy={entry?.energy ?? 50}
+                    stress={entry?.stress ?? 0}
+                    socialBattery={entry?.socialBattery ?? 50}
+                    size={BLOB_SIZE}
+                    aura={hasEntry}
+                    className={cn("size-30 md:size-40", {
+                        "opacity-50": !hasEntry,
+                    })}
+                    aria-label={
+                        hasEntry
+                            ? `Блоб настроения: ${name}`
+                            : `${name}: ${missingLabel}`
+                    }
+                />
+            </div>
 
             <p
                 className={cn(

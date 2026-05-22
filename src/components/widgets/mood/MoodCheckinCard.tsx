@@ -9,6 +9,7 @@ import EmotionPicker from "~components/widgets/mood/EmotionPicker";
 import GhostControl from "~components/widgets/mood/GhostControl";
 import MoodCardHeader from "~components/widgets/mood/MoodCardHeader";
 import MoodCardSection from "~components/widgets/mood/MoodCardSection";
+import MoodCycleSection from "~components/widgets/mood/MoodCycleSection";
 import MoodErrorPill from "~components/widgets/mood/MoodErrorPill";
 import { useTodayDate } from "~hooks/use-today-date";
 import type { Gender } from "~interfaces/user";
@@ -202,6 +203,10 @@ const MoodCheckinCard = ({
                 visible={draft.upsertState.isError}
                 onRetry={draft.retry}
             />
+
+            {userGender === "female" ? (
+                <MoodCycleSection date={date} className="mt-2" />
+            ) : null}
         </Card>
     );
 };

@@ -4,13 +4,14 @@ import { tv } from "tailwind-variants";
 
 import { useOpenEventModal } from "~components/widgets/calendar/event-modal";
 import { displayCategoryColor } from "~config/calendar";
+import { CYCLE_COLORS } from "~config/cycle";
 import type { CalendarEventOccurrence } from "~interfaces/calendar";
 import type { CyclePhaseToken } from "~interfaces/cycle";
 import { cn } from "~libs/utils";
 
-// v0.2 cycle hook-point — рендерится per-day, не whole-grid (см.
-// /plan-eng-review LOW finding: overlay?: ReactNode на grid'е был wrong
-// shape). В 0.6 prop задекларирован, но рендера нет.
+// Phase 0.11: cycle overlay живой — рендерится маленькой точкой над event-
+// dots row если cyclePhase задан. Видно только female-аккаунту (CalendarMonthGrid
+// делает gender-gate перед расчётом cycleByDate).
 
 interface CalendarMonthDayCellProps {
     date: string; // YYYY-MM-DD
@@ -47,13 +48,28 @@ const styles = tv({
     },
 });
 
+function cyclePhaseDotColor(token: CyclePhaseToken): string | null {
+    switch (token) {
+        case "period":
+            return CYCLE_COLORS.period;
+        case "fertile":
+            return CYCLE_COLORS.fertile;
+        case "ovulation":
+            return "var(--color-glow-warm)";
+        case "prognosis":
+            return CYCLE_COLORS.prognosisRing;
+        default:
+            return null;
+    }
+}
+
 const CalendarMonthDayCell = ({
     date,
     ym,
     today,
     selectedDay,
     occurrences,
-    cyclePhase: _cyclePhase, // зарезервировано, v0.2
+    cyclePhase,
 }: CalendarMonthDayCellProps) => {
     const {
         cell,
@@ -123,6 +139,17 @@ const CalendarMonthDayCell = ({
                 <span className={num()}>{dayNum}</span>
             )}
             <span className={dotsRow()}>
+                {cyclePhase ? (
+                    <span
+                        className={dot()}
+                        style={{
+                            backgroundColor:
+                                cyclePhaseDotColor(cyclePhase) ?? undefined,
+                            opacity:
+                                cyclePhase === "prognosis" ? 0.5 : undefined,
+                        }}
+                    />
+                ) : null}
                 {dots.map((c) => (
                     <span
                         key={c}

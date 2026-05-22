@@ -7,6 +7,7 @@ import { tv } from "tailwind-variants";
 import CalendarMonthDayCell from "~components/widgets/calendar/CalendarMonthDayCell";
 import { useTodayDate } from "~hooks/use-today-date";
 import type { CalendarEventOccurrence } from "~interfaces/calendar";
+import type { CyclePhaseToken } from "~interfaces/cycle";
 import {
     RU_WEEKDAY_SHORT,
     addDays,
@@ -17,6 +18,10 @@ import {
 } from "~libs/date";
 import { cn } from "~libs/utils";
 import { useEventsRange } from "~queries/calendar";
+import { dayPhaseToken, extractPeriodStarts } from "~queries/cycle";
+import { useCycleHistory } from "~queries/cycle/use-cycle-history";
+import { useCycleMonth } from "~queries/cycle/use-cycle-month";
+import { useCurrentUser } from "~queries/user/use-current-user";
 
 interface CalendarMonthGridProps {
     ym: string;
@@ -67,6 +72,30 @@ const CalendarMonthGrid = ({ ym, selectedDay }: CalendarMonthGridProps) => {
     const range = useMemo(() => getMonthRange(ym), [ym]);
     const { data: occurrences } = useEventsRange(range, today);
 
+    // Phase 0.11: cycle overlay — только для female-аккаунта. Hook'и всегда
+    // вызываются (нельзя conditional hook), но реально fetch'ятся только когда
+    // gender=female (RLS вернёт пустоту для male — graceful).
+    const { data: me } = useCurrentUser();
+    const isFemale = me?.gender === "female";
+    const { data: cycleMonth } = useCycleMonth(ym);
+    const { data: cycleHistory } = useCycleHistory(180);
+
+    const cycleByDate = useMemo<Map<string, CyclePhaseToken>>(() => {
+        if (!isFemale) return new Map();
+        const periodStarts = extractPeriodStarts(cycleHistory ?? []);
+        const map = new Map<string, CyclePhaseToken>();
+        // avgLen в overlay'е — берём 28 если нет cycleHistory с >=2 циклами.
+        // Точная middle-ground; для precise значения юзер открывает /profile/cycle.
+        const avgLen = 28;
+        const entries = cycleMonth ?? [];
+        const days = buildMonthDays(ym);
+        for (const d of days) {
+            const token = dayPhaseToken(d, entries, periodStarts, avgLen);
+            if (token !== "none") map.set(d, token);
+        }
+        return map;
+    }, [isFemale, cycleHistory, cycleMonth, ym]);
+
     const occurrencesByDate = useMemo(
         () => indexByDate(occurrences),
         [occurrences],
@@ -93,6 +122,7 @@ const CalendarMonthGrid = ({ ym, selectedDay }: CalendarMonthGridProps) => {
                         today={today}
                         selectedDay={selectedDay}
                         occurrences={occurrencesByDate.get(d) ?? []}
+                        cyclePhase={cycleByDate.get(d)}
                     />
                 ))}
             </div>
