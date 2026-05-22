@@ -145,3 +145,14 @@ body::after {
 html.grain-off body::after {
     display: none;
 }
+
+/* === Weather layer toggle ===
+ *
+ * WeatherLayer сам возвращает null если useWeatherSetting().enabled=false
+ * (через React state hydrate'нутый из localStorage). Этот CSS-fallback
+ * убивает слой ещё до hydrate (AtmosphereBootScript ставит .weather-off
+ * заранее), чтобы избежать FOUC при refresh с выключенной погодой.
+ */
+html.weather-off [data-weather-layer] {
+    display: none !important;
+}

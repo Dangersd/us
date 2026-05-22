@@ -6,6 +6,7 @@ import BottomNav from "~components/shell/BottomNav";
 import EdgeGlow from "~components/shell/EdgeGlow";
 import Sidebar from "~components/shell/Sidebar";
 import TopBar from "~components/shell/TopBar";
+import WeatherLayer from "~components/shell/WeatherLayer";
 import { useActiveRoom } from "~components/shell/use-active-room";
 import { BreathProvider } from "~components/ui/breath-context";
 import { useGrainSetting } from "~hooks/use-grain-setting";
@@ -48,6 +49,7 @@ const AppShell = ({ user, children }: AppShellProps) => {
                 style={style}
             >
                 <EdgeGlow />
+                <WeatherLayer />
                 <Sidebar user={user} activeId={activeId} />
 
                 <div className={cn("flex min-w-0 flex-1 flex-col")}>

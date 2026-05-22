@@ -3,12 +3,12 @@
 import { tv } from "tailwind-variants";
 
 import { useGrainSetting } from "~hooks/use-grain-setting";
+import { useWeatherSetting } from "~hooks/use-weather-setting";
 import { cn } from "~libs/utils";
 
-// Profile → Тема: пока единственная настройка — тёплая зернистость
-// (grain overlay). Persisted в localStorage через useGrainSetting hook.
-// Label-wrap даёт touch-target ≥44px (min-h-11), htmlFor явно ассоциирует
-// label с checkbox для screen readers.
+// Profile → Тема: атмосферные toggle'ы. Каждый persisted в localStorage
+// через свой hook. Label-wrap даёт touch-target ≥44px (min-h-11), htmlFor
+// явно ассоциирует label с checkbox для screen readers.
 
 const styles = tv({
     slots: {
@@ -31,7 +31,8 @@ const styles = tv({
 });
 
 const ThemeSection = () => {
-    const { enabled, setEnabled } = useGrainSetting();
+    const grain = useGrainSetting();
+    const weather = useWeatherSetting();
     const { root, title, row, label, checkbox, hint } = styles();
 
     return (
@@ -43,14 +44,29 @@ const ThemeSection = () => {
                         id="grain-toggle"
                         type="checkbox"
                         className={checkbox()}
-                        checked={enabled}
-                        onChange={(e) => setEnabled(e.target.checked)}
+                        checked={grain.enabled}
+                        onChange={(e) => grain.setEnabled(e.target.checked)}
                     />
                     <span>Тёплая зернистость</span>
                 </label>
             </div>
             <p className={hint()}>
                 Лёгкое плёночное зерно поверх фона. Снимает «цифровой» привкус.
+            </p>
+            <div className={row()}>
+                <label htmlFor="weather-toggle" className={label()}>
+                    <input
+                        id="weather-toggle"
+                        type="checkbox"
+                        className={checkbox()}
+                        checked={weather.enabled}
+                        onChange={(e) => weather.setEnabled(e.target.checked)}
+                    />
+                    <span>Погода за окном</span>
+                </label>
+            </div>
+            <p className={hint()}>
+                Дождь, снег и тинт по реальной погоде Бишкека.
             </p>
         </section>
     );
