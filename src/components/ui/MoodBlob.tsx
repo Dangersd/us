@@ -1,12 +1,18 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useMemo, useSyncExternalStore } from "react";
 
 import { motion, useTransform } from "framer-motion";
 
 import { blobPath } from "~components/ui/blob-path";
 import { useBreathTime } from "~components/ui/breath-context";
 import { cn } from "~libs/utils";
+
+// Mount-detection без setState-in-effect (React 19 strict rule). Сервер
+// возвращает false, клиент после hydrate — true.
+const noopSubscribe = () => () => {};
+const getClientMounted = () => true;
+const getServerMounted = () => false;
 
 // Animated mood-blob: SVG-path-морфинг с дыханием. ИСПОЛЬЗУЕТСЯ как живая
 // «клякса»-аватар в Mood-комнате (карточка + pair-glance).
@@ -79,12 +85,38 @@ const MoodBlob = ({
     const radius = (size / 2) * 0.7 * scale;
 
     const time = useBreathTime();
-    const d = useTransform(time, (t) => {
+    const liveD = useTransform(time, (t) => {
         // t === 0 (frozen MotionValue без провайдера или с reduce-motion) →
         // phase = 0, статичная форма.
         const phase = (t / breathMs) * Math.PI * 2;
         return blobPath({ cx, cy, radius, points: 8, jitter, aspectY, phase });
     });
+
+    // SSR/hydration safety: RAF в BreathProvider стартует через useEffect
+    // (после commit). Между server-render (time=0) и client-первого-рендера
+    // RAF может уже сделать tick → time > 0 → path d отличается на ~0.01px,
+    // что бьётся как hydration mismatch на motion.path. Решение: на первый
+    // рендер всегда отдаём static (phase=0) path-строку, после mount свопаем
+    // на live MotionValue. motion.path принимает оба типа.
+    const staticD = useMemo(
+        () =>
+            blobPath({
+                cx,
+                cy,
+                radius,
+                points: 8,
+                jitter,
+                aspectY,
+                phase: 0,
+            }),
+        [cx, cy, radius, jitter, aspectY],
+    );
+    const mounted = useSyncExternalStore(
+        noopSubscribe,
+        getClientMounted,
+        getServerMounted,
+    );
+    const d = mounted ? liveD : staticD;
 
     // useId — стабильный per-instance ID, безопасный в SVG url(#...) после
     // sanitize (React 19 useId возвращает с двоеточиями/брекетами). Раньше
@@ -104,15 +136,29 @@ const MoodBlob = ({
             aria-label={ariaLabel}
             role={ariaLabel ? "img" : undefined}
             aria-hidden={ariaLabel ? undefined : true}
+            overflow="visible"
+            // drop-shadow на root <svg> = CSS filter без SVG-filter region
+            // clipping. На inner path он клипался по 110% bbox → виден был
+            // тёмный квадрат вокруг блоба. ${color}44 = ~27% alpha; ~4% size
+            // — мягкий, не «glowy».
+            style={{
+                filter: `drop-shadow(0 0 ${size * 0.04}px ${color}44)`,
+                overflow: "visible",
+            }}
         >
             <defs>
+                {/* Тело блоба: ядро яркое, плавный спад к 40% в краях
+                 * (раньше 25% — выглядел приглушённым). */}
                 <radialGradient id={gradId} cx="50%" cy="50%" r="55%">
                     <stop offset="0%" stopColor={color} stopOpacity="1" />
-                    <stop offset="65%" stopColor={color} stopOpacity="0.7" />
-                    <stop offset="100%" stopColor={color} stopOpacity="0.25" />
+                    <stop offset="55%" stopColor={color} stopOpacity="0.88" />
+                    <stop offset="100%" stopColor={color} stopOpacity="0.4" />
                 </radialGradient>
+                {/* Halo вокруг блоба: подсветка чуть теплее (0.5 vs 0.35),
+                 * с дополнительной mid-stop для более плотного «свечения». */}
                 <radialGradient id={auraId} cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor={color} stopOpacity="0.35" />
+                    <stop offset="0%" stopColor={color} stopOpacity="0.5" />
+                    <stop offset="55%" stopColor={color} stopOpacity="0.18" />
                     <stop offset="100%" stopColor={color} stopOpacity="0" />
                 </radialGradient>
             </defs>

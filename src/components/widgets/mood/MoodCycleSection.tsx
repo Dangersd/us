@@ -78,7 +78,7 @@ const MoodCycleSection = ({
     const initialSymptoms = existing?.symptoms ?? [];
 
     return (
-        <Card className={cn(root(), className)}>
+        <Card tone="mood" className={cn(root(), className)}>
             <div className={head()}>
                 <span className={label()}>Цикл</span>
                 <button

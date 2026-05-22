@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next";
 
 import { fraunces, geist, inter } from "~app/fonts";
 import Providers from "~components/providers/Providers";
+import GrainBootScript from "~components/shell/GrainBootScript";
 import { cn } from "~libs/utils";
 import "~styles/globals.css";
 
@@ -40,6 +41,9 @@ const RootLayout = ({ children }: { children: ReactNode }) => (
             geist.variable,
         )}
     >
+        <head>
+            <GrainBootScript />
+        </head>
         <body className={cn("min-h-dvh antialiased")}>
             <Providers>{children}</Providers>
         </body>

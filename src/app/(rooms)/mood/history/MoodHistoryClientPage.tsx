@@ -3,7 +3,6 @@
 import Link from "next/link";
 
 import RoomShell from "~components/shell/RoomShell";
-import { BreathProvider } from "~components/ui/breath-context";
 import {
     MoodDayDetail,
     MoodHistoryHeader,
@@ -32,29 +31,25 @@ const MoodHistoryClientPage = ({
 
     return (
         <RoomShell roomId="mood">
-            <BreathProvider>
-                <Link
-                    href={MOOD_R()}
-                    className={cn(
-                        "text-ink-tertiary text-sm self-start px-2 py-1",
-                        "transition-colors hover:text-ink-secondary",
-                        "focus-visible:outline-none focus-visible:ring-1",
-                        "focus-visible:ring-glow-warm/40 rounded-md",
-                    )}
-                >
-                    ← к настроению
-                </Link>
-                <MoodHistoryHeader ym={ym} selectedDay={selectedDay} />
-                <MoodMonthGrid
-                    ym={ym}
-                    selectedDay={selectedDay}
-                    userFallbackColor={userFallbackColor}
-                    partnerFallbackColor={partnerFallbackColor}
-                />
-                {selectedDay ? (
-                    <MoodDayDetail date={selectedDay} ym={ym} />
-                ) : null}
-            </BreathProvider>
+            <Link
+                href={MOOD_R()}
+                className={cn(
+                    "text-ink-tertiary text-sm self-start px-2 py-1",
+                    "transition-colors hover:text-ink-secondary",
+                    "focus-visible:outline-none focus-visible:ring-1",
+                    "focus-visible:ring-glow-warm/40 rounded-md",
+                )}
+            >
+                ← к настроению
+            </Link>
+            <MoodHistoryHeader ym={ym} selectedDay={selectedDay} />
+            <MoodMonthGrid
+                ym={ym}
+                selectedDay={selectedDay}
+                userFallbackColor={userFallbackColor}
+                partnerFallbackColor={partnerFallbackColor}
+            />
+            {selectedDay ? <MoodDayDetail date={selectedDay} ym={ym} /> : null}
         </RoomShell>
     );
 };

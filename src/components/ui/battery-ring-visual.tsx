@@ -40,13 +40,18 @@ const BatteryRingVisual = ({
 }: BatteryRingVisualProps) => {
     // /review: dot-позиции зависят только от geometry-props (segments/cx/cy/ringR).
     // Без useMemo каждый pointermove (60-120 hz) перестраивает 24 объекта.
+    //
+    // .toFixed(4): Math.sin/cos в разных версиях V8 (Node-server vs Chrome-client)
+    // могут давать результат отличающийся на 1 ULP (~1e-14). React-SSR сериализует
+    // полное число → hydration mismatch на cy. Округление до 0.0001px (далеко за
+    // пределами визуального восприятия) убирает drift и стабилизирует hydration.
     const dotPositions = useMemo(
         () =>
             Array.from({ length: segments }, (_, i) => {
                 const a = dotAngle(i, segments);
                 return {
-                    dx: cx + Math.cos(a) * ringR,
-                    dy: cy + Math.sin(a) * ringR,
+                    dx: Number((cx + Math.cos(a) * ringR).toFixed(4)),
+                    dy: Number((cy + Math.sin(a) * ringR).toFixed(4)),
                 };
             }),
         [segments, cx, cy, ringR],

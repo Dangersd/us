@@ -1,5 +1,6 @@
 import SidebarNavItem from "~components/shell/SidebarNavItem";
 import SidebarProfileItem from "~components/shell/SidebarProfileItem";
+import SidebarWordmark from "~components/shell/SidebarWordmark";
 import { NAV_ROOMS, type RoomId } from "~config/rooms";
 import type { AppUser } from "~interfaces/user";
 import { cn } from "~libs/utils";
@@ -23,14 +24,7 @@ const Sidebar = ({ user, activeId }: SidebarProps) => (
         )}
     >
         <div className={cn("mb-6 px-2")}>
-            <span
-                className={cn(
-                    "font-display text-2xl font-medium text-ink-primary",
-                    "tracking-[-0.02em]",
-                )}
-            >
-                us
-            </span>
+            <SidebarWordmark />
         </div>
 
         <nav className={cn("flex flex-col gap-1")}>

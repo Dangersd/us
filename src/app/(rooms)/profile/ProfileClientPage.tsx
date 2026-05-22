@@ -1,7 +1,6 @@
 "use client";
 
 import RoomShell from "~components/shell/RoomShell";
-import { BreathProvider } from "~components/ui/breath-context";
 import {
     AccountSection,
     AchievementsSection,
@@ -9,6 +8,7 @@ import {
     ProfileHeader,
     StatsSection,
 } from "~components/widgets/profile";
+import ThemeSection from "~components/widgets/profile/ThemeSection";
 import { CyclePreviewCard } from "~components/widgets/profile/cycle";
 import { cn } from "~libs/utils";
 import { useCouple } from "~queries/couple/use-couple";
@@ -23,34 +23,31 @@ const ProfileClientPage = () => {
 
     return (
         <RoomShell roomId="profile">
-            <BreathProvider>
-                <div className={cn("flex flex-col gap-2")}>
-                    {me ? (
-                        <>
-                            <ProfileHeader
-                                me={me}
-                                partner={partner ?? null}
-                                couple={couple ?? null}
-                            />
-                            <ImportantDatesSection
-                                me={me}
-                                partner={partner ?? null}
-                                couple={couple ?? null}
-                            />
-                            <StatsSection
-                                me={me}
-                                partner={partner ?? null}
-                                couple={couple ?? null}
-                            />
-                            {me.gender === "female" ? (
-                                <CyclePreviewCard />
-                            ) : null}
-                            <AchievementsSection me={me} />
-                            <AccountSection />
-                        </>
-                    ) : null}
-                </div>
-            </BreathProvider>
+            <div className={cn("flex flex-col gap-2")}>
+                {me ? (
+                    <>
+                        <ProfileHeader
+                            me={me}
+                            partner={partner ?? null}
+                            couple={couple ?? null}
+                        />
+                        <ImportantDatesSection
+                            me={me}
+                            partner={partner ?? null}
+                            couple={couple ?? null}
+                        />
+                        <StatsSection
+                            me={me}
+                            partner={partner ?? null}
+                            couple={couple ?? null}
+                        />
+                        {me.gender === "female" ? <CyclePreviewCard /> : null}
+                        <AchievementsSection me={me} />
+                        <ThemeSection />
+                        <AccountSection />
+                    </>
+                ) : null}
+            </div>
         </RoomShell>
     );
 };

@@ -26,9 +26,11 @@ interface BreathProviderProps {
     children: ReactNode;
 }
 
-// Через 5 минут после mount RAF-цикл сам себя останавливает: подписчики
-// (MoodBlob) застывают на последнем значении формы до перезагрузки страницы.
-const STOP_AFTER_MS = 5 * 60 * 1000;
+// Через 10 минут после mount RAF-цикл сам себя останавливает: подписчики
+// (MoodBlob, SidebarWordmark, PartnerStatus) застывают на последнем значении
+// формы до перезагрузки страницы. 10min — компромисс между «живым домом» и
+// батареей (поднят с 5min при выносе BreathProvider в AppShell на все rooms).
+const STOP_AFTER_MS = 10 * 60 * 1000;
 
 const RAFBreathProvider = ({ children }: BreathProviderProps) => {
     const time = useMotionValue(0);

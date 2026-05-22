@@ -1,7 +1,6 @@
 "use client";
 
 import RoomShell from "~components/shell/RoomShell";
-import { BreathProvider } from "~components/ui/breath-context";
 import {
     MoodCheckinCard,
     MoodHistoryCTA,
@@ -33,24 +32,22 @@ const MoodClientPage = () => {
 
     return (
         <RoomShell roomId="mood">
-            <BreathProvider>
-                <MoodHeader />
-                <MoodPairGlance
-                    userFallbackColor={userFallbackColor}
-                    partnerFallbackColor={partnerFallbackColor}
-                    partnerMissingLabel={partnerMissingLabel}
-                />
-                <MoodCheckinCard
-                    userFallbackColor={userFallbackColor}
-                    userBrightColor={userBrightColor}
-                    userGender={user?.gender ?? null}
-                />
-                <WeekPattern
-                    userFallbackColor={userFallbackColor}
-                    partnerFallbackColor={partnerFallbackColor}
-                />
-                <MoodHistoryCTA />
-            </BreathProvider>
+            <MoodHeader />
+            <MoodPairGlance
+                userFallbackColor={userFallbackColor}
+                partnerFallbackColor={partnerFallbackColor}
+                partnerMissingLabel={partnerMissingLabel}
+            />
+            <MoodCheckinCard
+                userFallbackColor={userFallbackColor}
+                userBrightColor={userBrightColor}
+                userGender={user?.gender ?? null}
+            />
+            <WeekPattern
+                userFallbackColor={userFallbackColor}
+                partnerFallbackColor={partnerFallbackColor}
+            />
+            <MoodHistoryCTA />
         </RoomShell>
     );
 };

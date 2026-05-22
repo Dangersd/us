@@ -13,12 +13,20 @@ import { useCurrentUser } from "~queries/user/use-current-user";
 
 const styles = tv({
     slots: {
-        root: cn("relative flex flex-col items-start gap-2 py-6"),
+        root: cn("relative flex flex-col items-start gap-3 py-6"),
         title: cn(
             "font-display text-3xl md:text-[32px] leading-tight font-medium",
             "text-ink-primary tracking-tight",
         ),
-        subtitle: cn("text-sm text-ink-secondary"),
+        hero: cn("flex flex-col items-start gap-1 mt-2"),
+        heroNumber: cn(
+            "font-display font-medium",
+            "text-[clamp(48px,12vw,72px)] leading-none",
+            "tabular-nums tracking-tight",
+            "text-ink-primary",
+        ),
+        heroLabel: cn("text-sm text-ink-muted lowercase"),
+        heroSub: cn("text-xs text-ink-muted"),
         avatars: cn("flex items-center gap-3"),
     },
 });
@@ -27,7 +35,8 @@ const HomeGreeting = () => {
     const user = useCurrentUser();
     const partner = usePartnerProfile();
     const couple = useCouple();
-    const { root, title, subtitle, avatars } = styles();
+    const { root, title, hero, heroNumber, heroLabel, heroSub, avatars } =
+        styles();
 
     const myName = user.data?.displayName ?? "";
     const days = daysSince(
@@ -37,10 +46,10 @@ const HomeGreeting = () => {
     const hours = days != null ? days * 24 : null;
     // ru-RU локаль форматирует тысячи через NBSP («17 208») — читабельнее
     // на любом размере экрана и не ломается при line-break.
-    const hoursLabel =
-        hours != null
-            ? `${hours.toLocaleString("ru-RU")} ${pluralizeHours(hours)}`
-            : null;
+    const hoursDisplay = hours != null ? hours.toLocaleString("ru-RU") : null;
+    const hoursWord = hours != null ? pluralizeHours(hours) : null;
+    const daysPhrase =
+        days != null ? `${days} ${pluralizeDays(days)} вместе` : null;
 
     return (
         <header className={root()}>
@@ -61,11 +70,14 @@ const HomeGreeting = () => {
                 ) : null}
             </div>
             <h1 className={title()}>Привет{myName ? `, ${myName}` : ""}</h1>
-            {days != null ? (
-                <p className={subtitle()}>
-                    {`Мы знаем друг друга ${days} ${pluralizeDays(days)}`}
-                    {hoursLabel ? ` (${hoursLabel})` : ""}
-                </p>
+            {hoursDisplay && hoursWord ? (
+                <div className={hero()}>
+                    <span className={heroNumber()}>{hoursDisplay}</span>
+                    <span className={heroLabel()}>{hoursWord} вместе</span>
+                    {daysPhrase ? (
+                        <span className={heroSub()}>{daysPhrase}</span>
+                    ) : null}
+                </div>
             ) : null}
         </header>
     );

@@ -41,7 +41,8 @@ const TopBar = ({ user }: TopBarProps) => {
                     <h1
                         className={cn(
                             "absolute left-1/2 -translate-x-1/2",
-                            "font-sans text-sm font-medium text-ink-secondary",
+                            "font-display text-base lowercase tracking-wide",
+                            "text-ink-secondary",
                             "md:hidden",
                         )}
                     >
