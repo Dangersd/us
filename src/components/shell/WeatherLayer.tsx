@@ -60,7 +60,7 @@ const isCoarsePointer = (): boolean => {
 };
 
 const FRAME_INTERVAL_DESKTOP = 1000 / 60;
-const FRAME_INTERVAL_MOBILE = 1000 / 20; // ещё ниже — 20fps
+const FRAME_INTERVAL_MOBILE = 1000 / 35; // ещё ниже — 20fps
 const DENSITY_DESKTOP = 1;
 const DENSITY_MOBILE = 0.3; // ~36 drops вместо 120
 
