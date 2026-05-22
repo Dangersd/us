@@ -7,6 +7,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import WeatherCanvas, {
     type WeatherCanvasHandle,
 } from "~components/shell/WeatherCanvas";
+import WeatherCssRain from "~components/shell/WeatherCssRain";
 import {
     type RainParticle,
     type SnowParticle,
@@ -42,16 +43,20 @@ import { useCurrentWeather } from "~queries/weather/weather";
 // Stuck-drops (стекающие капли) удалены — оставлен только splash при ударе.
 // Pools живут в useRef'ах внутри компонента → HMR safe + cleanup автоматом.
 
-const FRAME_INTERVAL = 1000 / 30; // 30fps cap
+const FRAME_INTERVAL = 1000 / 30; // 30fps cap (desktop canvas path)
 const REFRESH_DEBOUNCE_MS = 150;
 
-// Perf: на coarse pointer (iPhone/iPad) урезаем density частиц вдвое — иначе
-// 120 drops × full-viewport canvas redraw composite'ится с backdrop-blur
-// картами и грузит GPU. 55% density = ~65 drops, всё ещё плотный поток.
-const getDensityFactor = (): number => {
-    if (typeof window === "undefined") return 1;
-    const isCoarse = window.matchMedia?.("(pointer: coarse)")?.matches === true;
-    return isCoarse ? 0.55 : 1;
+// Detect coarse pointer (mobile/tablet). На coarse — WeatherCssRain (pure CSS
+// transform animation, GPU-only). Без canvas / RAF / MutationObserver /
+// surface-tracking. iPhone Safari+Chrome (оба WebKit на iOS) и Android
+// получают значительно более лёгкую версию.
+//
+// SSR-safe: typeof window check возвращает false на сервере; client-side
+// после mount матчмедиа возвращает реальное значение. Detection делается
+// после useSyncExternalStore-mount gate (см. ниже), так что hydration safe.
+const isCoarsePointer = (): boolean => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia?.("(pointer: coarse)")?.matches === true;
 };
 
 // Mount-detection без setState-in-effect (mirror MoodBlob pattern).
@@ -84,6 +89,11 @@ const WeatherLayer = () => {
         enabled: enabled && mounted,
     });
     const reducedMotion = useReducedMotion();
+    // Resolved после mount — на сервере и first-render всегда false (canvas
+    // path), что соответствует isCoarsePointer()===false. Реальное определение
+    // только после mounted=true. До этого canvas-effect не запускается
+    // (всё равно нет weather data).
+    const coarsePointer = mounted ? isCoarsePointer() : false;
 
     const rainCanvasRef = useRef<WeatherCanvasHandle | null>(null);
     const splashCanvasRef = useRef<WeatherCanvasHandle | null>(null);
@@ -98,23 +108,26 @@ const WeatherLayer = () => {
     useEffect(() => {
         if (!enabled || !weather || reducedMotion) return;
         if (weather.state !== "rain" && weather.state !== "snow") return;
+        // На coarse pointer (mobile) canvas/RAF/observer не запускаются —
+        // всё рендерит pure-CSS WeatherCssRain. См. JSX ниже.
+        if (coarsePointer) return;
 
         const rainCanvas = rainCanvasRef.current;
         const splashCanvas = splashCanvasRef.current;
         if (!rainCanvas || !splashCanvas) return;
 
         // State changed → clear splash pool + init new pool
+        // На desktop density=1. Mobile отрабатывается через CSS-rain выше.
         if (stateRef.current !== weather.state) {
             splashPoolRef.current.length = 0;
             rainCanvas.setup();
             splashCanvas.setup();
             const { w, h } = rainCanvas.getSize();
-            const density = getDensityFactor();
             if (weather.state === "rain") {
-                rainPoolRef.current = initRainPool(w, h, density);
+                rainPoolRef.current = initRainPool(w, h);
                 snowPoolRef.current = [];
             } else {
-                snowPoolRef.current = initSnowPool(w, h, density);
+                snowPoolRef.current = initSnowPool(w, h);
                 rainPoolRef.current = [];
             }
             stateRef.current = weather.state;
@@ -143,11 +156,10 @@ const WeatherLayer = () => {
             rainCanvas.setup();
             splashCanvas.setup();
             const { w, h } = rainCanvas.getSize();
-            const density = getDensityFactor();
             if (weather.state === "rain") {
-                rainPoolRef.current = initRainPool(w, h, density);
+                rainPoolRef.current = initRainPool(w, h);
             } else {
-                snowPoolRef.current = initSnowPool(w, h, density);
+                snowPoolRef.current = initSnowPool(w, h);
             }
             scheduleRefresh();
         };
@@ -248,7 +260,7 @@ const WeatherLayer = () => {
             if (resizeTimer) window.clearTimeout(resizeTimer);
             splashPoolRef.current.length = 0;
         };
-    }, [enabled, weather, reducedMotion]);
+    }, [enabled, weather, reducedMotion, coarsePointer]);
 
     if (!mounted || !enabled || !weather) return null;
 
@@ -282,12 +294,19 @@ const WeatherLayer = () => {
                     />
                 ) : null}
             </AnimatePresence>
-            {showCanvases && (
-                <>
-                    <WeatherCanvas ref={rainCanvasRef} zClass="z-1" />
-                    <WeatherCanvas ref={splashCanvasRef} zClass="z-51" />
-                </>
-            )}
+            {showCanvases &&
+                (coarsePointer ? (
+                    // Mobile: pure-CSS rain (без canvas / RAF / observer).
+                    // Splash отключён — компромисс ради 60fps на iPhone.
+                    weather.state === "rain" ? (
+                        <WeatherCssRain state="rain" />
+                    ) : null
+                ) : (
+                    <>
+                        <WeatherCanvas ref={rainCanvasRef} zClass="z-1" />
+                        <WeatherCanvas ref={splashCanvasRef} zClass="z-51" />
+                    </>
+                ))}
         </motion.div>
     );
 };

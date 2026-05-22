@@ -256,3 +256,42 @@
         animation: none;
     }
 }
+
+/* === Phase 2 mobile fallback: CSS-only rain ===
+ *
+ * Coarse-pointer (iPhone/iPad) использует CSS-rain вместо canvas. Каждый drop
+ * это absolute-positioned span 1×14-22px с translateY animation. GPU композитит
+ * transform без main-thread paint — драматически дешевле full-viewport canvas
+ * на phone Safari/Chrome (оба WebKit на iOS). Splash + collision на mobile
+ * отключены.
+ *
+ * height/opacity/left/animation-* задаются inline per drop (см. WeatherCssRain). */
+@utility weather-css-drop {
+    position: absolute;
+    top: 0;
+    width: 1px;
+    background: linear-gradient(
+        to bottom,
+        rgba(244, 237, 228, 0) 0%,
+        rgba(244, 237, 228, 1) 100%
+    );
+    transform: translate3d(0, -30px, 0);
+    will-change: transform;
+    animation: weather-css-rain-fall linear infinite;
+}
+
+@keyframes weather-css-rain-fall {
+    from {
+        transform: translate3d(0, -40px, 0);
+    }
+    to {
+        transform: translate3d(0, 110vh, 0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .weather-css-drop {
+        animation: none;
+        display: none;
+    }
+}

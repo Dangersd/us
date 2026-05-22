@@ -67,6 +67,12 @@ const WIND_PX_PER_MS = 0.45;
 const SNOW_WIND_FACTOR = 0.5;
 const RAIN_MAX_TILT_TAN = 0.055; // ≈ 3.15° от вертикали
 
+// Per-collision dice: половина капель проходит сквозь surface вместо splash.
+// Это позволяет лежащим под верхней карточкой (по z) ИЛИ ниже по вертикали
+// surfaces всё равно получать удары — без этого splash'ы скапливались только
+// на самых верхних cards.
+const RAIN_PASSTHROUGH_PROBABILITY = 0.5;
+
 const rand = (min: number, max: number) => min + Math.random() * (max - min);
 
 // density: 1 = full count (desktop), 0.55 = mobile (coarse pointer). Снижает
@@ -162,15 +168,24 @@ export const updateRainPool = (
         p.y += p.speed;
         p.x += driftForRainParticle(p.speed, windSpeed, p.windFactor);
 
-        // Phase 2 collision: head капли (нижняя точка линии) пересекла surface.top
+        // Phase 2 collision: head капли (нижняя точка линии) пересекла surface.top.
+        // Per-удар roll 50% — pass-through позволяет каплям продолжить падать
+        // и удариться в card/modal ниже по вертикали (или в карточку «под»
+        // верхней по z). Без этого все splash'ы скапливались на самых верхних
+        // surfaces, нижние получали 0 ударов.
         if (surfaces.length > 0 && onCollision) {
             const hit = findTopEdgeHit(p.x, prevY, p.y, surfaces);
             if (hit) {
-                onCollision({ x: p.x, y: hit.rect.top, surface: hit });
-                p.y = -p.length - Math.random() * 50;
-                p.x = Math.random() * width;
-                p.alpha = 0;
-                continue;
+                if (Math.random() < RAIN_PASSTHROUGH_PROBABILITY) {
+                    // pass through — капля продолжает падать. Следующий tick
+                    // снова проверит коллизию с surfaces ниже.
+                } else {
+                    onCollision({ x: p.x, y: hit.rect.top, surface: hit });
+                    p.y = -p.length - Math.random() * 50;
+                    p.x = Math.random() * width;
+                    p.alpha = 0;
+                    continue;
+                }
             }
         }
 
