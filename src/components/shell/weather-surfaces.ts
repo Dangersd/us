@@ -21,9 +21,31 @@ interface CachedEntry {
     el: HTMLElement;
     edge: "top" | "all";
     mountedAt: number;
+    isVisible: boolean; // обновляется IntersectionObserver'ом
 }
 
 let cached: CachedEntry[] = [];
+let intersectionObserver: IntersectionObserver | null = null;
+
+const ensureIntersectionObserver = (): IntersectionObserver | null => {
+    if (typeof window === "undefined") return null;
+    if (intersectionObserver) return intersectionObserver;
+    intersectionObserver = new IntersectionObserver(
+        (entries) => {
+            for (const entry of entries) {
+                const id = (entry.target as HTMLElement).dataset
+                    .weatherSurfaceId;
+                if (!id) continue;
+                const c = cached.find((x) => x.id === id);
+                if (c) c.isVisible = entry.isIntersecting;
+            }
+        },
+        // rootMargin даёт 100px-буфер сверху/снизу, чтобы surfaces которые
+        // только что появились/исчезли не давали мерцание.
+        { rootMargin: "100px" },
+    );
+    return intersectionObserver;
+};
 
 export const GRACE_PERIOD_MS = 350;
 
@@ -54,34 +76,51 @@ const generateId = (): string => {
 
 // Перечисляет surface-элементы и обновляет cache ссылок + IDs. НЕ читает
 // rect'ы здесь — это делает getActiveSurfaces() при каждом запросе.
+// Каждый элемент попадает под IntersectionObserver для visibility tracking.
 export const refreshSurfaceCache = (): void => {
     if (typeof document === "undefined") return;
     const els = document.querySelectorAll<HTMLElement>(
         '[data-weather-surface="true"]',
     );
     const now = Date.now();
-    const prevMountTimes = new Map(cached.map((s) => [s.id, s.mountedAt]));
-    cached = Array.from(els).map((el) => {
+    const prev = new Map(cached.map((s) => [s.id, s]));
+    const observer = ensureIntersectionObserver();
+    // Найдём добавленные/исчезнувшие элементы для observe/unobserve.
+    const nextCached: CachedEntry[] = [];
+    const seenIds = new Set<string>();
+    for (const el of Array.from(els)) {
         if (!el.dataset.weatherSurfaceId) {
             el.dataset.weatherSurfaceId = generateId();
         }
         const id = el.dataset.weatherSurfaceId;
+        seenIds.add(id);
         const edge = el.dataset.weatherSurfaceEdge === "all" ? "all" : "top";
-        return {
-            id,
-            el,
-            edge,
-            mountedAt: prevMountTimes.get(id) ?? now,
-        };
-    });
+        const prevEntry = prev.get(id);
+        if (prevEntry) {
+            // already cached — keep entry, but update edge if changed
+            prevEntry.edge = edge;
+            prevEntry.el = el;
+            nextCached.push(prevEntry);
+        } else {
+            const entry: CachedEntry = {
+                id,
+                el,
+                edge,
+                mountedAt: now,
+                isVisible: false, // станет true когда IO зарегистрирует
+            };
+            nextCached.push(entry);
+            observer?.observe(el);
+        }
+    }
+    // Unobserve элементы которые исчезли из DOM
+    for (const old of cached) {
+        if (!seenIds.has(old.id)) observer?.unobserve(old.el);
+    }
+    cached = nextCached;
     rateLimitedLog(
         "surfaces",
-        `count=${cached.length}`,
-        cached.map((c) => ({
-            id: c.id.slice(0, 8),
-            tag: c.el.tagName,
-            cls: c.el.className?.toString().slice(0, 40),
-        })),
+        `count=${cached.length} visible=${cached.filter((c) => c.isVisible).length}`,
     );
 };
 
@@ -89,8 +128,12 @@ export const getActiveSurfaces = (): SurfaceSnapshot[] => {
     const now = Date.now();
     const result: SurfaceSnapshot[] = [];
     for (const entry of cached) {
+        // Cull off-viewport surfaces — IntersectionObserver сообщает что они
+        // не видны, значит drops по ним не попадают визуально. Это драматически
+        // снижает getBoundingClientRect calls per tick (Wishlist: 30 cards
+        // total, ~5 visible — 5 reads вместо 30).
+        if (!entry.isVisible) continue;
         if (now - entry.mountedAt < GRACE_PERIOD_MS) continue;
-        // ЖИВОЕ чтение rect каждый раз — обязательно для scroll.
         const r = entry.el.getBoundingClientRect();
         result.push({
             id: entry.id,
@@ -111,10 +154,14 @@ export const getActiveSurfaces = (): SurfaceSnapshot[] => {
 export const __resetSurfaceCache = (): void => {
     cached = [];
     lastLogAt.clear();
+    if (intersectionObserver) {
+        intersectionObserver.disconnect();
+        intersectionObserver = null;
+    }
 };
 export const __seedSurfaceCache = (snapshots: SurfaceSnapshot[]): void => {
     // Тестовый seed: создаём fake-элементы с getBoundingClientRect возвращающим
-    // фиксированный rect. Нужно для grace-period теста.
+    // фиксированный rect. Все seed'нутые surfaces считаются visible=true.
     cached = snapshots.map((s) => ({
         id: s.id,
         el: {
@@ -123,6 +170,7 @@ export const __seedSurfaceCache = (snapshots: SurfaceSnapshot[]): void => {
         } as unknown as HTMLElement,
         edge: s.edge,
         mountedAt: s.mountedAt,
+        isVisible: true,
     }));
 };
 

@@ -59,10 +59,10 @@ const isCoarsePointer = (): boolean => {
     return window.matchMedia?.("(pointer: coarse)")?.matches === true;
 };
 
-const FRAME_INTERVAL_DESKTOP = 1000 / 30;
-const FRAME_INTERVAL_MOBILE = 1000 / 24;
+const FRAME_INTERVAL_DESKTOP = 1000 / 60;
+const FRAME_INTERVAL_MOBILE = 1000 / 20; // ещё ниже — 20fps
 const DENSITY_DESKTOP = 1;
-const DENSITY_MOBILE = 0.4;
+const DENSITY_MOBILE = 0.3; // ~36 drops вместо 120
 
 // Mount-detection без setState-in-effect (mirror MoodBlob pattern).
 // Сервер всегда возвращает false → WeatherLayer returns null. Client после
