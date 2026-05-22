@@ -81,12 +81,14 @@ const SoftToastProvider = ({ children }: { children: ReactNode }) => {
     return (
         <SoftToastContext.Provider value={value}>
             {children}
+            {/* aria-live живёт на каждом <SoftToast> (role="status"
+                aria-live="polite"). Дублировать его на контейнере приведёт
+                к двойному анонсу скрин-ридером. */}
             <div
                 className={cn(
                     "pointer-events-none fixed inset-x-0 bottom-6 z-50",
                     "flex flex-col items-center gap-2 px-4",
                 )}
-                aria-live="polite"
             >
                 <AnimatePresence initial={false}>
                     {toasts.map((t) => (

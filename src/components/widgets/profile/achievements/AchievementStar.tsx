@@ -7,17 +7,26 @@ import { cn } from "~libs/utils";
 export interface AchievementStarProps {
     def: AchievementDef;
     unlocked: boolean;
+    onSelect: (def: AchievementDef) => void;
 }
 
 // Звезда в «созвездии». Locked — едва видна. Unlocked — тёплый glow.
-// title-атрибут на native level даёт нативный hover-hint в десктоп-браузерах.
-// На мобиле — текст под звездой («Первая луна») всегда показан мелким.
-const AchievementStar = ({ def, unlocked }: AchievementStarProps) => {
+// Тап/клик открывает detail-модалку с описанием и критерием (см.
+// AchievementDetailModal).
+const AchievementStar = ({ def, unlocked, onSelect }: AchievementStarProps) => {
     const isDormant = !def.enabled;
     return (
-        <div
-            className={cn("flex flex-col items-center gap-1.5 text-center")}
-            title={`${def.title} — ${def.description}`}
+        <button
+            type="button"
+            onClick={() => onSelect(def)}
+            className={cn(
+                "flex flex-col items-center gap-1.5 text-center",
+                "rounded-md p-1",
+                "transition-colors duration-200",
+                "hover:bg-bg-surface-1/60",
+                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus",
+            )}
+            aria-label={`${def.title}${unlocked ? " — получено" : ""}`}
         >
             <StarIcon
                 className={cn(
@@ -37,7 +46,7 @@ const AchievementStar = ({ def, unlocked }: AchievementStarProps) => {
             >
                 {def.title}
             </span>
-        </div>
+        </button>
     );
 };
 

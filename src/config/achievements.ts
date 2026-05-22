@@ -10,7 +10,13 @@ export type AchievementScope = "couple" | "user";
 export interface AchievementDef {
     key: string;
     title: string;
+    // Короткая поэтичная flavor-строка («что это значит»). В detail-модалке
+    // отображается верхним блоком под заголовком.
     description: string;
+    // Точное требование («как получить»). Должно соответствовать критерию
+    // в evaluate_and_unlock_achievements() RPC. В detail-модалке отображается
+    // ниже description.
+    criterion: string;
     scope: AchievementScope;
     // false => звезда рендерится permanently locked, criterion не проверяется
     // в RPC (зарезервировано на v0.2 — например twelve_moons требует cycle-tracker).
@@ -21,91 +27,110 @@ export const ACHIEVEMENTS: readonly AchievementDef[] = [
     {
         key: "first_moon",
         title: "Первая луна",
-        description: "Первый mood check-in",
+        description: "Начало пути в этом саду",
+        criterion: "Сделать первый mood check-in",
         scope: "user",
         enabled: true,
     },
     {
         key: "parallel",
         title: "Параллель",
-        description: "Оба чекнулись в один день",
+        description: "Линии, которые встретились",
+        criterion: "Оба партнёра чекнулись в один день",
         scope: "couple",
         enabled: true,
     },
     {
         key: "hundred_days_acq",
         title: "Сто дней знакомства",
-        description: "100 дней с тех пор как познакомились",
+        description: "Сто дней с момента первой встречи",
+        criterion: "Прошло 100 дней с даты знакомства",
         scope: "couple",
         enabled: true,
     },
     {
         key: "year_together",
         title: "Год вместе",
-        description: "Год отношений",
+        description: "Один полный оборот вокруг солнца",
+        criterion: "Прошёл год с начала отношений",
         scope: "couple",
         enabled: true,
     },
     {
         key: "first_plan",
         title: "Первый план",
-        description: "Первое событие в календаре",
+        description: "Первая нить будущего",
+        criterion: "Создать первое событие в календаре",
         scope: "couple",
         enabled: true,
     },
     {
         key: "wanderers",
         title: "Странники",
-        description: "Побывали в 5 разных местах",
+        description: "Места, которые остались с вами",
+        criterion: "Побывать в 5 разных местах",
         scope: "couple",
         enabled: true,
     },
     {
         key: "keeper",
         title: "Хранитель",
-        description: "30 отмеченных воспоминаний",
+        description: "Тридцать мгновений, которые не растаяли",
+        criterion: "Сохранить 30 воспоминаний",
         scope: "couple",
         enabled: true,
     },
     {
         key: "alchemist",
         title: "Алхимик",
-        description: "50 предметов в wishlist'е",
+        description: "Список того, что превращается в счастье",
+        criterion: "Добавить 50 предметов в wishlist",
         scope: "couple",
         enabled: true,
     },
     {
         key: "full_moon",
         title: "Полнолуние",
-        description: "30 mood check-in'ов",
+        description: "Тридцать лун в твоём журнале настроений",
+        criterion: "Сделать 30 mood check-in'ов",
         scope: "user",
         enabled: true,
     },
     {
         key: "parallel_moods",
         title: "Параллельные настроения",
-        description: "7 дней одинаковая эмоция у обоих",
+        description: "Семь дней общего течения",
+        criterion: "7 дней с одинаковой эмоцией у обоих партнёров",
         scope: "couple",
         enabled: true,
     },
     {
         key: "sunrise",
         title: "Восход",
-        description: "Первый совместный план до полудня",
+        description: "План на рассвет — редкая роскошь",
+        criterion: "Создать событие на время до 12:00",
         scope: "couple",
         enabled: true,
     },
     {
-        key: "twelve_moons",
-        title: "Двенадцать лун",
-        description: "12 циклов отслежено (v0.2)",
-        scope: "user",
-        enabled: false,
+        key: "postcard",
+        title: "Открытка",
+        description: "Первая фотография, прикреплённая к моменту",
+        criterion: "Добавить фото к событию в календаре",
+        scope: "couple",
+        enabled: true,
     },
 ] as const;
 
-export const ACHIEVEMENT_BY_KEY: Record<string, AchievementDef> =
-    Object.fromEntries(ACHIEVEMENTS.map((a) => [a.key, a]));
+// Map вместо plain object — защита от prototype-pollution. Плейн-объект
+// возвращает Object.prototype при key === "__proto__" / "constructor",
+// что прокидывает поддельный «catalog entry» дальше по стеку.
+const ACHIEVEMENT_MAP: Map<string, AchievementDef> = new Map(
+    ACHIEVEMENTS.map((a) => [a.key, a]),
+);
+
+export const ACHIEVEMENT_BY_KEY: ReadonlyMap<string, AchievementDef> =
+    ACHIEVEMENT_MAP;
 
 export const findAchievement = (key: string): AchievementDef | null =>
-    ACHIEVEMENT_BY_KEY[key] ?? null;
+    ACHIEVEMENT_MAP.get(key) ?? null;

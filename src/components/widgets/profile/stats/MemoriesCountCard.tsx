@@ -1,17 +1,12 @@
 import StatCardShell from "~components/widgets/profile/stats/StatCardShell";
+import { pluralizeRu } from "~libs/ru-pluralize";
 import { cn } from "~libs/utils";
 
 export interface MemoriesCountCardProps {
     count: number;
 }
 
-const pluralizeMoments = (n: number): string => {
-    const m10 = n % 10;
-    const m100 = n % 100;
-    if (m10 === 1 && m100 !== 11) return "момент";
-    if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return "момента";
-    return "моментов";
-};
+const MOMENT_FORMS = ["момент", "момента", "моментов"] as const;
 
 const MemoriesCountCard = ({ count }: MemoriesCountCardProps) => {
     if (count <= 0) {
@@ -24,7 +19,7 @@ const MemoriesCountCard = ({ count }: MemoriesCountCardProps) => {
         );
     }
 
-    const noun = pluralizeMoments(count);
+    const noun = pluralizeRu(count, MOMENT_FORMS);
 
     return (
         <StatCardShell title="Воспоминания">

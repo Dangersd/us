@@ -14,17 +14,20 @@ describe("ACHIEVEMENTS catalog", () => {
         }
     });
 
-    it("has non-empty title and description for every entry", () => {
+    it("has non-empty title, description and criterion for every entry", () => {
         for (const a of ACHIEVEMENTS) {
             expect(a.title.length).toBeGreaterThan(0);
             expect(a.description.length).toBeGreaterThan(0);
+            expect(a.criterion.length).toBeGreaterThan(0);
         }
     });
 
-    it("has at least one disabled entry (reserved for v0.2)", () => {
-        const disabled = ACHIEVEMENTS.filter((a) => !a.enabled);
-        expect(disabled.length).toBeGreaterThan(0);
-        expect(disabled.some((a) => a.key === "twelve_moons")).toBe(true);
+    it("has all 12 entries enabled (no disabled stubs left)", () => {
+        // Disabled-stub паттерн ушёл вместе с twelve_moons. Каталог теперь
+        // полностью активный — если что-то нужно отложить, лучше удалить
+        // entry до момента готовности и обновить SQL RPC.
+        expect(ACHIEVEMENTS.every((a) => a.enabled)).toBe(true);
+        expect(ACHIEVEMENTS.length).toBe(12);
     });
 
     it("uses snake_case keys (anchor for RPC criterion mapping)", () => {

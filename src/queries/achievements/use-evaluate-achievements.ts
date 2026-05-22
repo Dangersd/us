@@ -2,10 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import {
-    ACHIEVEMENT_BY_KEY,
-    type AchievementScope,
-} from "~config/achievements";
+import { type AchievementScope, findAchievement } from "~config/achievements";
 import type { NewlyUnlocked } from "~interfaces/achievements";
 import { getBrowserSupabase } from "~libs/supabase/client";
 import { achievementsKeys } from "~queries/achievements/keys";
@@ -33,7 +30,7 @@ export function useEvaluateAchievements() {
             if (!data) return [];
             return (data as EvaluateRpcRow[])
                 .map((r): NewlyUnlocked | null => {
-                    if (!ACHIEVEMENT_BY_KEY[r.key]) return null;
+                    if (!findAchievement(r.key)) return null;
                     if (r.scope !== "couple" && r.scope !== "user") return null;
                     return {
                         key: r.key,

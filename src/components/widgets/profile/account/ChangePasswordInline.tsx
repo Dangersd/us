@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -34,6 +34,16 @@ const ChangePasswordInline = () => {
     const [justSaved, setJustSaved] = useState(false);
     const changePassword = useChangePassword();
 
+    // Success-сообщение «Пароль обновлён» гасится через 4с. Эффект-driven
+    // вместо ref-based setTimeout — cleanup автоматически срабатывает на
+    // unmount или на повторный setJustSaved(true) (когда юзер сразу же
+    // меняет пароль повторно).
+    useEffect(() => {
+        if (!justSaved) return;
+        const timer = setTimeout(() => setJustSaved(false), 4000);
+        return () => clearTimeout(timer);
+    }, [justSaved]);
+
     const formApi = useForm<ChangePasswordFormValues>({
         defaultValues: { newPassword: "", confirmPassword: "" },
         resolver: yupResolver(changePasswordFormSchema),
@@ -49,9 +59,6 @@ const ChangePasswordInline = () => {
             reset({ newPassword: "", confirmPassword: "" });
             setOpen(false);
             setJustSaved(true);
-            // Сообщение «пароль обновлён» исчезает через 4с — пусть юзер
-            // увидел и забыл.
-            setTimeout(() => setJustSaved(false), 4000);
         } catch (e) {
             const msg = e instanceof Error ? e.message : "Не удалось обновить";
             setError("newPassword", { message: msg });

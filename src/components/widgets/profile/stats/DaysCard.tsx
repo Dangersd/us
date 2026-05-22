@@ -23,9 +23,9 @@ const DaysCard = ({ acquaintedDays, togetherDays }: DaysCardProps) => {
 
     return (
         <StatCardShell title="Дни">
-            <div className={cn("flex items-baseline gap-4 flex-wrap")}>
+            <div className={cn("flex w-full flex-col gap-8 items-baseline")}>
                 {hasAcq ? (
-                    <div className={cn("flex flex-col")}>
+                    <div className={cn("flex text-start w-full flex-col")}>
                         <span
                             className={cn(
                                 "font-display text-5xl text-ink-primary",
@@ -39,7 +39,7 @@ const DaysCard = ({ acquaintedDays, togetherDays }: DaysCardProps) => {
                     </div>
                 ) : null}
                 {hasTogether ? (
-                    <div className={cn("flex flex-col")}>
+                    <div className={cn("flex text-start w-full flex-col")}>
                         <span
                             className={cn(
                                 "font-display text-5xl text-ink-primary",

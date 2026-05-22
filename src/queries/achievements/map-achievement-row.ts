@@ -1,7 +1,4 @@
-import {
-    ACHIEVEMENT_BY_KEY,
-    type AchievementScope,
-} from "~config/achievements";
+import { type AchievementScope, findAchievement } from "~config/achievements";
 import type { AchievementUnlock } from "~interfaces/achievements";
 
 // Сырой row из RPC возвращается как PostgREST JSON (snake_case).
@@ -17,7 +14,7 @@ export interface AchievementUnlockRow {
 export function mapAchievementRow(
     row: AchievementUnlockRow,
 ): AchievementUnlock | null {
-    if (!ACHIEVEMENT_BY_KEY[row.key]) return null;
+    if (!findAchievement(row.key)) return null;
     if (row.scope !== "couple" && row.scope !== "user") return null;
     return {
         key: row.key,
