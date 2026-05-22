@@ -4,7 +4,7 @@ import { tv } from "tailwind-variants";
 
 import AvatarLink from "~components/shell/AvatarLink";
 import { COUPLE_TZ, todayDateString } from "~libs/date";
-import { pluralizeDays, pluralizeHours } from "~libs/ru-pluralize";
+import { pluralizeDays } from "~libs/ru-pluralize";
 import { daysSince } from "~libs/time-of-day";
 import { cn } from "~libs/utils";
 import { useCouple } from "~queries/couple/use-couple";
@@ -26,7 +26,6 @@ const styles = tv({
             "text-ink-primary",
         ),
         heroLabel: cn("text-sm text-ink-muted lowercase"),
-        heroSub: cn("text-xs text-ink-muted"),
         avatars: cn("flex items-center gap-3"),
     },
 });
@@ -35,21 +34,17 @@ const HomeGreeting = () => {
     const user = useCurrentUser();
     const partner = usePartnerProfile();
     const couple = useCouple();
-    const { root, title, hero, heroNumber, heroLabel, heroSub, avatars } =
-        styles();
+    const { root, title, hero, heroNumber, heroLabel, avatars } = styles();
 
     const myName = user.data?.displayName ?? "";
     const days = daysSince(
         couple.data?.relationshipStartDate ?? null,
         todayDateString(COUPLE_TZ),
     );
-    const hours = days != null ? days * 24 : null;
-    // ru-RU локаль форматирует тысячи через NBSP («17 208») — читабельнее
+    // ru-RU локаль форматирует тысячи через NBSP («1 245») — читабельнее
     // на любом размере экрана и не ломается при line-break.
-    const hoursDisplay = hours != null ? hours.toLocaleString("ru-RU") : null;
-    const hoursWord = hours != null ? pluralizeHours(hours) : null;
-    const daysPhrase =
-        days != null ? `${days} ${pluralizeDays(days)} вместе` : null;
+    const daysDisplay = days != null ? days.toLocaleString("ru-RU") : null;
+    const daysWord = days != null ? pluralizeDays(days) : null;
 
     return (
         <header className={root()}>
@@ -70,13 +65,10 @@ const HomeGreeting = () => {
                 ) : null}
             </div>
             <h1 className={title()}>Привет{myName ? `, ${myName}` : ""}</h1>
-            {hoursDisplay && hoursWord ? (
+            {daysDisplay && daysWord ? (
                 <div className={hero()}>
-                    <span className={heroNumber()}>{hoursDisplay}</span>
-                    <span className={heroLabel()}>{hoursWord} вместе</span>
-                    {daysPhrase ? (
-                        <span className={heroSub()}>{daysPhrase}</span>
-                    ) : null}
+                    <span className={heroNumber()}>{daysDisplay}</span>
+                    <span className={heroLabel()}>{daysWord} вместе</span>
                 </div>
             ) : null}
         </header>
