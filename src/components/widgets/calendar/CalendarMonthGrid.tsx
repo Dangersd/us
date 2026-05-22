@@ -21,6 +21,7 @@ import { useEventsRange } from "~queries/calendar";
 import { dayPhaseToken, extractPeriodStarts } from "~queries/cycle";
 import { useCycleHistory } from "~queries/cycle/use-cycle-history";
 import { useCycleMonth } from "~queries/cycle/use-cycle-month";
+import { useMyPhase } from "~queries/cycle/use-my-phase";
 import { useCurrentUser } from "~queries/user/use-current-user";
 
 interface CalendarMonthGridProps {
@@ -79,14 +80,16 @@ const CalendarMonthGrid = ({ ym, selectedDay }: CalendarMonthGridProps) => {
     const isFemale = me?.gender === "female";
     const { data: cycleMonth } = useCycleMonth(ym);
     const { data: cycleHistory } = useCycleHistory(180);
+    // avgLen берём из compute_my_phase RPC (single source of truth, адаптивно
+    // обновляется AFTER trigger'ом в cycle_adaptive миграции). Fallback 28
+    // только когда нет данных вообще.
+    const { data: myPhase } = useMyPhase();
 
     const cycleByDate = useMemo<Map<string, CyclePhaseToken>>(() => {
         if (!isFemale) return new Map();
         const periodStarts = extractPeriodStarts(cycleHistory ?? []);
         const map = new Map<string, CyclePhaseToken>();
-        // avgLen в overlay'е — берём 28 если нет cycleHistory с >=2 циклами.
-        // Точная middle-ground; для precise значения юзер открывает /profile/cycle.
-        const avgLen = 28;
+        const avgLen = myPhase?.cycleLength ?? 28;
         const entries = cycleMonth ?? [];
         const days = buildMonthDays(ym);
         for (const d of days) {
@@ -94,7 +97,7 @@ const CalendarMonthGrid = ({ ym, selectedDay }: CalendarMonthGridProps) => {
             if (token !== "none") map.set(d, token);
         }
         return map;
-    }, [isFemale, cycleHistory, cycleMonth, ym]);
+    }, [isFemale, cycleHistory, cycleMonth, myPhase?.cycleLength, ym]);
 
     const occurrencesByDate = useMemo(
         () => indexByDate(occurrences),

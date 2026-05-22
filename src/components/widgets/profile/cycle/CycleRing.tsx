@@ -21,16 +21,18 @@ const CIRC = 2 * Math.PI * RADIUS;
 const styles = tv({
     slots: {
         root: cn("relative flex h-32 w-32 items-center justify-center"),
-        labelTop: cn(
-            "absolute top-3 left-0 right-0 text-center text-ink-muted text-[9px]",
+        center: cn(
+            "relative z-10 flex flex-col items-center justify-center gap-0.5",
+            "leading-none",
         ),
+        labelTop: cn("text-ink-muted text-[9px] leading-none"),
         num: cn("font-display text-ink-primary text-[26px] leading-none"),
-        unit: cn("text-ink-secondary text-[10px] mt-1"),
+        unit: cn("text-ink-secondary text-[10px] leading-none"),
     },
 });
 
 const CycleRing = ({ phase, periodStarts }: CycleRingProps) => {
-    const { root, labelTop, num, unit } = styles();
+    const { root, center, labelTop, num, unit } = styles();
 
     const daysTo = phase?.daysToNextPeriod ?? null;
     const cycleLen = phase?.cycleLength ?? 28;
@@ -93,7 +95,7 @@ const CycleRing = ({ phase, periodStarts }: CycleRingProps) => {
                     />
                 ))}
             </svg>
-            <div className={cn("relative z-10 flex flex-col items-center")}>
+            <div className={center()}>
                 <span className={labelTop()}>до периода</span>
                 {daysTo !== null ? (
                     <>

@@ -158,6 +158,7 @@ const CycleLogModalInner = ({ open, onClose, date, existing }: InnerProps) => {
                                 type="button"
                                 onClick={() => updateFlow(null)}
                                 className={cn(
+                                    flowBtn(),
                                     periodFlow === null ? flowOn() : flowNone(),
                                 )}
                             >

@@ -23,6 +23,7 @@ import { createFetchEventsRangeServerQuery } from "~queries/calendar/fetch-event
 import { createFetchIdeasServerQuery } from "~queries/calendar/fetch-ideas.server";
 import { createFetchCycleHistoryServerQuery } from "~queries/cycle/fetch-cycle-history.server";
 import { createFetchCycleMonthServerQuery } from "~queries/cycle/fetch-cycle-month.server";
+import { createFetchMyPhaseServerQuery } from "~queries/cycle/fetch-my-phase.server";
 import { createFetchPartnerProfileServerQuery } from "~queries/profile/fetch-partner-profile.server";
 import {
     createFetchCurrentUserServerQuery,
@@ -107,6 +108,10 @@ const CalendarPage = async ({ searchParams }: CalendarPageProps) => {
                 .catch(() => undefined),
             queryClient
                 .prefetchQuery(createFetchCycleHistoryServerQuery(180))
+                .catch(() => undefined),
+            // myPhase для адаптивного avgLen в cycle overlay (см. #2 fix).
+            queryClient
+                .prefetchQuery(createFetchMyPhaseServerQuery())
                 .catch(() => undefined),
         );
     }
