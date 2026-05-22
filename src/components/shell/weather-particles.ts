@@ -69,10 +69,18 @@ const RAIN_MAX_TILT_TAN = 0.055; // ≈ 3.15° от вертикали
 
 const rand = (min: number, max: number) => min + Math.random() * (max - min);
 
-export const initRainPool = (width: number, height: number): RainParticle[] => {
+// density: 1 = full count (desktop), 0.55 = mobile (coarse pointer). Снижает
+// CPU + GC + composite cost на iPhone Safari без визуальной деградации (rain
+// на 65 drops остаётся плотным потоком).
+export const initRainPool = (
+    width: number,
+    height: number,
+    density = 1,
+): RainParticle[] => {
     const pool: RainParticle[] = [];
     RAIN_LAYERS.forEach(([count, speedMul, sizeMul, baseAlpha], layerIdx) => {
-        for (let i = 0; i < count; i += 1) {
+        const adjusted = Math.max(2, Math.round(count * density));
+        for (let i = 0; i < adjusted; i += 1) {
             pool.push({
                 layer: layerIdx as 0 | 1 | 2,
                 x: Math.random() * width,
@@ -88,10 +96,15 @@ export const initRainPool = (width: number, height: number): RainParticle[] => {
     return pool;
 };
 
-export const initSnowPool = (width: number, height: number): SnowParticle[] => {
+export const initSnowPool = (
+    width: number,
+    height: number,
+    density = 1,
+): SnowParticle[] => {
     const pool: SnowParticle[] = [];
     SNOW_LAYERS.forEach(([count, speedMul, sizeMul, baseAlpha], layerIdx) => {
-        for (let i = 0; i < count; i += 1) {
+        const adjusted = Math.max(2, Math.round(count * density));
+        for (let i = 0; i < adjusted; i += 1) {
             pool.push({
                 layer: layerIdx as 0 | 1 | 2,
                 x: Math.random() * width,
@@ -208,18 +221,19 @@ export const drawRainPool = (
     pool: RainParticle[],
     windSpeed: number,
 ): void => {
+    // Performance: flat alpha stroke вместо head-to-tail gradient. Было
+    // ctx.createLinearGradient per-drop per-frame = 3600 alloc/sec при 120 drops
+    // × 30fps — основной источник GC давления на iPhone Safari. На motion-blur
+    // 30fps разница между gradient и flat stroke неотличима.
     ctx.lineCap = "round";
     for (let i = 0; i < pool.length; i += 1) {
         const p = pool[i];
         if (p.alpha < 0.005) continue;
-        // Тот же clamped drift, что и в updateRainPool, чтобы линия капли
-        // совпадала с её фактической траекторией (max ~3° от вертикали).
+        // Тот же clamped drift, что и в updateRainPool — линия капли совпадает
+        // с её траекторией (max ~3° от вертикали).
         const gx = driftForRainParticle(p.speed, windSpeed, p.windFactor);
         const gy = p.length;
-        const grad = ctx.createLinearGradient(p.x - gx, p.y - gy, p.x, p.y);
-        grad.addColorStop(0, `rgba(${RAIN_COLOR}, 0)`);
-        grad.addColorStop(1, `rgba(${RAIN_COLOR}, ${p.alpha})`);
-        ctx.strokeStyle = grad;
+        ctx.strokeStyle = `rgba(${RAIN_COLOR}, ${p.alpha})`;
         ctx.lineWidth = p.layer === 2 ? 1.4 : p.layer === 1 ? 1.1 : 0.9;
         ctx.beginPath();
         ctx.moveTo(p.x - gx, p.y - gy);

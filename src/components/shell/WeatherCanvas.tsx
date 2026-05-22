@@ -34,7 +34,13 @@ const WeatherCanvas = forwardRef<WeatherCanvasHandle, Props>(
             if (!ctx) return;
             const w = window.innerWidth;
             const h = window.innerHeight;
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            // Perf: на coarse pointer (mobile/tablet) cap DPR at 1.5 вместо 2.
+            // iPhone 15 native DPR=3 → 1.5 даёт -44% pixel area vs cap=2 без
+            // заметной потери крутизны на тонких rain lines.
+            const isCoarse =
+                window.matchMedia?.("(pointer: coarse)")?.matches === true;
+            const dprCap = isCoarse ? 1.5 : 2;
+            const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
             canvas.width = w * dpr;
             canvas.height = h * dpr;
             canvas.style.width = `${w}px`;

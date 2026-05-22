@@ -45,6 +45,15 @@ import { useCurrentWeather } from "~queries/weather/weather";
 const FRAME_INTERVAL = 1000 / 30; // 30fps cap
 const REFRESH_DEBOUNCE_MS = 150;
 
+// Perf: на coarse pointer (iPhone/iPad) урезаем density частиц вдвое — иначе
+// 120 drops × full-viewport canvas redraw composite'ится с backdrop-blur
+// картами и грузит GPU. 55% density = ~65 drops, всё ещё плотный поток.
+const getDensityFactor = (): number => {
+    if (typeof window === "undefined") return 1;
+    const isCoarse = window.matchMedia?.("(pointer: coarse)")?.matches === true;
+    return isCoarse ? 0.55 : 1;
+};
+
 // Mount-detection без setState-in-effect (mirror MoodBlob pattern).
 // Сервер всегда возвращает false → WeatherLayer returns null. Client после
 // hydration → true. Это гарантирует одинаковый tree-shape на сервере и при
@@ -94,17 +103,18 @@ const WeatherLayer = () => {
         const splashCanvas = splashCanvasRef.current;
         if (!rainCanvas || !splashCanvas) return;
 
-        // State changed → clear splash pool
+        // State changed → clear splash pool + init new pool
         if (stateRef.current !== weather.state) {
             splashPoolRef.current.length = 0;
             rainCanvas.setup();
             splashCanvas.setup();
             const { w, h } = rainCanvas.getSize();
+            const density = getDensityFactor();
             if (weather.state === "rain") {
-                rainPoolRef.current = initRainPool(w, h);
+                rainPoolRef.current = initRainPool(w, h, density);
                 snowPoolRef.current = [];
             } else {
-                snowPoolRef.current = initSnowPool(w, h);
+                snowPoolRef.current = initSnowPool(w, h, density);
                 rainPoolRef.current = [];
             }
             stateRef.current = weather.state;
@@ -133,10 +143,11 @@ const WeatherLayer = () => {
             rainCanvas.setup();
             splashCanvas.setup();
             const { w, h } = rainCanvas.getSize();
+            const density = getDensityFactor();
             if (weather.state === "rain") {
-                rainPoolRef.current = initRainPool(w, h);
+                rainPoolRef.current = initRainPool(w, h, density);
             } else {
-                snowPoolRef.current = initSnowPool(w, h);
+                snowPoolRef.current = initSnowPool(w, h, density);
             }
             scheduleRefresh();
         };
@@ -197,9 +208,11 @@ const WeatherLayer = () => {
             if (!rainCtx || !splashCtx) return;
 
             rainCtx.clearRect(0, 0, w, h);
-            splashCtx.clearRect(0, 0, w, h);
 
             if (weather.state === "rain") {
+                // Splash canvas очищаем и используем только при rain.
+                // При snow — clearRect на полный viewport был зря.
+                splashCtx.clearRect(0, 0, w, h);
                 updateRainPool(
                     rainPoolRef.current,
                     w,
@@ -221,7 +234,8 @@ const WeatherLayer = () => {
                     false,
                 );
                 drawSnowPool(rainCtx, snowPoolRef.current);
-                // splashCtx остаётся чистым — снег не разбивается
+                // splash canvas НЕ трогаем — снег не разбивается, и пустой
+                // clearRect на полный viewport — лишняя композитная работа.
             }
         };
         rafId = requestAnimationFrame(tick);
