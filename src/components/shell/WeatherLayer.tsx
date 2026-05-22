@@ -7,7 +7,6 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import WeatherCanvas, {
     type WeatherCanvasHandle,
 } from "~components/shell/WeatherCanvas";
-import WeatherCssRain from "~components/shell/WeatherCssRain";
 import {
     type RainParticle,
     type SnowParticle,
@@ -43,21 +42,27 @@ import { useCurrentWeather } from "~queries/weather/weather";
 // Stuck-drops (стекающие капли) удалены — оставлен только splash при ударе.
 // Pools живут в useRef'ах внутри компонента → HMR safe + cleanup автоматом.
 
-const FRAME_INTERVAL = 1000 / 30; // 30fps cap (desktop canvas path)
 const REFRESH_DEBOUNCE_MS = 150;
 
-// Detect coarse pointer (mobile/tablet). На coarse — WeatherCssRain (pure CSS
-// transform animation, GPU-only). Без canvas / RAF / MutationObserver /
-// surface-tracking. iPhone Safari+Chrome (оба WebKit на iOS) и Android
-// получают значительно более лёгкую версию.
+// Per-device profile. iPhone Safari/Chrome (оба WebKit на iOS) тянут canvas
+// рендеринг ощутимо хуже desktop chip'ов из-за compositor cost с backdrop-blur
+// картами. Mobile path использует тот же canvas pipeline (collision/splash
+// сохраняются), но с агрессивными cuts:
+//   - DPR 1.0 vs 2.0 → -66% pixel area на iPhone 15 (native DPR 3)
+//   - density 0.4 vs 1.0 → ~48 drops вместо 120
+//   - 24fps vs 30fps → -20% per-frame работы
 //
-// SSR-safe: typeof window check возвращает false на сервере; client-side
-// после mount матчмедиа возвращает реальное значение. Detection делается
-// после useSyncExternalStore-mount gate (см. ниже), так что hydration safe.
+// SSR-safe: typeof window check возвращает false на сервере. Mobile detection
+// делается после useSyncExternalStore-mount gate (см. ниже) — hydration safe.
 const isCoarsePointer = (): boolean => {
     if (typeof window === "undefined") return false;
     return window.matchMedia?.("(pointer: coarse)")?.matches === true;
 };
+
+const FRAME_INTERVAL_DESKTOP = 1000 / 30;
+const FRAME_INTERVAL_MOBILE = 1000 / 24;
+const DENSITY_DESKTOP = 1;
+const DENSITY_MOBILE = 0.4;
 
 // Mount-detection без setState-in-effect (mirror MoodBlob pattern).
 // Сервер всегда возвращает false → WeatherLayer returns null. Client после
@@ -108,26 +113,28 @@ const WeatherLayer = () => {
     useEffect(() => {
         if (!enabled || !weather || reducedMotion) return;
         if (weather.state !== "rain" && weather.state !== "snow") return;
-        // На coarse pointer (mobile) canvas/RAF/observer не запускаются —
-        // всё рендерит pure-CSS WeatherCssRain. См. JSX ниже.
-        if (coarsePointer) return;
 
         const rainCanvas = rainCanvasRef.current;
         const splashCanvas = splashCanvasRef.current;
         if (!rainCanvas || !splashCanvas) return;
 
+        // Per-device tuning resolved once per effect run.
+        const frameInterval = coarsePointer
+            ? FRAME_INTERVAL_MOBILE
+            : FRAME_INTERVAL_DESKTOP;
+        const density = coarsePointer ? DENSITY_MOBILE : DENSITY_DESKTOP;
+
         // State changed → clear splash pool + init new pool
-        // На desktop density=1. Mobile отрабатывается через CSS-rain выше.
         if (stateRef.current !== weather.state) {
             splashPoolRef.current.length = 0;
             rainCanvas.setup();
             splashCanvas.setup();
             const { w, h } = rainCanvas.getSize();
             if (weather.state === "rain") {
-                rainPoolRef.current = initRainPool(w, h);
+                rainPoolRef.current = initRainPool(w, h, density);
                 snowPoolRef.current = [];
             } else {
-                snowPoolRef.current = initSnowPool(w, h);
+                snowPoolRef.current = initSnowPool(w, h, density);
                 rainPoolRef.current = [];
             }
             stateRef.current = weather.state;
@@ -157,9 +164,9 @@ const WeatherLayer = () => {
             splashCanvas.setup();
             const { w, h } = rainCanvas.getSize();
             if (weather.state === "rain") {
-                rainPoolRef.current = initRainPool(w, h);
+                rainPoolRef.current = initRainPool(w, h, density);
             } else {
-                snowPoolRef.current = initSnowPool(w, h);
+                snowPoolRef.current = initSnowPool(w, h, density);
             }
             scheduleRefresh();
         };
@@ -210,7 +217,7 @@ const WeatherLayer = () => {
 
         const tick = (ts: number) => {
             rafId = requestAnimationFrame(tick);
-            if (ts - lastFrame < FRAME_INTERVAL) return;
+            if (ts - lastFrame < frameInterval) return;
             lastFrame = ts;
 
             const surfaces = getActiveSurfaces();
@@ -222,9 +229,10 @@ const WeatherLayer = () => {
             rainCtx.clearRect(0, 0, w, h);
 
             if (weather.state === "rain") {
-                // Splash canvas очищаем и используем только при rain.
-                // При snow — clearRect на полный viewport был зря.
-                splashCtx.clearRect(0, 0, w, h);
+                // Skip splash canvas работу когда pool пустой — full-viewport
+                // clearRect + draw loop впустую съедает кадр на mobile.
+                const hasSplash = splashPoolRef.current.length > 0;
+                if (hasSplash) splashCtx.clearRect(0, 0, w, h);
                 updateRainPool(
                     rainPoolRef.current,
                     w,
@@ -236,7 +244,14 @@ const WeatherLayer = () => {
                 );
                 drawRainPool(rainCtx, rainPoolRef.current, windRef.current);
                 updateSplashPool(splashPoolRef.current);
-                drawSplashPool(splashCtx, splashPoolRef.current);
+                // Draw only if pool has active particles after update.
+                if (splashPoolRef.current.length > 0) {
+                    // Если до update'а splash pool был пуст но новые spawn'ы
+                    // появились в onCollision этого же tick'а — clearRect не
+                    // вызвался выше. Гарантируем чистый canvas перед draw.
+                    if (!hasSplash) splashCtx.clearRect(0, 0, w, h);
+                    drawSplashPool(splashCtx, splashPoolRef.current);
+                }
             } else {
                 updateSnowPool(
                     snowPoolRef.current,
@@ -294,19 +309,12 @@ const WeatherLayer = () => {
                     />
                 ) : null}
             </AnimatePresence>
-            {showCanvases &&
-                (coarsePointer ? (
-                    // Mobile: pure-CSS rain (без canvas / RAF / observer).
-                    // Splash отключён — компромисс ради 60fps на iPhone.
-                    weather.state === "rain" ? (
-                        <WeatherCssRain state="rain" />
-                    ) : null
-                ) : (
-                    <>
-                        <WeatherCanvas ref={rainCanvasRef} zClass="z-1" />
-                        <WeatherCanvas ref={splashCanvasRef} zClass="z-51" />
-                    </>
-                ))}
+            {showCanvases && (
+                <>
+                    <WeatherCanvas ref={rainCanvasRef} zClass="z-1" />
+                    <WeatherCanvas ref={splashCanvasRef} zClass="z-51" />
+                </>
+            )}
         </motion.div>
     );
 };
