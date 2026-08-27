@@ -21,7 +21,7 @@ const BottomNav = ({ activeId }: BottomNavProps) => (
             "pb-[env(safe-area-inset-bottom)] pt-2",
         )}
     >
-        <Container size="xl">
+        <Container size="md">
             <ul className={cn("flex h-16 items-center justify-around")}>
                 {NAV_ROOMS.map((room) => (
                     <li key={room.id}>

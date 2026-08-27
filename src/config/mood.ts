@@ -8,8 +8,10 @@ import type {
 } from "~interfaces/mood";
 
 // =========================================================
-// 8 эмоций — id, RU-label, цвет blob'а.
+// Эмоции — id, RU-label, цвет blob'а.
 // Цвета — приглушённые, в духе night-mode палитры.
+// retired-эмоции не показываются в пикере (см. PICKER_EMOTIONS),
+// но нужны для рендера старых mood_entries.
 // =========================================================
 
 export const EMOTIONS: readonly EmotionMeta[] = [
@@ -17,6 +19,7 @@ export const EMOTIONS: readonly EmotionMeta[] = [
         id: "warm",
         labels: { male: "тёплый", female: "тёплая" },
         color: "#FFC9A8",
+        retired: true,
     },
     // Лиловый per docs/03-rooms/mood.md ("спокойствие → лиловый") + ambient
     // комнаты #E8B4FF. Софт-пастель того же семейства, что warm/tender.
@@ -54,8 +57,14 @@ export const EMOTIONS: readonly EmotionMeta[] = [
         id: "empty",
         labels: { male: "опустошённый", female: "опустошённая" },
         color: "#6F6677",
+        retired: true,
     },
 ] as const;
+
+// Только для EmotionPicker: 6 актуальных эмоций (2 ряда по 3 на мобилке).
+export const PICKER_EMOTIONS: readonly EmotionMeta[] = EMOTIONS.filter(
+    (e) => !e.retired,
+);
 
 export const EMOTION_BY_ID: Record<EmotionId, EmotionMeta> = Object.fromEntries(
     EMOTIONS.map((e) => [e.id, e]),

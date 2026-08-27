@@ -49,4 +49,9 @@ export interface EmotionMeta {
     id: EmotionId;
     labels: Record<Gender, string>;
     color: string; // hex
+    /**
+     * Убрана из пикера, но остаётся в EMOTION_BY_ID / EMOTION_ICONS —
+     * старые mood_entries с этим id должны продолжать рендериться.
+     */
+    retired?: true;
 }

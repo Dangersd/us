@@ -3,7 +3,7 @@
 import { tv } from "tailwind-variants";
 
 import Button from "~components/ui/Button";
-import { EMOTIONS, emotionLabel } from "~config/mood";
+import { PICKER_EMOTIONS, emotionLabel } from "~config/mood";
 import { EMOTION_ICONS } from "~icons/emotions";
 import type { EmotionId } from "~interfaces/mood";
 import type { Gender } from "~interfaces/user";
@@ -19,11 +19,11 @@ interface EmotionPickerProps {
 }
 
 // role="group" (не radiogroup) — radiogroup требует roving tabindex + arrow nav,
-// что overhead для 8-emotion grid'а. Каждый button сам по себе a11y-валиден
+// что overhead для 6-emotion grid'а. Каждый button сам по себе a11y-валиден
 // + aria-pressed сообщает selected-state (review P0 EmotionPicker).
 const styles = tv({
     slots: {
-        grid: cn("grid grid-cols-4 gap-3", "md:grid-cols-8"),
+        grid: cn("grid grid-cols-3 gap-3", "md:grid-cols-6"),
         cell: cn(
             "h-auto flex flex-col items-center justify-center gap-1",
             "min-h-16 px-2 py-2 rounded-md",
@@ -60,7 +60,7 @@ const EmotionPicker = ({
             role="group"
             aria-label="Эмоция дня"
         >
-            {EMOTIONS.map((meta) => {
+            {PICKER_EMOTIONS.map((meta) => {
                 const Icon = EMOTION_ICONS[meta.id];
                 const isSelected = value === meta.id;
                 const label = emotionLabel(meta.id, gender);

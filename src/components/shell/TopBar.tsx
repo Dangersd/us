@@ -29,7 +29,7 @@ const TopBar = ({ user }: TopBarProps) => {
                 "pt-[env(safe-area-inset-top)]",
             )}
         >
-            <Container size="xl">
+            <Container size="md">
                 <div
                     className={cn(
                         "relative flex h-14 items-center justify-between",
